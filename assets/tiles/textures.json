@@ -1,0 +1,12 @@
+{ "tilesize":16,
+ "tiles":[
+       {
+         "name":"grass",
+         "image":"grass.png"
+       }, 
+       {
+        "name":"water",
+        "image":"water.png"
+       } 
+]
+}
