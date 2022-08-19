@@ -3,10 +3,15 @@
        {
          "name":"grass",
          "image":"grass.png"
+         
        }, 
        {
         "name":"water",
         "image":"water.png"
-       } 
+       }, 
+       {
+        "name":"sand",
+        "image":"sand.png"
+       }
 ]
 }

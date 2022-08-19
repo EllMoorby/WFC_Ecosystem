@@ -1,5 +1,5 @@
 import pygame
-from WaveFunctionCollapse import GetPossibleTiles
+from WaveFunctionCollapse import *
 from constants import *
 from engine import Engine
 engine = Engine()
@@ -7,9 +7,9 @@ engine = Engine()
 screen = pygame.display.set_mode([SCREENWIDTH, SCREENHEIGHT])
 screen.fill([0, 0, 0])
 
-tiles = GetPossibleTiles()
-for tile in tiles:
-    print(tile.name)
+
+GenerateMap()
+
 playing = True
 while playing:
     for event in pygame.event.get():
