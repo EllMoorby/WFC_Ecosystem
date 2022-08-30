@@ -2,16 +2,40 @@
  "tiles":[
        {
          "name":"grass",
-         "image":"grass.png"
+         "image":"grass.png",
+         "adjacency":["grass","sand","flower"],
+         "bias":{"grass":400.0,"sand":0.1},
+         "weight":200
          
        }, 
        {
         "name":"water",
-        "image":"water.png"
+        "image":"water.png",
+        "adjacency":["water","sand"],
+        "bias":{"water":0.1,"sand":0.1},
+        "weight":30
        }, 
        {
         "name":"sand",
-        "image":"sand.png"
+        "image":"sand.png",
+        "adjacency":["water","sand","grass"],
+        "bias":{"water":2.0,"grass":2.0},
+        "weight":0.1
+       },
+       {
+        "name":"flower",
+        "image":"flower.png",
+        "adjacency":["grass","flower","sand"],
+        "bias":{"flower":2.0,"sand":0.1,"grass":20.0},
+        "weight":20
+       },
+       {
+        "name":"seaweed",
+        "image":"seaweed.png",
+        "adjacency":["water","sand"],
+        "bias":{"water":2.0},
+        "weight":20
        }
-]
+  ]
+
 }
