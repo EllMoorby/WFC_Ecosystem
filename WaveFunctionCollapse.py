@@ -74,9 +74,10 @@ def Observe(world):
     if len(cells.keys()) == 0:
         return -1
 
-    randomkey = random.choices(list(cells.keys()), weights = WEIGHTS[:len(cells.keys())], k=1)
-    print(WEIGHTS[:len(cells.keys())])
-    print(cells.keys())
+    keylist = list(cells.keys())
+    keylist.sort()
+    randomkey = random.choices(keylist, weights = WEIGHTS[:len(cells.keys())], k=1)
+    print(keylist)
     print(randomkey)
     #print(cells[randomkey[0]])
     return random.choice(cells[(randomkey[0])])
@@ -99,7 +100,7 @@ def Propogate(cell,world):
     for y in range(-1,2):
         for x in range(-1,2):
             try:
-                if x==y==0:
+                if x==y==0 or not(0 <= cell.position[0]+x <= 9) or not(0 <= cell.position[1]+y <= 9):
                     raise ValueError
                 Collapse(cell,world[cell.position[0]+x][cell.position[1]+y]) #collapse items not in the tiles adjacencylist from the other cells possible tiles
             except:
@@ -134,6 +135,7 @@ def WFC(world):
     print()
     cell.possibletiles = []
     Propogate(cell,world)
+    PrintWorld(world)
     WFC(world)
 
 
@@ -151,10 +153,10 @@ def GenerateMap():
 
         print("__________")
     world = []
-    for celly in range(SCREENHEIGHT // CELLSIZE):
+    for cellx in range(SCREENHEIGHT // CELLSIZE):
         world.append([])
-        for cellx in range(SCREENWIDTH // CELLSIZE):
-            world[celly].append(Cell(possibletiles.copy(),(cellx,celly)))
+        for celly in range(SCREENWIDTH // CELLSIZE):
+            world[cellx].append(Cell(possibletiles.copy(),(cellx,celly)))
     PrintWorld(world)
     WFC(world)
     PrintWorld(world)
