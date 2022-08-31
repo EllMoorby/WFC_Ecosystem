@@ -5,17 +5,16 @@ from engine import Engine
 from renderer import Renderer
 import sys
 
-sys.setrecursionlimit(3000)
-engine = Engine()
 
-#renderer = Renderer()
+sys.setrecursionlimit(50000)
+engine = Engine()
+renderer = Renderer()
 
 def CreateWorld():
     while True:
         world = GenerateMap()
         try:
-            pass
-            #renderer.RenderWorld(world)
+            renderer.RenderWorld(world)
         except:
             continue
         else:

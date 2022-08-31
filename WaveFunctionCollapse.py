@@ -4,13 +4,6 @@ import json
 import random
 from pygame import image,transform
 from os import path
-from renderer import Renderer
-from engine import Engine
-
-renderer = Renderer()
-engine = Engine()
-
-
 class Tile:
     def __init__(self,imgpath,name,adjacencylist,bias,weight) -> None:
         self.img = transform.scale(image.load(path.join(TILES_FOLDER,imgpath)).convert_alpha(),(CELLSIZE,CELLSIZE)) #png of file
@@ -26,8 +19,9 @@ class Tile:
 
         for tile in self.bias:
             for bias in self.tempbias:
-                if tile.name == self.tempbias[bias]:
+                if tile.name == bias:
                     self.bias[tile] = self.tempbias[bias]
+                    
 
 
 class Cell:
@@ -61,10 +55,13 @@ def PrintWorld(world):
     for row in world:
         print("\n")
         for cell in row:
-            if len(cell.possibletiles) == 0 and cell.tile == None:
+            try:
+                if cell:
+                    print(cell)
+                else:
+                    print("x")
+            except:
                 print("x",end=" ")
-            else:
-                print(len(cell.possibletiles),end=" ")
 
     print("\n")
 
@@ -115,7 +112,6 @@ def Observe(world,possibletiles):
         for tile in randomcell.possibletiles:
             if item.name == tile.name:
                 weightlist.append(tile.weight*tempdict[item])
-
     randomcell.tile = random.choices(randomcell.possibletiles,weights=weightlist,k=1)[0]
 
     return randomcell
@@ -123,25 +119,30 @@ def Observe(world,possibletiles):
 
 def UpdateBias(origincell,newcell):
     for item in newcell.bias:
-        newcell.bias[item] *= origincell.tile.bias[item] 
+        newcell.bias[item] = max(min(origincell.tile.bias[item]*newcell.bias[item],MAXWEIGHT),MINWEIGHT)
     
 
 def Collapse(origincell,newcell):
     originadjacencylist = origincell.tile.adjacencylist
-    newpossibletiles = newcell.possibletiles
-    for item in newpossibletiles:
-        if item not in originadjacencylist:
-            newpossibletiles.remove(item)
+    newpossibletiles = []
+    for item in newcell.possibletiles:
+        if item in originadjacencylist:
+            newpossibletiles.append(item)
     newcell.possibletiles = newpossibletiles
+
+    return len(newcell.possibletiles)==0 and newcell.tile == None
+
+
 
 def Propogate(cell,world):
     for y in range(-1,2):
         for x in range(-1,2):
             try:
-                if x==y==0 or not(0 <= cell.position[0]+x <= ((SCREENHEIGHT // CELLSIZE)-1)) or not(0 <= cell.position[1]+y <= ((SCREENHEIGHT // CELLSIZE)-1)):
+                if x==y==0 or not(0 <= cell.position[0]+x <= ((SCREENWIDTH // CELLSIZE)-1)) or not(0 <= cell.position[1]+y <= ((SCREENHEIGHT // CELLSIZE)-1)):
                     raise ValueError
                 UpdateBias(cell,world[cell.position[0]+x][cell.position[1]+y])
-                Collapse(cell,world[cell.position[0]+x][cell.position[1]+y]) #collapse items not in the tiles adjacencylist from the other cells possible tiles
+                if Collapse(cell,world[cell.position[0]+x][cell.position[1]+y]):#collapse items not in the tiles adjacencylist from the other cells possible tiles
+                     return -1
             except:
                 pass
     return world
@@ -163,13 +164,14 @@ def GetPossibleTiles():
     return tilelist
 
 def WFC(world,possibletiles):
-    engine.update_dt()
     cell = Observe(world,possibletiles)
     if cell ==-1:
         return
     cell.possibletiles = []
-    renderer.DrawCell(cell)
-    Propogate(cell,world)
+    cell.bias = cell.tile.bias
+    
+    world = Propogate(cell,world)
+    if world == -1: return
     WFC(world,possibletiles)
 
 
@@ -177,12 +179,11 @@ def WFC(world,possibletiles):
 
 
 def GenerateMap():
-    renderer.ClearScreen()
     possibletiles = GetAdjacencyList(GetPossibleTiles())
     world = []
-    for cellx in range(SCREENHEIGHT // CELLSIZE):
+    for cellx in range(SCREENWIDTH // CELLSIZE):
         world.append([])
-        for celly in range(SCREENWIDTH // CELLSIZE):
+        for celly in range(SCREENHEIGHT // CELLSIZE):
             world[cellx].append(Cell(possibletiles.copy(),(cellx,celly)))
     WFC(world,possibletiles.copy())
     return world
