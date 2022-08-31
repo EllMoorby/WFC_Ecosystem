@@ -4,6 +4,10 @@ import json
 import random
 from pygame import image,transform
 from os import path
+from renderer import Renderer
+
+renderer = Renderer()
+
 class Tile:
     def __init__(self,imgpath,name,adjacencylist,bias,weight) -> None:
         self.img = transform.scale(image.load(path.join(TILES_FOLDER,imgpath)).convert_alpha(),(CELLSIZE,CELLSIZE)) #png of file
@@ -166,13 +170,13 @@ def GetPossibleTiles():
 def WFC(world,possibletiles):
     cell = Observe(world,possibletiles)
     if cell ==-1:
-        return
+        return -1,-1
     cell.possibletiles = []
     cell.bias = cell.tile.bias
-    
+    renderer.DrawCell(cell)
     world = Propogate(cell,world)
-    if world == -1: return
-    WFC(world,possibletiles)
+    if world == -1: return -1,-1
+    else: return world, possibletiles
 
 
 
@@ -185,7 +189,12 @@ def GenerateMap():
         world.append([])
         for celly in range(SCREENHEIGHT // CELLSIZE):
             world[cellx].append(Cell(possibletiles.copy(),(cellx,celly)))
-    WFC(world,possibletiles.copy())
+
+    for row in world:
+        for cell in world:
+            world,possibletiles = WFC(world,possibletiles.copy())
+            if world == -1:
+                return GenerateMap()
     return world
     
 

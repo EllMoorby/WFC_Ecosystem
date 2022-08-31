@@ -11,14 +11,9 @@ engine = Engine()
 renderer = Renderer()
 
 def CreateWorld():
-    while True:
-        world = GenerateMap()
-        try:
-            renderer.RenderWorld(world)
-        except:
-            continue
-        else:
-            return world
+    world = GenerateMap()
+    #renderer.RenderWorld(world)
+
 
 world = CreateWorld()
 playing = True
