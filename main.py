@@ -4,9 +4,9 @@ from constants import *
 from engine import Engine
 from renderer import Renderer
 import sys
+sys.setrecursionlimit(RECURSIONDEPTH)
 
 
-sys.setrecursionlimit(50000)
 engine = Engine()
 renderer = Renderer()
 

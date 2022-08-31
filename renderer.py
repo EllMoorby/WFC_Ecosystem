@@ -9,6 +9,7 @@ class Renderer:
 
     def DrawCell(self,cell):
         self.screen.blit(cell.tile.img,(cell.position[0]*CELLSIZE,cell.position[1]*CELLSIZE))
+        pygame.display.flip()
     
     def ClearScreen(self):
         self.screen.fill([0, 0, 0])
