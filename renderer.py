@@ -20,3 +20,7 @@ class Renderer:
                 self.DrawCell(cell)
 
         pygame.display.flip()
+
+    def DrawCreature(self,creature):
+        self.screen.blit(creature.img,(creature.position[0]*CELLSIZE,creature.position[1]*CELLSIZE))
+        pygame.display.flip()
