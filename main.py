@@ -1,5 +1,5 @@
 import pygame
-from WaveFunctionCollapse import *
+from waveFunctionCollapse import *
 from constants import *
 from engine import Engine
 from renderer import Renderer
