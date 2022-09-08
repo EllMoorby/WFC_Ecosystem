@@ -12,7 +12,7 @@ renderer = Renderer()
 
 def CreateWorld():
     world = GenerateMap()
-    #renderer.RenderWorld(world)
+    # renderer.RenderWorld(world)
 
 
 world = CreateWorld()

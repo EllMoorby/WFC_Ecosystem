@@ -191,9 +191,10 @@ def GenerateMap():
             world[cellx].append(Cell(possibletiles.copy(),(cellx,celly)))
 
     for row in world:
-        for cell in world:
+        for cell in row:
             world,possibletiles = WFC(world,possibletiles.copy())
             if world == -1:
+                print("lol")
                 return GenerateMap()
     return world
     
