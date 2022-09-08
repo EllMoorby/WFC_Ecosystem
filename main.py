@@ -3,13 +3,14 @@ from waveFunctionCollapse import *
 from constants import *
 from engine import Engine
 from renderer import Renderer
+from ecosystem import Prey
 import sys
 sys.setrecursionlimit(RECURSIONDEPTH)
 
 
 engine = Engine()
 renderer = Renderer()
-
+prey = Prey([0,0],"test")
 def CreateWorld():
     while True:
         world = GenerateMap()
@@ -29,4 +30,7 @@ while playing:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_p:
                 world = CreateWorld()
+
+            if event.key == pygame.K_o:
+                prey.Move(world,renderer)
 

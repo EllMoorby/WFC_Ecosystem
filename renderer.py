@@ -22,5 +22,7 @@ class Renderer:
         pygame.display.flip()
 
     def DrawCreature(self,creature):
-        self.screen.blit(creature.img,(creature.position[0]*CELLSIZE,creature.position[1]*CELLSIZE))
+        print(creature.position)
+        #self.screen.blit(creature.img,(creature.position[0]*CELLSIZE,creature.position[1]*CELLSIZE))
+        pygame.draw.rect(self.screen,(255,0,0), (creature.position[0]*CELLSIZE,creature.position[1]*CELLSIZE,CELLSIZE,CELLSIZE))
         pygame.display.flip()
