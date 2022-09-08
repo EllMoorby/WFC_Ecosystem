@@ -1,2 +1,2 @@
-def Pathfind(creature, target, world):
+def PathFind(creature, target, world):
     startpos = creature.position

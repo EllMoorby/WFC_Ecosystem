@@ -50,11 +50,18 @@ class Prey(Creature):
         self.img = img
         self.health = BASEHEALTH
 
-    def Forage(self):
-        pass
 
     def Update(self):
         pass
+
+    def Forage(self):
+        #locate berry bushes for the world
+        pass
+
+    def Flee(self):
+        #run from the predator chasing
+        pass
+
 
 class PreyFemale(Prey):
     def __init__(self,position,img):
