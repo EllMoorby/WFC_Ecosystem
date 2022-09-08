@@ -11,3 +11,9 @@ MINWEIGHT = 0.0000001
 MAIN_FOLDER = path.dirname(__file__)
 ASSETS_FOLDER = path.join(MAIN_FOLDER, "assets")
 TILES_FOLDER = path.join(ASSETS_FOLDER, "tiles")
+
+#Animal Stats
+BASEENERGY = 200
+URGEHUNT = 100
+URGEREPRODUCE = 100
+BASEHEALTH = 100

@@ -39,8 +39,8 @@
        {"name":"mountain",
        "image":"mountain.png",
        "adjacency":["mountain","grass","flower","rockysand"],
-       "bias":{"mountain":1.5},
-       "weight":5
+       "bias":{"mountain":1.2},
+       "weight":2
       },
       {"name":"rockysand",
        "image":"rockysand.png",

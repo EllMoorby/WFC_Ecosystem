@@ -3,9 +3,6 @@ from WaveFunctionCollapse import *
 from constants import *
 from engine import Engine
 from renderer import Renderer
-import sys
-sys.setrecursionlimit(RECURSIONDEPTH)
-
 
 engine = Engine()
 renderer = Renderer()
