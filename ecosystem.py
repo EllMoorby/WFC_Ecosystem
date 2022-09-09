@@ -1,5 +1,5 @@
 from constants import *
-from pathfinding import PathFind
+from pathfinder import PathFinder
 
 class Creature:
     def __init__(self,position):
@@ -15,9 +15,10 @@ class Creature:
 
     def Move(self,target,renderer,world):
         #move towards target, otherwise create a random target position
-
-        PathFind(self,target,world)
+        testpathfinder = PathFinder(world,self,"target")
+        
         self.position[0] += 1
+        testpathfinder.CheckNeighbors(self.position)
         renderer.DrawCreature(self)
         
         pass 

@@ -1,4 +1,3 @@
-from turtle import pos
 from constants import *
 import json
 import random

@@ -4,12 +4,14 @@ from constants import *
 from engine import Engine
 from renderer import Renderer
 from ecosystem import Prey
-import sys
-sys.setrecursionlimit(RECURSIONDEPTH)
+from pathfinder import PathFinder
 
 
-engine = Engine()
+
+engine = Engine() 
 renderer = Renderer()
+
+
 prey = Prey([0,0],"test")
 def CreateWorld():
     while True:
@@ -32,5 +34,7 @@ while playing:
                 world = CreateWorld()
 
             if event.key == pygame.K_o:
-                prey.Move(world,renderer)
+
+                prey.Move("tere", renderer,world)
+
 
