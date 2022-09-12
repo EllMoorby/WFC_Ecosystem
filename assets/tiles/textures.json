@@ -3,6 +3,7 @@
        {
          "name":"grass",
          "image":"grass.png",
+         "traversable":true,
          "adjacency":["grass","sand","flower","rockysand"],
          "bias":{"grass":5.0,"sand":0.1,"rockysand":0.1},
          "weight":40
@@ -11,6 +12,7 @@
        {
         "name":"water",
         "image":"water.png",
+        "traversable":false,
         "adjacency":["water","sand","rockysand"],
         "bias":{"water":3.0,"sand":1,"rockysand":0.1},
         "weight":10
@@ -18,6 +20,7 @@
        {
         "name":"sand",
         "image":"sand.png",
+        "traversable":true,
         "adjacency":["water","sand","grass","rockysand"],
         "bias":{"water":2.0,"grass":2.0},
         "weight":0.1
@@ -25,6 +28,7 @@
        {
         "name":"flower",
         "image":"flower.png",
+        "traversable":true,
         "adjacency":["grass","flower","sand"],
         "bias":{"flower":0.5,"sand":0.1},
         "weight":1
@@ -32,18 +36,21 @@
        {
         "name":"seaweed",
         "image":"seaweed.png",
+        "traversable":false,
         "adjacency":["water","sand"],
         "bias":{"water":2.0},
         "weight":5
        },
        {"name":"mountain",
        "image":"mountain.png",
+       "traversable":false,
        "adjacency":["mountain","grass","flower","rockysand"],
        "bias":{"mountain":1.2},
        "weight":2
       },
       {"name":"rockysand",
        "image":"rockysand.png",
+       "traversable":true,
        "adjacency":["water","mountain","sand","rockysand","grass"],
        "bias":{"mountain":1.5,"grass":0.01,"water":0.5},
        "weight":0.1

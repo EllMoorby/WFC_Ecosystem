@@ -12,7 +12,7 @@ engine = Engine()
 renderer = Renderer()
 
 
-prey = Prey([0,0],"test")
+
 def CreateWorld():
     while True:
         world = GenerateMap()
@@ -32,7 +32,7 @@ while playing:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_p:
                 world = CreateWorld()
-
+                prey = Prey((0,0),"test",world)
             if event.key == pygame.K_o:
 
                 prey.Move("tere", renderer,world)
