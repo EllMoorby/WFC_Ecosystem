@@ -1,9 +1,10 @@
 from constants import *
 from pathfinder import PathFinder
+import random
 
 class CreatureCell:
     def __init__(self,position,tile) -> None:
-        self.position = position
+        self.position = (position[0],position[1])
         self.centreposition = [(self.position[0]*CELLSIZE)+CELLSIZE//2,(self.position[1]*CELLSIZE)+CELLSIZE//2]
         self.tile = tile
         self.g_cost = 0 #dist from start
@@ -11,12 +12,13 @@ class CreatureCell:
         self.f_cost = 0 #Gcost+Hcost
         self.pointer = None
         self.traversable = self.tile.traversable
+        self.currentpath = None
 
 class Creature:
     def __init__(self,position,world):
         self.position = position
-        self.energy = BASEENERGY
-        self.urgeReproduce = URGEREPRODUCE
+        self.energy = BASE_ENERGY
+        self.urgeReproduce = URGE_REPRODUCE
         self.world = []
 
         for index,row in enumerate(world):
@@ -24,18 +26,30 @@ class Creature:
             for cell in row:
                 self.world[index].append(CreatureCell(cell.position,cell.tile))
 
-    def Update(self,world,renderer):
-        #choose the best action to perform
-        #carry out action, 1 turn at a time
+    def ChooseOption(self):
+        return random.choices(["ENERGY","REPRODUCE"],weights=[BASE_ENERGY-self.energy,URGE_REPRODUCE-self.urgeReproduce])
         pass
+
+    def AdvancePath(self):
+        self.position = self.currentpath.stack[0]
+        self.currentpath.RemoveFromStack()
+        if len(self.currentpath.stack) == 0: self.currentpath = None
+
+    def Update(self,world,renderer):
+        if self.currentpath is not None:
+            self.AdvancePath()
+        else:
+            self.ChooseOption()
 
     def Move(self,target,renderer,world):
         #move towards target, otherwise create a random target position
-        testpathfinder = PathFinder(self,self.world[7][2])
-        testpathfinder.InitiatePathfind()
-        for cell in range(len(testpathfinder.path.stack)):
-            item = testpathfinder.path.RemoveFromStack()
+        pathfinder = PathFinder(self,self.world[16][12])
+        pathfinder.InitiatePathfind()
+        self.currentpath = pathfinder.path
+        for cell in range(len(pathfinder.path.stack)):
+            item = pathfinder.path.RemoveFromStack()
             print(item.position)
+        print(pathfinder.path.stack)
 
         print("---------")
         
@@ -50,7 +64,7 @@ class Predator(Creature):
     def __init__(self,position,img,world):
         super().__init__(position,world)
         self.img = img
-        self.urgeHunt = URGEHUNT
+        self.urgeHunt = URGE_HUNT
 
     def Hunt(self):
         pass #locate a nearby prey and hunt it
@@ -66,7 +80,7 @@ class Prey(Creature):
     def __init__(self,position,img,world):
         super().__init__(position,world)
         self.img = img
-        self.health = BASEHEALTH
+        self.health = BASE_HEALTH
 
 
     def Update(self):
