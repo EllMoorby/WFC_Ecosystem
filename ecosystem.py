@@ -1,5 +1,6 @@
 from constants import *
 from pathfinder import PathFinder
+
 class CreatureCell:
     def __init__(self,position,tile) -> None:
         self.position = position
@@ -30,9 +31,10 @@ class Creature:
 
     def Move(self,target,renderer,world):
         #move towards target, otherwise create a random target position
-        testpathfinder = PathFinder(self,self.world[4][0])
+        testpathfinder = PathFinder(self,self.world[7][2])
         testpathfinder.InitiatePathfind()
-        for item in testpathfinder.path:
+        for cell in range(len(testpathfinder.path.stack)):
+            item = testpathfinder.path.RemoveFromStack()
             print(item.position)
 
         print("---------")

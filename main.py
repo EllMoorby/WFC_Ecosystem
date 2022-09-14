@@ -5,6 +5,9 @@ from engine import Engine
 from renderer import Renderer
 from ecosystem import Prey
 from pathfinder import PathFinder
+import sys
+
+sys.setrecursionlimit(6**10)
 
 
 
