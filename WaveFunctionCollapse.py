@@ -197,7 +197,3 @@ def GenerateMap():
                 print("lol")
                 return GenerateMap()
     return world
-    
-
-
-

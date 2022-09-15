@@ -28,7 +28,6 @@ class Creature:
 
     def ChooseOption(self):
         return random.choices(["ENERGY","REPRODUCE"],weights=[BASE_ENERGY-self.energy,URGE_REPRODUCE-self.urgeReproduce])
-        pass
 
     def AdvancePath(self):
         self.position = self.currentpath.stack[0]
