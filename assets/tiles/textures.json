@@ -12,7 +12,7 @@
        {
         "name":"water",
         "image":"water.png",
-        "traversable":true,
+        "traversable":false,
         "adjacency":["water","sand","rockysand"],
         "bias":{"water":3.0,"sand":1,"rockysand":0.1},
         "weight":10
@@ -36,14 +36,14 @@
        {
         "name":"seaweed",
         "image":"seaweed.png",
-        "traversable":true,
+        "traversable":false,
         "adjacency":["water","sand"],
         "bias":{"water":2.0},
         "weight":5
        },
        {"name":"mountain",
        "image":"mountain.png",
-       "traversable":true,
+       "traversable":false,
        "adjacency":["mountain","grass","flower","rockysand"],
        "bias":{"mountain":1.2},
        "weight":2

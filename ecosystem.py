@@ -42,7 +42,7 @@ class Creature:
 
     def Move(self,target,renderer,world):
         #move towards target, otherwise create a random target position
-        pathfinder = PathFinder(self,self.world[16][12])
+        pathfinder = PathFinder(self,self.world[5][2])
         pathfinder.InitiatePathfind()
         self.currentpath = pathfinder.path
         for cell in range(len(pathfinder.path.stack)):
