@@ -20,8 +20,11 @@ class Creature:
         self.energy = BASE_ENERGY
         self.urgeReproduce = URGE_REPRODUCE
         self.world = []
+        self.worldmap = world
 
-        for index,row in enumerate(world):
+
+    def CreateCreatureWorld(self):
+        for index,row in enumerate(self.worldmap):
             self.world.append([])
             for cell in row:
                 self.world[index].append(CreatureCell(cell.position,cell.tile))
@@ -29,10 +32,15 @@ class Creature:
     def ChooseOption(self):
         return random.choices(["ENERGY","REPRODUCE"],weights=[BASE_ENERGY-self.energy,URGE_REPRODUCE-self.urgeReproduce])
 
-    def AdvancePath(self):
-        self.position = self.currentpath.stack[0]
-        self.currentpath.RemoveFromStack()
-        if len(self.currentpath.stack) == 0: self.currentpath = None
+    def AdvancePath(self,renderer):
+        print(self.currentpath.stack)
+        if self.currentpath.stack != []:
+            self.position = self.currentpath.stack[self.currentpath.size]
+            self.currentpath.RemoveFromStack()
+            renderer.DrawCreature(self)
+        #if len(self.currentpath.stack) == 0: self.currentpath = None
+        
+        
 
     def Update(self,world,renderer):
         if self.currentpath is not None:
@@ -41,13 +49,11 @@ class Creature:
             self.ChooseOption()
 
     def Move(self,target,renderer,world):
+        self.CreateCreatureWorld()
         #move towards target, otherwise create a random target position
-        pathfinder = PathFinder(self,self.world[5][2])
+        pathfinder = PathFinder(self,self.world[16][14])
         pathfinder.InitiatePathfind()
         self.currentpath = pathfinder.path
-        for cell in range(len(pathfinder.path.stack)):
-            item = pathfinder.path.RemoveFromStack()
-            print(item.position)
         print(pathfinder.path.stack)
 
         print("---------")

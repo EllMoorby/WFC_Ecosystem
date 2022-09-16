@@ -5,14 +5,19 @@ from random import choice
 class Stack:
     def __init__(self):
         self.stack = []
+        self.size = -1
 
     def AddToStack(self,item):
         self.stack.append(item)
+        self.size += 1
 
     def RemoveFromStack(self):
-        item = self.stack[(len(self.stack)-1)]
-        self.stack.remove(item)
-        return item
+        if self.size != -1:
+            item = self.stack[(len(self.stack)-1)]
+            self.stack.remove(item)
+            self.size -= 1
+            return item
+        else:return
 
 class PathFinder:
     def __init__(self,creature,target):
@@ -44,7 +49,7 @@ class PathFinder:
             for y in range(-1,2):
                 if (position != [x,y] and (0 <= position[0]+x <= ((SCREENWIDTH // CELLSIZE)-1)) and (0 <= position[1]+y <= ((SCREENHEIGHT // CELLSIZE)-1))):
                     if (position[0] + x,position[1] + y) != self.creature.position:
-                        if self.world[position[0] + x][position[1] + y] not in self.exploredcells:
+                        if self.world[position[0] + x][position[1] + y].pointer == None:
                             self.world[position[0] + x][position[1] + y].pointer = self.world[position[0]][position[1]]
                             self.exploredcells.append(self.world[position[0] + x][position[1] + y])
                         if ((position[0] + x),(position[1] + y)) == self.target.position:
@@ -63,7 +68,11 @@ class PathFinder:
             if lowest == cell.f_cost:
                 lowlist.append(cell)"""
                 
+        for cell in self.exploredcells:
+            print(cell.position,cell.f_cost,cell.tile.name,end=" ")
 
+        print(" ")
+        print("lowestcell",lowestcell.position,lowestcell.f_cost,lowestcell.tile.name)
         #item = choice(lowlist)
         return lowestcell
 
@@ -73,11 +82,7 @@ class PathFinder:
 
         #add to explored cells
         cell = self.GetLowestFCost()
-        for cell in self.exploredcells:
-            print(cell.position,cell.f_cost,cell.tile.name,end=" ")
-
-        print(" ")
-        print(cell.position,cell.f_cost,cell.tile.name)
+        self.exploredcells.remove(cell)
         print("--------")
         if self.Explore(cell.position):
             self.world[self.target.position[0]][self.target.position[1]].pointer = cell

@@ -37,7 +37,8 @@ while playing:
                 world = CreateWorld()
                 prey = Prey((0,0),"test",world)
             if event.key == pygame.K_o:
-
-                prey.Move("tere", renderer,world)
+                prey.Move("tere", renderer,world.copy())
+            if event.key == pygame.K_i:
+                prey.AdvancePath(renderer)
 
 
