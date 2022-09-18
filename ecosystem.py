@@ -33,8 +33,8 @@ class Creature:
         return random.choices(["ENERGY","REPRODUCE"],weights=[BASE_ENERGY-self.energy,URGE_REPRODUCE-self.urgeReproduce])
 
     def AdvancePath(self,renderer):
-        print(self.currentpath.stack)
-        if self.currentpath.stack != []:
+        print(self.currentpath)
+        if self.currentpath != []:
             self.position = self.currentpath.stack[self.currentpath.size]
             self.currentpath.RemoveFromStack()
             renderer.DrawCreature(self)
@@ -54,7 +54,7 @@ class Creature:
         pathfinder = PathFinder(self,self.world[16][14])
         pathfinder.InitiatePathfind()
         self.currentpath = pathfinder.path
-        print(pathfinder.path.stack)
+        print(pathfinder.path)
 
         print("---------")
         

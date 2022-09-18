@@ -10,6 +10,7 @@ MINWEIGHT = 0.0000001
 MAIN_FOLDER = path.dirname(__file__)
 ASSETS_FOLDER = path.join(MAIN_FOLDER, "assets")
 TILES_FOLDER = path.join(ASSETS_FOLDER, "tiles")
+BERRYIMG = path.join(ASSETS_FOLDER, "objects", "berrybush.png")
 NONTRAVERSABLE_MOVEMENT_MODIFYER = 1000000
 
 #Animal Stats

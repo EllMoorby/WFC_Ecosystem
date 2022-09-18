@@ -18,6 +18,9 @@ class Stack:
             self.size -= 1
             return item
         else:return
+    
+    def __iter__(self):
+        return self.stack
 
 class PathFinder:
     def __init__(self,creature,target):

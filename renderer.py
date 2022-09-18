@@ -5,6 +5,7 @@ class Renderer:
     def __init__(self):
         self.screen = pygame.display.set_mode([SCREENWIDTH, SCREENHEIGHT])
         self.screen.fill([0, 0, 0])
+        self.berryimg = pygame.transform.scale(pygame.image.load(BERRYIMG).convert_alpha(),(CELLSIZE,CELLSIZE))
     
 
     def DrawCell(self,cell):
@@ -26,4 +27,8 @@ class Renderer:
         print(creature)
         #self.screen.blit(creature.img,(creature.position[0]*CELLSIZE,creature.position[1]*CELLSIZE))
         pygame.draw.rect(self.screen,(255,0,0), (creature.position.position[0]*CELLSIZE,creature.position.position[1]*CELLSIZE,CELLSIZE,CELLSIZE))
+        pygame.display.flip()
+
+    def RenderBerry(self,cell):
+        self.screen.blit(self.berryimg,(cell.position[0]*CELLSIZE,cell.position[1]*CELLSIZE))
         pygame.display.flip()

@@ -8,7 +8,7 @@ from renderer import Renderer
 renderer = Renderer()
 
 class Tile:
-    def __init__(self,imgpath,name,adjacencylist,bias,weight,traversable) -> None:
+    def __init__(self,imgpath,name,adjacencylist,bias,weight,traversable,fertile) -> None:
         self.img = transform.scale(image.load(path.join(TILES_FOLDER,imgpath)).convert_alpha(),(CELLSIZE,CELLSIZE)) #png of file
         self.adjacencylist = adjacencylist #List of other tile objects allowed to TOUCH
         self.name = name
@@ -16,6 +16,7 @@ class Tile:
         self.tempbias = bias #bias
         self.weight = weight
         self.traversable = traversable
+        self.fertile = fertile
     
     def UpdateTilelist(self,tilelist):
         for tile in tilelist:
@@ -161,7 +162,7 @@ def GetPossibleTiles():
     with open(path.join(TILES_FOLDER,"textures.json")) as f:
         data = json.load(f)
         for tile in data["tiles"]:
-            tilelist.append(Tile(tile["image"],tile["name"],tile["adjacency"],tile["bias"],tile["weight"],tile["traversable"]))
+            tilelist.append(Tile(tile["image"],tile["name"],tile["adjacency"],tile["bias"],tile["weight"],tile["traversable"],tile["fertile"]))
 
     for tile in tilelist:
         tile.UpdateTilelist(tilelist)
@@ -184,6 +185,7 @@ def WFC(world,possibletiles):
 
 def GenerateMap():
     possibletiles = GetAdjacencyList(GetPossibleTiles())
+    tilelist = possibletiles
     world = []
     for cellx in range(SCREENWIDTH // CELLSIZE):
         world.append([])
@@ -196,7 +198,7 @@ def GenerateMap():
             if world == -1:
                 print("lol")
                 return GenerateMap()
-    return world
+    return world,tilelist
 
 
 
