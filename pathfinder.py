@@ -66,16 +66,6 @@ class PathFinder:
             if cell.f_cost <= lowest:
                 lowest = cell.f_cost
                 lowestcell = cell
-
-        """for cell in self.exploredcells:
-            if lowest == cell.f_cost:
-                lowlist.append(cell)"""
-                
-        for cell in self.exploredcells:
-            print(cell.position,cell.f_cost,cell.tile.name,end=" ")
-
-        print(" ")
-        print("lowestcell",lowestcell.position,lowestcell.f_cost,lowestcell.tile.name)
         #item = choice(lowlist)
         return lowestcell
 
@@ -86,7 +76,6 @@ class PathFinder:
         #add to explored cells
         cell = self.GetLowestFCost()
         self.exploredcells.remove(cell)
-        print("--------")
         if self.Explore(cell.position):
             self.world[self.target.position[0]][self.target.position[1]].pointer = cell
             self.PathFound = True

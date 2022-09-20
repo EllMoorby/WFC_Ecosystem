@@ -1,6 +1,5 @@
-import imghdr
 from random import choice
-from unicodedata import name
+from constants import *
 from ecosystem import Predator,PredatorFemale,Prey,PreyFemale
 from renderer import Renderer
 from engine import Engine
@@ -9,6 +8,7 @@ from waveFunctionCollapse import GenerateMap
 
 class EventManager:
     def __init__(self):
+        self.creaturecount = CREATURECOUNT
         self.world = []
         self.berryList = []
         self.preyList = []
@@ -18,8 +18,12 @@ class EventManager:
         self.tilelist = []
         self.tiledict = {}
         self.fertileList = []
+        self.spawnableList = []
 
     def SplitWorld(self):
+        self.tiledict = {}
+        self.berryList = []
+        self.fertileList = []
         for tile in self.tilelist:
             self.tiledict[tile] = []
 
@@ -34,51 +38,60 @@ class EventManager:
             if key.fertile:
                 for item in self.tiledict[key]:
                     self.fertileList.append(item)
+
+            if key.traversable:
+                for item in self.tiledict[key]:
+                    self.spawnableList.append(item)
                 
 
 
     def CreateWorld(self):
         while True:
-            self.world,self.tilelist = GenerateMap()
+            world,self.tilelist = GenerateMap()
             try:
-                self.renderer.RenderWorld(self.world)
+                pass
+                #self.renderer.RenderWorld(self.world)
             except:
                 continue
             else:
-                return
+                return world
 
 
     def SpawnBerry(self):
         newberry = choice(self.fertileList)
         self.berryList.append(newberry)
+        self.fertileList.remove(newberry)
         self.renderer.RenderBerry(newberry)
         pass
 
-    def InitializeCreatures():
-        #spawn all the necessary creatures for the variables set
+    def InitializeCreatures(self):
+        for creature in range(self.creaturecount):
+            self.preyList.append(Prey(choice(self.spawnableList).position,"img",self.world,self.renderer))
         pass
 
     def Update(self):
-        #update all
+        for creature in self.preyList:
+            creature.Update()
+            print(self.preyList)
+            print("update")
         
         pass
 
     def Main(self):
-        self.CreateWorld()
+        self.world = self.CreateWorld()
         self.SplitWorld()
         playing = True
         while playing:
-            self.Update()
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_p:
                         self.world = self.CreateWorld()
-                        prey = Prey((0,0),"test",self.world)
+                        self.SplitWorld()
                     if event.key == pygame.K_o:
-                        prey.Move("tere", self.renderer,self.world.copy())
-                    if event.key == pygame.K_i:
-                        prey.AdvancePath(self.renderer)
+                        self.Update()
                     if event.key == pygame.K_u:
                         self.SpawnBerry()
+                    if event.key == pygame.K_w:
+                        self.InitializeCreatures()
                 if event.type == pygame.QUIT:
                     playing = False

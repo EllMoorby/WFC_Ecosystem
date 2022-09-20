@@ -1,3 +1,4 @@
+import re
 from constants import *
 from pathfinder import PathFinder
 import random
@@ -15,46 +16,52 @@ class CreatureCell:
         self.currentpath = None
 
 class Creature:
-    def __init__(self,position,world):
+    def __init__(self,position,world,renderer):
         self.position = position
         self.energy = BASE_ENERGY
         self.urgeReproduce = URGE_REPRODUCE
-        self.world = []
         self.worldmap = world
+        self.currentpath = None
+        self.renderer = renderer
+
+        self.CreateCreatureWorld()
 
 
     def CreateCreatureWorld(self):
+        world = []
         for index,row in enumerate(self.worldmap):
-            self.world.append([])
+            world.append([])
             for cell in row:
-                self.world[index].append(CreatureCell(cell.position,cell.tile))
+                world[index].append(CreatureCell(cell.position,cell.tile))
+
+        return world
 
     def ChooseOption(self):
         return random.choices(["ENERGY","REPRODUCE"],weights=[BASE_ENERGY-self.energy,URGE_REPRODUCE-self.urgeReproduce])
 
-    def AdvancePath(self,renderer):
-        print(self.currentpath)
-        if self.currentpath != []:
+    def AdvancePath(self):
+        try:
             self.position = self.currentpath.stack[self.currentpath.size]
             self.currentpath.RemoveFromStack()
-            renderer.DrawCreature(self)
+            self.renderer.DrawCreature(self)
+        except:return
         #if len(self.currentpath.stack) == 0: self.currentpath = None
         
         
 
-    def Update(self,world,renderer):
+    def Update(self):
         if self.currentpath is not None:
             self.AdvancePath()
         else:
-            self.ChooseOption()
+            #self.ChooseOption()
+            self.FindPath((random.randint(0,(SCREENWIDTH//CELLSIZE)-1),random.randint(0,(SCREENHEIGHT//CELLSIZE)-1)))
 
-    def Move(self,target,renderer,world):
-        self.CreateCreatureWorld()
+    def FindPath(self,target):
+        self.world = self.CreateCreatureWorld()
         #move towards target, otherwise create a random target position
-        pathfinder = PathFinder(self,self.world[16][14])
+        pathfinder = PathFinder(self,self.world[target[0]][target[1]])
         pathfinder.InitiatePathfind()
         self.currentpath = pathfinder.path
-        print(pathfinder.path)
 
         print("---------")
         
@@ -66,8 +73,8 @@ class Creature:
 
 
 class Predator(Creature):
-    def __init__(self,position,img,world):
-        super().__init__(position,world)
+    def __init__(self,position,img,world,renderer):
+        super().__init__(position,world,renderer)
         self.img = img
         self.urgeHunt = URGE_HUNT
 
@@ -78,18 +85,15 @@ class Predator(Creature):
         pass
 
 class PredatorFemale(Predator):
-    def __init__(self,position,img,world):
-        super().__init__(position,img,world)
+    def __init__(self,position,img,world,renderer):
+        super().__init__(position,img,world,renderer)
 
 class Prey(Creature):
-    def __init__(self,position,img,world):
-        super().__init__(position,world)
+    def __init__(self,position,img,world,renderer):
+        super().__init__(position,world,renderer)
         self.img = img
         self.health = BASE_HEALTH
 
-
-    def Update(self):
-        pass
 
     def Forage(self):
         #locate berry bushes for the world
@@ -101,8 +105,8 @@ class Prey(Creature):
 
 
 class PreyFemale(Prey):
-    def __init__(self,position,img,world):
-        super().__init__(position,img,world)
+    def __init__(self,position,img,world,renderer):
+        super().__init__(position,img,world,renderer)
 
          
 

@@ -196,7 +196,6 @@ def GenerateMap():
         for cell in row:
             world,possibletiles = WFC(world,possibletiles.copy())
             if world == -1:
-                print("lol")
                 return GenerateMap()
     return world,tilelist
 
