@@ -35,6 +35,8 @@ class Cell:
         self.possibletiles = possibletiles # list of possible tiles that changes
         self.tile = None
         self.bias = {}
+        self.hasBerry = False
+        self.hasTarget = False
         for item in self.possibletiles:
             self.bias[item] = 1
 

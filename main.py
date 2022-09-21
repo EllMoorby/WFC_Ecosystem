@@ -7,7 +7,7 @@ from eventManager import EventManager
 sys.setrecursionlimit(6**10)
 
 
-eventManager = EventManager()
-eventManager.Main()
+eventManager = EventManager() #Start a new event manager
+eventManager.Main() #Begin the main program
 
 
