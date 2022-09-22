@@ -58,7 +58,6 @@ class Creature:
         pass
 
     def FindPath(self,target):
-        print(target)
         self.world = self.CreateCreatureWorld()
         #move towards target, otherwise create a random target position
         pathfinder = PathFinder(self,target)
@@ -66,7 +65,6 @@ class Creature:
         currentpath = pathfinder.path
         self.target = None
         return currentpath
-        print("---------")
         
 
     def LocateMate(self,world,target):
@@ -115,7 +113,6 @@ class Prey(Creature):
 
     def Update(self,berryList,fertileList):
         if self.currentpath == None:
-            print("test")
             target = self.Wander(fertileList)
             self.currentpath = self.FindPath(target)
         else:

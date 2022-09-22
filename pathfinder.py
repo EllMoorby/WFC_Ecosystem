@@ -75,7 +75,6 @@ class PathFinder:
         #add to explored cells
         cell = self.GetLowestFCost() #finds the cell with the lowest cost
         self.exploredcells.remove(cell) #remove it from exploredcells
-        print(cell)
         if self.Explore(cell.position): #returns true if path was found, stopping condition
             self.target.pointer = cell
             self.PathFound = True
