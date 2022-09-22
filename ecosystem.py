@@ -22,6 +22,7 @@ class Creature:
         self.worldmap = world
         self.currentpath = None
         self.renderer = renderer
+        self.count = 0
 
         self.world = self.CreateCreatureWorld()
 
@@ -45,7 +46,7 @@ class Creature:
 
     def AdvancePath(self):
         try:
-            self.position = self.worldmap[self.currentpath.stack[self.currentpath.size].position[0]][self.currentpath.stack[self.currentpath.size].position[1]]
+            self.position = self.currentpath.stack[self.currentpath.size]
             self.currentpath.RemoveFromStack()
             self.renderer.DrawCreature(self)
         except:
@@ -62,9 +63,9 @@ class Creature:
         #move towards target, otherwise create a random target position
         pathfinder = PathFinder(self,target)
         pathfinder.InitiatePathfind()
-        self.currentpath = pathfinder.path
+        currentpath = pathfinder.path
         self.target = None
-
+        return currentpath
         print("---------")
         
 
@@ -76,8 +77,6 @@ class Creature:
     def Wander(self,fertileList):
         cell = random.choice(fertileList)
         cell = self.world[cell.position[0]][cell.position[1]]
-        print(cell,"found")
-        print(cell.position)
         return cell
 
 
@@ -112,14 +111,16 @@ class Prey(Creature):
         self.img = img
         self.hasPredator = False
         self.health = BASE_HEALTH
+        
 
     def Update(self,berryList,fertileList):
-        if self.currentpath is not None:
-            self.AdvancePath()
-        else:
+        if self.currentpath == None:
+            print("test")
             target = self.Wander(fertileList)
-            print(target)
-            self.FindPath(target)
+            self.currentpath = self.FindPath(target)
+        else:
+            self.AdvancePath()
+                
 
 
     def Forage(self,berryList):
