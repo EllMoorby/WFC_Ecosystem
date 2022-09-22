@@ -32,6 +32,8 @@ class PathFinder:
 
     def GetDistanceBetween(self,item1,item2): #get distance between two objects
         #get the difference in y and difference in x
+        print(item2)
+        print(item2.position,"pos2",item2)
         dx = item1.position[0] - item2.position[0]
         dy = item1.position[1] - item2.position[1]
         #use pythagoras to find the distance between points
@@ -41,7 +43,7 @@ class PathFinder:
         #gets the f and h cost of every cell in the world
         for row in self.world:
             for cell in row:
-                cell.g_cost = self.GetDistanceBetween(cell,self.creature) #get distance between each cell and creature
+                cell.g_cost = self.GetDistanceBetween(cell,self.creature.position) #get distance between each cell and creature
                 cell.h_cost = self.GetDistanceBetween(cell,self.target) #get distance between each cell and target
                 cell.f_cost = cell.h_cost + cell.g_cost #f_cost equivalent to both h_cost and g_cost. the effective "cost" of a cell, the lower the better
                 if not(cell.tile.traversable): #adds a modifier to dissuade the use of "non traversable" cells.
@@ -75,6 +77,7 @@ class PathFinder:
         #add to explored cells
         cell = self.GetLowestFCost() #finds the cell with the lowest cost
         self.exploredcells.remove(cell) #remove it from exploredcells
+        print(cell)
         if self.Explore(cell.position): #returns true if path was found, stopping condition
             self.target.pointer = cell
             self.PathFound = True

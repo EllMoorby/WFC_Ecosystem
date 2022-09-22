@@ -6,7 +6,6 @@ import math
 class CreatureCell:
     def __init__(self,position,tile) -> None:
         self.position = (position[0],position[1])
-        self.centreposition = [(self.position[0]*CELLSIZE)+CELLSIZE//2,(self.position[1]*CELLSIZE)+CELLSIZE//2]
         self.tile = tile
         self.g_cost = 0 #dist from start
         self.h_cost = 0 #dist from end
@@ -46,18 +45,16 @@ class Creature:
 
     def AdvancePath(self):
         try:
-            self.position = self.currentpath.stack[self.currentpath.size]
+            self.position = self.worldmap[self.currentpath.stack[self.currentpath.size].position[0]][self.currentpath.stack[self.currentpath.size].position[1]]
             self.currentpath.RemoveFromStack()
             self.renderer.DrawCreature(self)
-        except:return
+        except:
+            self.currentpath = None
+            return
         #if len(self.currentpath.stack) == 0: self.currentpath = None
         
     def Update(self,berryList):
-        if self.currentpath is not None:
-            self.AdvancePath()
-        else:
-            target = self.Forage(berryList)
-            self.FindPath(target)
+        pass
 
     def FindPath(self,target):
         print(target)
@@ -66,6 +63,7 @@ class Creature:
         pathfinder = PathFinder(self,target)
         pathfinder.InitiatePathfind()
         self.currentpath = pathfinder.path
+        self.target = None
 
         print("---------")
         
@@ -74,6 +72,13 @@ class Creature:
         #choose mate
         self.Move(target,world)
         pass #find a suitable mate
+
+    def Wander(self,fertileList):
+        cell = random.choice(fertileList)
+        cell = self.world[cell.position[0]][cell.position[1]]
+        print(cell,"found")
+        print(cell.position)
+        return cell
 
 
 class Predator(Creature):
@@ -107,6 +112,14 @@ class Prey(Creature):
         self.img = img
         self.hasPredator = False
         self.health = BASE_HEALTH
+
+    def Update(self,berryList,fertileList):
+        if self.currentpath is not None:
+            self.AdvancePath()
+        else:
+            target = self.Wander(fertileList)
+            print(target)
+            self.FindPath(target)
 
 
     def Forage(self,berryList):

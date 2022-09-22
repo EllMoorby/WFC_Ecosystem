@@ -10,4 +10,3 @@ sys.setrecursionlimit(6**10)
 eventManager = EventManager() #Start a new event manager
 eventManager.Main() #Begin the main program
 
-

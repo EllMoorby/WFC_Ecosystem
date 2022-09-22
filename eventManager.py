@@ -77,12 +77,13 @@ class EventManager:
         
         for creature in range(self.creaturecount):
             #give them a random position, an image and pass both world + renderer as parameters
-            self.preyList.append(Prey(choice(self.spawnableList).position,"img",self.world,self.renderer))
+            print(self.spawnableList[0].position)
+            self.preyList.append(Prey(choice(self.spawnableList),"img",self.world,self.renderer))
 
     def Update(self): #update to be looped once per frame
         #update all creatures
         for creature in self.preyList:
-            creature.Update(self.berryList)
+            creature.Update(self.berryList,self.fertileList)
 
     def Main(self): #main program
         self.world = self.CreateWorld() #generate a world
