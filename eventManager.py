@@ -5,6 +5,7 @@ from renderer import Renderer
 from engine import Engine
 import pygame
 from waveFunctionCollapse import GenerateMap
+import pstats
 
 class EventManager:
     def __init__(self):
@@ -55,6 +56,7 @@ class EventManager:
             self.preyList = []
             self.predatorList = []
             world,self.tilelist = GenerateMap()
+            pygame.display.flip()
             return world
             """try:
                 pass
@@ -87,9 +89,10 @@ class EventManager:
         pygame.display.flip()
         
 
-    def Main(self): #main program
+    def Main(self,pr): #main program
         self.world = self.CreateWorld() #generate a world
         self.SplitWorld() #split the world into fertile,spawnable,etc.
+        self.InitializeCreatures()
         playing = True # create a playing loop
         while playing:
             for event in pygame.event.get():
@@ -97,11 +100,17 @@ class EventManager:
                     if event.key == pygame.K_p:
                         self.world = self.CreateWorld()
                         self.SplitWorld()
-                    if event.key == pygame.K_o:
-                        self.Update()
+                        self.InitializeCreatures()
                     if event.key == pygame.K_u:
                         self.SpawnBerry()
-                    if event.key == pygame.K_w:
-                        self.InitializeCreatures()
                 if event.type == pygame.QUIT:
+                    stats = pstats.Stats(pr)
+                    stats.sort_stats(pstats.SortKey.TIME)
+                    stats.dump_stats(filename="test.prof")
+
                     playing = False
+
+            self.Update()
+            self.engine.update_dt()
+
+                

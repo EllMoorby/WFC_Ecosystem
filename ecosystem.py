@@ -48,7 +48,6 @@ class Creature:
         try:
             self.position = self.currentpath.stack[self.currentpath.size]
             self.currentpath.RemoveFromStack()
-            self.renderer.DrawCreature(self)
         except:
             self.currentpath = None
             return
@@ -117,6 +116,8 @@ class Prey(Creature):
             self.currentpath = self.FindPath(target)
         else:
             self.AdvancePath()
+
+        self.renderer.DrawCreature(self)
                 
 
 
