@@ -1,7 +1,11 @@
+from secrets import choice
+from tkinter.tix import CELL
 from constants import *
-from pathfinder import PathFinder
+from pathfinder import PathFinder,Stack
 import random
 import math
+import pygame
+
 
 class CreatureCell:
     def __init__(self,position,tile) -> None:
@@ -12,7 +16,6 @@ class CreatureCell:
         self.f_cost = 0 #Gcost+Hcost
         self.pointer = None
         self.traversable = self.tile.traversable
-        self.currentpath = None
 
 class Creature:
     def __init__(self,position,world,renderer):
@@ -20,9 +23,10 @@ class Creature:
         self.energy = BASE_ENERGY
         self.urgeReproduce = URGE_REPRODUCE
         self.worldmap = world
-        self.currentpath = None
+        self.currentpath = Stack()
         self.renderer = renderer
         self.count = 0
+        
 
         self.world = self.CreateCreatureWorld()
 
@@ -41,20 +45,12 @@ class Creature:
 
         return world
 
-    def ChooseOption(self):
-        return random.choices(["ENERGY","REPRODUCE"],weights=[BASE_ENERGY-self.energy,URGE_REPRODUCE-self.urgeReproduce])
-
     def AdvancePath(self):
-        try:
-            self.position = self.currentpath.stack[self.currentpath.size]
-            self.currentpath.RemoveFromStack()
-        except:
-            self.currentpath = None
-            return
+        #self.position = self.worldmap[self.currentpath.stack[self.currentpath.size][0]][self.currentpath.stack[self.currentpath.size][1]]
+        self.position = self.currentpath.stack[self.currentpath.size]
+        self.currentpath.RemoveFromStack()
         #if len(self.currentpath.stack) == 0: self.currentpath = None
         
-    def Update(self,berryList):
-        pass
 
     def FindPath(self,target):
         self.world = self.CreateCreatureWorld()
@@ -63,6 +59,7 @@ class Creature:
         pathfinder.InitiatePathfind()
         currentpath = pathfinder.path
         self.target = None
+        
         return currentpath
         
 
@@ -71,16 +68,21 @@ class Creature:
         self.Move(target,world)
         pass #find a suitable mate
 
-    def Wander(self,fertileList):
-        cell = random.choice(fertileList)
+    def Wander(self,spawnableList):
+        possibleWanderTiles = []
+        for item in spawnableList:
+            if self.GetDistanceBetween(self.position,item) <= MAXWANDERDISTANCE and item.position != self.position.position:
+                possibleWanderTiles.append(item)
+
+        cell = random.choice(possibleWanderTiles)
         cell = self.world[cell.position[0]][cell.position[1]]
         return cell
 
 
 class Predator(Creature):
-    def __init__(self,position,img,world,renderer):
+    def __init__(self,position,world,renderer):
         super().__init__(position,world,renderer)
-        self.img = img
+        self.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"fox.png")).convert_alpha(),(CELLSIZE,CELLSIZE))
         self.urgeHunt = URGE_HUNT
 
     def Hunt(self,preyList):
@@ -103,21 +105,33 @@ class PredatorFemale(Predator):
         super().__init__(position,img,world,renderer)
 
 class Prey(Creature):
-    def __init__(self,position,img,world,renderer):
+    def __init__(self,position,world,renderer):
         super().__init__(position,world,renderer)
-        self.img = img
+        self.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"rabbit.png")).convert_alpha(),(CELLSIZE,CELLSIZE))
         self.hasPredator = False
         self.health = BASE_HEALTH
         
 
-    def Update(self,berryList,fertileList):
-        if self.currentpath == None:
-            target = self.Wander(fertileList)
+    def Update(self,berryList,fertileList,spawnableList):
+        if len(self.currentpath.stack) == 0:
+            target = self.Wander(spawnableList)
             self.currentpath = self.FindPath(target)
         else:
             self.AdvancePath()
 
         self.renderer.DrawCreature(self)
+
+    def ChooseActivity(self):
+        choiceweights = BASECHOICEWEIGHTS
+        if self.hasPredator:
+            return "f"
+
+        choiceweights[0] += (BASE_ENERGY-self.energy) #eat chance
+        choiceweights[1] += (self.energy/BASE_ENERGY + self.urgeReproduce/URGE_REPRODUCE)/2 #chance to wander
+        choiceweights[2] += (URGE_REPRODUCE-self.urgeReproduce) #chance to reproduce
+
+        return random.choices(["e","w","r"],choiceweights,k=1)
+        
                 
 
 

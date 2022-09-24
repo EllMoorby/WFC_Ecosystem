@@ -21,9 +21,10 @@ class Stack:
     def __iter__(self): #calling itself returns the stack for ease of use
         return self.stack
 
+
 class PathFinder:
     def __init__(self,creature,target):
-        self.world = creature.world #get the world map in CreatureCells
+        self.world = creature.world.copy() #get the world map in CreatureCells
         self.creature = creature.position
         self.target = target
         self.exploredcells = [] #A list of cells the program has explored

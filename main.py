@@ -3,7 +3,6 @@ from waveFunctionCollapse import *
 from constants import *
 import sys
 import cProfile
-import snakeviz
 from eventManager import EventManager
 
 sys.setrecursionlimit(6**10)
