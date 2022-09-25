@@ -89,7 +89,7 @@ class PathFinder:
         self.path.AddToStack(cell) #add the cell to the stack
         while cell.position != self.creature.position: #while the path has not been found
             cell = cell.pointer #work the pointers back to find the path
-            if cell.position != self.creature.position:
+            if cell.position != self.creature.position and cell.position != self.target.position:
                 self.path.AddToStack(cell) #add stack to cell
 
 

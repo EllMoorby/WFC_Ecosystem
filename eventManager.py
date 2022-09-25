@@ -1,6 +1,6 @@
 from random import choice
 from constants import *
-from ecosystem import Predator,PredatorFemale,Prey,PreyFemale
+from ecosystem import Predator,Prey
 from renderer import Renderer
 from engine import Engine
 import pygame
@@ -20,6 +20,8 @@ class EventManager:
         self.tiledict = {} #Dictionary of all tile types
         self.fertileList = [] #A list of all fertile land where berrys can grow
         self.spawnableList = [] #A list of all tiles where creatures can spawn
+        self.deadPreyList = [] #A list of all prey objects which are deceased
+        self.preyLookingForMate = [] #A list of all prey looking for a mate
 
     def SplitWorld(self): #split the world into fertile, spawnable land into a dictionary
         #reset all values, a new world was created
@@ -83,9 +85,18 @@ class EventManager:
 
     def Update(self): #update to be looped once per frame
         self.renderer.RenderWorld(self.world) #draw world
+        for berry in self.berryList:
+            self.renderer.RenderBerry(berry)
         #update all creatures
         for creature in self.preyList:
-            creature.Update(self.berryList,self.fertileList,self.spawnableList)
+            deathCheck = creature.Update(self.berryList,self.fertileList,self.spawnableList,self.preyLookingForMate)
+            if deathCheck == -1: #if dead remove them from preylist
+                self.preyList.remove(creature)
+                self.deadPreyList.append(creature)
+                creature.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"deadrabbit.png")).convert_alpha(),(CELLSIZE,CELLSIZE))
+
+        for deadcreature in self.deadPreyList:
+            self.renderer.DrawCreature(deadcreature)
         pygame.display.flip()
         
 
@@ -109,7 +120,6 @@ class EventManager:
                     stats.dump_stats(filename="test.prof")
 
                     playing = False
-
             self.Update()
             self.engine.update_dt()
 

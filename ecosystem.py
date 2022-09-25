@@ -1,3 +1,4 @@
+from os import remove
 from secrets import choice
 from tkinter.tix import CELL
 from constants import *
@@ -26,6 +27,8 @@ class Creature:
         self.currentpath = Stack()
         self.renderer = renderer
         self.count = 0
+        self.foodTarget = None
+        self.mate = None
         
 
         self.world = self.CreateCreatureWorld()
@@ -49,6 +52,12 @@ class Creature:
         #self.position = self.worldmap[self.currentpath.stack[self.currentpath.size][0]][self.currentpath.stack[self.currentpath.size][1]]
         self.position = self.currentpath.stack[self.currentpath.size]
         self.currentpath.RemoveFromStack()
+        if self.foodTarget and self.foodTarget.position == self.position.position:
+            self.energy += BERRYENERGYREFILL
+            return True
+        
+        self.energy -= LOSSPERSTEP
+        return False
         #if len(self.currentpath.stack) == 0: self.currentpath = None
         
 
@@ -58,15 +67,12 @@ class Creature:
         pathfinder = PathFinder(self,target)
         pathfinder.InitiatePathfind()
         currentpath = pathfinder.path
-        self.target = None
         
         return currentpath
         
 
-    def LocateMate(self,world,target):
-        #choose mate
-        self.Move(target,world)
-        pass #find a suitable mate
+    def LocateMate(self,preyLookingForMate):
+        pass
 
     def Wander(self,spawnableList):
         possibleWanderTiles = []
@@ -100,24 +106,38 @@ class Predator(Creature):
     def Update(self):
         pass
 
-class PredatorFemale(Predator):
-    def __init__(self,position,img,world,renderer):
-        super().__init__(position,img,world,renderer)
-
 class Prey(Creature):
     def __init__(self,position,world,renderer):
         super().__init__(position,world,renderer)
         self.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"rabbit.png")).convert_alpha(),(CELLSIZE,CELLSIZE))
         self.hasPredator = False
         self.health = BASE_HEALTH
+        self.lookingForMate = False
         
 
-    def Update(self,berryList,fertileList,spawnableList):
+    def Update(self,berryList,fertileList,spawnableList,preyLookingForMate):
+        if self.energy <= 0:
+            return -1
         if len(self.currentpath.stack) == 0:
-            target = self.Wander(spawnableList)
-            self.currentpath = self.FindPath(target)
+            self.foodTarget = None
+            option = self.ChooseActivity()
+            match option[0]:
+                case "f":
+                    pass
+                case "e":
+                    target = self.Forage(berryList)
+                    if target == -1:
+                        target = self.Wander(spawnableList)
+                    self.currentpath = self.FindPath(target)
+                case "w":
+                    target = self.Wander(spawnableList)
+                    self.currentpath = self.FindPath(target)
+                case "r":
+                    pass
         else:
-            self.AdvancePath()
+            removeberry = self.AdvancePath()
+            if removeberry:
+                berryList.remove(self.foodTarget)
 
         self.renderer.DrawCreature(self)
 
@@ -129,32 +149,30 @@ class Prey(Creature):
         choiceweights[0] += (BASE_ENERGY-self.energy) #eat chance
         choiceweights[1] += (self.energy/BASE_ENERGY + self.urgeReproduce/URGE_REPRODUCE)/2 #chance to wander
         choiceweights[2] += (URGE_REPRODUCE-self.urgeReproduce) #chance to reproduce
-
+        for index,weight in enumerate(choiceweights):
+            weight = min(max(weight,0),MAXCHOICEWEIGHT)
+            choiceweights[index] = weight
         return random.choices(["e","w","r"],choiceweights,k=1)
-        
-                
-
 
     def Forage(self,berryList):
         lowest = 99999999
         lowestberry = None
         for berry in berryList:
-            dist = self.GetDistanceBetween(berry,self)
+            dist = self.GetDistanceBetween(berry,self.position)
             if not(berry.hasTarget) and dist < lowest:
                 lowest = dist
                 lowestberry = berry
+        if lowestberry == None:
+            return -1
+        self.foodTarget = lowestberry
+        lowestberry.hasTarget = True
         lowestberryInCreatureWorld = self.world[lowestberry.position[0]][lowestberry.position[1]]
-        lowestberryInCreatureWorld.hasTarget = True
         return lowestberryInCreatureWorld
 
     def Flee(self):
         #run from the predator chasing
         pass
 
-
-class PreyFemale(Prey):
-    def __init__(self,position,img,world,renderer):
-        super().__init__(position,img,world,renderer)
 
          
 
