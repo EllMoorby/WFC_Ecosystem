@@ -30,19 +30,24 @@ class Creature:
         self.foodTarget = None
         self.mate = None
         self.matePosition = None
+        self.sex = choice(SEXLIST)
         
 
         self.world = self.CreateCreatureWorld()
     
     def RequestMate(self, mate):
-        self.mate = mate
-        return True
+        if self.mate == None:
+            self.mate = mate
+            return True
+        else:return False
 
 
     def PotentialMateFound(self, mate):
         if mate.RequestMate(self):
-            #findmate
-            pass
+            self.mate = mate
+            return True
+        else:return False
+
         
 
     def FindMidpoint(self,item1,item2):
@@ -168,15 +173,19 @@ class Prey(Creature):
                     target = self.Wander(spawnableList)
                     self.currentpath = self.FindPath(target)
                 case "r":
-                    if not(self.mate):
-                        target = self.LocateMate(preyLookingForMate)
-                        if target == -1:
-                            target = self.Wander(spawnableList)
-                            self.currentpath = self.FindPath(target)
-                        else:
-                            self.currentpath = self.FindPath(target)
-                    else:
-                        self.currentpath = self.FindPath(self.matePosition)
+                    print("r")
+                    for prey in preyLookingForMate:
+                        if self.sex == "f":
+                            if prey.sex == "m":
+                                if self.PotentialMateFound(prey):
+                                    #wait
+                                    break
+                        if self.sex == "m":
+                            if prey.sex == "f":
+                                if self.PotentialMateFound(prey):
+                                    target = self.mate.position
+                                    self.currentpath = self.FindPath(target)
+                                    break
                         
         else:
             removeberry = self.AdvancePath()
@@ -195,39 +204,11 @@ class Prey(Creature):
 
         choiceweights[0] += (BASE_ENERGY-self.energy) #eat chance
         choiceweights[1] += (self.energy/BASE_ENERGY + self.urgeReproduce/URGE_REPRODUCE)/2 #chance to wander
-        choiceweights[2] += (URGE_REPRODUCE-self.urgeReproduce) #chance to reproduce
+        choiceweights[2] += (URGE_REPRODUCE-self.urgeReproduce) *5 #chance to reproduce
         for index,weight in enumerate(choiceweights):
             weight = min(max(weight,0),MAXCHOICEWEIGHT)
             choiceweights[index] = weight
         return random.choices(["e","w","r"],choiceweights,k=1)
-
-    def LocateMate(self,preyLookingForMate):
-        if self not in preyLookingForMate:
-            preyLookingForMate.append(self)
-        
-        lowest = 99999999
-        lowestmate = None
-        for prey in preyLookingForMate:
-            dist = self.GetDistanceBetween(prey.position,self.position)
-            if prey != self and dist < lowest:
-                lowest = dist
-                lowestmate = prey
-        if lowestmate == None:
-            return -1
-        lowestmate.mate = self
-        self.mate = lowestmate
-        preyLookingForMate.remove(self)
-        preyLookingForMate.remove(lowestmate)
-
-        midcell = self.FindMidpoint(self,lowestmate)
-        midcell = self.world[midcell[0]][midcell[1]]
-        self.matePosition = midcell
-        self.mate.matePosition = midcell
-        return midcell
-
-
-        
-        
 
     def Forage(self,berryList):
         lowest = 99999999
