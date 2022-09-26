@@ -6,6 +6,7 @@ from engine import Engine
 import pygame
 from waveFunctionCollapse import GenerateMap
 import pstats
+from numpy import random
 
 class EventManager:
     def __init__(self):
@@ -21,6 +22,7 @@ class EventManager:
         self.fertileList = [] #A list of all fertile land where berrys can grow
         self.spawnableList = [] #A list of all tiles where creatures can spawn
         self.deadPreyList = [] #A list of all prey objects which are deceased
+        self.deadPredatorList = [] #A list of all predator objects which are deceased
         self.preyLookingForMate = [] #A list of all prey looking for a mate
 
     def SplitWorld(self): #split the world into fertile, spawnable land into a dictionary
@@ -57,6 +59,8 @@ class EventManager:
             #attempt to create a new world
             self.preyList = []
             self.predatorList = []
+            self.deadPreyList = []
+            self.deadPredatorList = []
             world,self.tilelist = GenerateMap()
             pygame.display.flip()
             return world
@@ -70,12 +74,16 @@ class EventManager:
 
 
     def SpawnBerry(self): #spawn a berry at a random fertile spot
-        newberry = choice(self.fertileList)
-        newberry.hasBerry = True #ensure the tile knows it has a berry attatched
-        self.berryList.append(newberry)
-        self.fertileList.remove(newberry)
-        self.renderer.RenderBerry(newberry) #render the berry
-        pass
+        if len(self.fertileList) != 0:
+            newberry = choice(self.fertileList)
+            newberry.hasBerry = True #ensure the tile knows it has a berry attatched
+            self.berryList.append(newberry)
+            self.fertileList.remove(newberry)
+            self.renderer.RenderBerry(newberry) #render the berry
+    
+    def BerryUpdate(self):
+        for x in range(random.poisson(lam=0.2,size=1)[0]):
+            self.SpawnBerry()
 
     def InitializeCreatures(self): #instantiate all creatures using the amount of creatures determined from constants
         
@@ -97,6 +105,7 @@ class EventManager:
 
         for deadcreature in self.deadPreyList:
             self.renderer.DrawCreature(deadcreature)
+        self.BerryUpdate()
         pygame.display.flip()
         
 

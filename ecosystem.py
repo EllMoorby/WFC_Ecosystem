@@ -29,9 +29,36 @@ class Creature:
         self.count = 0
         self.foodTarget = None
         self.mate = None
+        self.matePosition = None
         
 
         self.world = self.CreateCreatureWorld()
+    
+    def RequestMate(self, mate):
+        self.mate = mate
+        return True
+
+
+    def PotentialMateFound(self, mate):
+        if mate.RequestMate(self):
+            #findmate
+            pass
+        
+
+    def FindMidpoint(self,item1,item2):
+        midx = item1.position.position[0] + item2.position.position[0]
+        midx /= 2
+        midx = round(midx,0)
+        midy = item1.position.position[1] + item2.position.position[1]
+        midy /= 2
+        midy = round(midx,0)
+
+        midcell = (abs(midx),abs(midy))
+        print(midcell[0])
+        midcell[0] = int(midcell[0])
+        midcell[1] = int(midcell[1])
+        print(midcell)
+        return midcell
 
     def GetDistanceBetween(self,item1,item2):
         dx = item1.position[0] - item2.position[0]
@@ -48,6 +75,8 @@ class Creature:
 
         return world
 
+
+
     def AdvancePath(self):
         #self.position = self.worldmap[self.currentpath.stack[self.currentpath.size][0]][self.currentpath.stack[self.currentpath.size][1]]
         self.position = self.currentpath.stack[self.currentpath.size]
@@ -55,13 +84,17 @@ class Creature:
         if self.foodTarget and self.foodTarget.position == self.position.position:
             self.energy += BERRYENERGYREFILL
             return True
-        
+        if self.mate and self.matePosition.position.position == self.position.position:
+            print("yes")
+            self.mate = None
+            self.matePosition = None
         self.energy -= LOSSPERSTEP
         return False
         #if len(self.currentpath.stack) == 0: self.currentpath = None
         
 
     def FindPath(self,target):
+        if target.position == self.position.position:print("error")
         self.world = self.CreateCreatureWorld()
         #move towards target, otherwise create a random target position
         pathfinder = PathFinder(self,target)
@@ -70,9 +103,6 @@ class Creature:
         
         return currentpath
         
-
-    def LocateMate(self,preyLookingForMate):
-        pass
 
     def Wander(self,spawnableList):
         possibleWanderTiles = []
@@ -128,16 +158,33 @@ class Prey(Creature):
                     target = self.Forage(berryList)
                     if target == -1:
                         target = self.Wander(spawnableList)
-                    self.currentpath = self.FindPath(target)
+                        self.currentpath = self.FindPath(target)
+                    elif target.position == self.position.position:
+                        self.currentpath.AddToStack(target)
+                        self.AdvancePath()
+                    else:
+                        self.currentpath = self.FindPath(target)
                 case "w":
                     target = self.Wander(spawnableList)
                     self.currentpath = self.FindPath(target)
                 case "r":
-                    pass
+                    if not(self.mate):
+                        target = self.LocateMate(preyLookingForMate)
+                        if target == -1:
+                            target = self.Wander(spawnableList)
+                            self.currentpath = self.FindPath(target)
+                        else:
+                            self.currentpath = self.FindPath(target)
+                    else:
+                        self.currentpath = self.FindPath(self.matePosition)
+                        
         else:
             removeberry = self.AdvancePath()
             if removeberry:
-                berryList.remove(self.foodTarget)
+                try:
+                    berryList.remove(self.foodTarget)
+                except:
+                    pass
 
         self.renderer.DrawCreature(self)
 
@@ -153,6 +200,34 @@ class Prey(Creature):
             weight = min(max(weight,0),MAXCHOICEWEIGHT)
             choiceweights[index] = weight
         return random.choices(["e","w","r"],choiceweights,k=1)
+
+    def LocateMate(self,preyLookingForMate):
+        if self not in preyLookingForMate:
+            preyLookingForMate.append(self)
+        
+        lowest = 99999999
+        lowestmate = None
+        for prey in preyLookingForMate:
+            dist = self.GetDistanceBetween(prey.position,self.position)
+            if prey != self and dist < lowest:
+                lowest = dist
+                lowestmate = prey
+        if lowestmate == None:
+            return -1
+        lowestmate.mate = self
+        self.mate = lowestmate
+        preyLookingForMate.remove(self)
+        preyLookingForMate.remove(lowestmate)
+
+        midcell = self.FindMidpoint(self,lowestmate)
+        midcell = self.world[midcell[0]][midcell[1]]
+        self.matePosition = midcell
+        self.mate.matePosition = midcell
+        return midcell
+
+
+        
+        
 
     def Forage(self,berryList):
         lowest = 99999999
