@@ -1,6 +1,3 @@
-from os import remove
-from secrets import choice
-from tkinter.tix import CELL
 from constants import *
 from pathfinder import PathFinder,Stack
 import random
@@ -30,7 +27,7 @@ class Creature:
         self.foodTarget = None
         self.mate = None
         self.matePosition = None
-        self.sex = choice(SEXLIST)
+        self.sex = random.choice(SEXLIST)
         
 
         self.world = self.CreateCreatureWorld()
@@ -38,32 +35,17 @@ class Creature:
     def RequestMate(self, mate):
         if self.mate == None:
             self.mate = mate
+            print("mate found",self.sex,self.position.position)
             return True
         else:return False
 
 
     def PotentialMateFound(self, mate):
         if mate.RequestMate(self):
+            print("mate found",self.sex,self.position.position)
             self.mate = mate
             return True
         else:return False
-
-        
-
-    def FindMidpoint(self,item1,item2):
-        midx = item1.position.position[0] + item2.position.position[0]
-        midx /= 2
-        midx = round(midx,0)
-        midy = item1.position.position[1] + item2.position.position[1]
-        midy /= 2
-        midy = round(midx,0)
-
-        midcell = (abs(midx),abs(midy))
-        print(midcell[0])
-        midcell[0] = int(midcell[0])
-        midcell[1] = int(midcell[1])
-        print(midcell)
-        return midcell
 
     def GetDistanceBetween(self,item1,item2):
         dx = item1.position[0] - item2.position[0]
@@ -89,10 +71,6 @@ class Creature:
         if self.foodTarget and self.foodTarget.position == self.position.position:
             self.energy += BERRYENERGYREFILL
             return True
-        if self.mate and self.matePosition.position.position == self.position.position:
-            print("yes")
-            self.mate = None
-            self.matePosition = None
         self.energy -= LOSSPERSTEP
         return False
         #if len(self.currentpath.stack) == 0: self.currentpath = None
@@ -173,27 +151,45 @@ class Prey(Creature):
                     target = self.Wander(spawnableList)
                     self.currentpath = self.FindPath(target)
                 case "r":
-                    print("r")
+                    if self not in preyLookingForMate:
+                        preyLookingForMate.append(self)
                     for prey in preyLookingForMate:
-                        if self.sex == "f":
-                            if prey.sex == "m":
-                                if self.PotentialMateFound(prey):
-                                    #wait
-                                    break
-                        if self.sex == "m":
-                            if prey.sex == "f":
-                                if self.PotentialMateFound(prey):
-                                    target = self.mate.position
-                                    self.currentpath = self.FindPath(target)
-                                    break
+                        if self.mate == None:
+                            if self.sex == "f":
+                                if prey.sex == "m":
+                                    if self.PotentialMateFound(prey):
+                                        preyLookingForMate.remove(self)
+                                        preyLookingForMate.remove(self.mate)
+                                        #wait
+                                        break
+                            if self.sex == "m":
+                                if prey.sex == "f":
+                                    if self.PotentialMateFound(prey):
+                                        preyLookingForMate.remove(self)
+                                        preyLookingForMate.remove(self.mate)
+                                        target = self.mate.position
+                                        print(target.position)
+                                        self.currentpath = self.FindPath(target)
+                                        
+                                        break
                         
         else:
-            removeberry = self.AdvancePath()
-            if removeberry:
-                try:
-                    berryList.remove(self.foodTarget)
-                except:
-                    pass
+            if self.mate:
+                print(self.currentpath.stack[0].position,self.mate.position.position)
+                if self.currentpath.stack[0].position != self.mate.position.position:
+                    target = self.mate.position
+                    print(target.position)
+                    self.currentpath = self.FindPath(target)
+                elif self.sex[0] == "m":
+                    test = self.AdvancePath()
+                pass
+            else:
+                removeberry = self.AdvancePath()
+                if removeberry:
+                    try:
+                        berryList.remove(self.foodTarget)
+                    except:
+                        pass
 
         self.renderer.DrawCreature(self)
 
@@ -203,8 +199,8 @@ class Prey(Creature):
             return "f"
 
         choiceweights[0] += (BASE_ENERGY-self.energy) #eat chance
-        choiceweights[1] += (self.energy/BASE_ENERGY + self.urgeReproduce/URGE_REPRODUCE)/2 #chance to wander
-        choiceweights[2] += (URGE_REPRODUCE-self.urgeReproduce) *5 #chance to reproduce
+        choiceweights[1] += (self.energy/BASE_ENERGY + self.urgeReproduce/URGE_REPRODUCE) #chance to wander
+        choiceweights[2] += (URGE_REPRODUCE-self.urgeReproduce)  #chance to reproduce
         for index,weight in enumerate(choiceweights):
             weight = min(max(weight,0),MAXCHOICEWEIGHT)
             choiceweights[index] = weight

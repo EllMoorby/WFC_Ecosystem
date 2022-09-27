@@ -72,7 +72,6 @@ class PathFinder:
 
  
     def PathFind(self): #recursive algorithm where the paths are expanded from the creature until the target is found
-
         #add to explored cells
         cell = self.GetLowestFCost() #finds the cell with the lowest cost
         self.exploredcells.remove(cell) #remove it from exploredcells
