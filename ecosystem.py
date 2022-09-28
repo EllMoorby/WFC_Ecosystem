@@ -71,6 +71,10 @@ class Creature:
         if self.foodTarget and self.foodTarget.position == self.position.position:
             self.energy += BERRYENERGYREFILL
             return True
+
+        if self.mate and self.mate.position.position == self.position.position:
+            self.mate.mate = None
+            self.mate = None
         self.energy -= LOSSPERSTEP
         return False
         #if len(self.currentpath.stack) == 0: self.currentpath = None
