@@ -22,7 +22,7 @@ class Renderer:
 
     def DrawCreature(self,creature):
         self.screen.blit(creature.img,(creature.position.position[0]*CELLSIZE,creature.position.position[1]*CELLSIZE))
-        #pygame.draw.rect(self.screen,(255,0,0), (creature.position.position[0]*CELLSIZE,creature.position.position[1]*CELLSIZE,CELLSIZE,CELLSIZE))
+
 
     def RenderBerry(self,cell):
         self.screen.blit(self.berryimg,(cell.position[0]*CELLSIZE,cell.position[1]*CELLSIZE))

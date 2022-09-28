@@ -7,6 +7,7 @@ import pygame
 from waveFunctionCollapse import GenerateMap
 import pstats
 from numpy import random
+import matplotlib.pyplot as plt
 
 class EventManager:
     def __init__(self):
@@ -24,6 +25,7 @@ class EventManager:
         self.deadPreyList = [] #A list of all prey objects which are deceased
         self.deadPredatorList = [] #A list of all predator objects which are deceased
         self.preyLookingForMate = [] #A list of all prey looking for a mate
+        self.preyListLength_perframe = []
 
     def SplitWorld(self): #split the world into fertile, spawnable land into a dictionary
         #reset all values, a new world was created
@@ -31,6 +33,7 @@ class EventManager:
         self.berryList = []
         self.fertileList = []
         self.spawnableList = []
+        self.preyListLength_perframe = []
 
         #expand the dictionary to allow all tiles to be added as keys
         for tile in self.tilelist:
@@ -82,7 +85,7 @@ class EventManager:
             self.renderer.RenderBerry(newberry) #render the berry
     
     def BerryUpdate(self):
-        for x in range(random.poisson(lam=0.2,size=1)[0]):
+        for x in range(random.poisson(lam=BERRYCONST,size=1)[0]):
             self.SpawnBerry()
 
     def InitializeCreatures(self): #instantiate all creatures using the amount of creatures determined from constants
@@ -97,14 +100,15 @@ class EventManager:
             self.renderer.RenderBerry(berry)
         #update all creatures
         for creature in self.preyList:
-            deathCheck = creature.Update(self.berryList,self.fertileList,self.spawnableList,self.preyLookingForMate)
-            if deathCheck == -1: #if dead remove them from preylist
+            action = creature.Update(self.berryList,self.fertileList,self.spawnableList,self.preyLookingForMate)
+            if action == -1: #if dead remove them from preylist
                 self.preyList.remove(creature)
                 self.deadPreyList.append(creature)
                 creature.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"deadrabbit.png")).convert_alpha(),(CELLSIZE,CELLSIZE))
+            elif action == 0:
+                self.preyList.append(Prey(choice(self.spawnableList),self.world,self.renderer))
+        self.preyListLength_perframe.append(len(self.preyList))
 
-        for deadcreature in self.deadPreyList:
-            self.renderer.DrawCreature(deadcreature)
         self.BerryUpdate()
         pygame.display.flip()
         
@@ -124,6 +128,8 @@ class EventManager:
                     if event.key == pygame.K_u:
                         self.SpawnBerry()
                 if event.type == pygame.QUIT:
+                    plt.plot(self.preyListLength_perframe)
+                    plt.show()
                     stats = pstats.Stats(pr)
                     stats.sort_stats(pstats.SortKey.TIME)
                     stats.dump_stats(filename="test.prof")
