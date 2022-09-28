@@ -29,6 +29,7 @@ class Creature:
         self.matePosition = None
         self.sex = random.choice(SEXLIST)
         self.alive = True
+        self.age = 0
         
 
         _map = self.CreateCreatureWorld()
@@ -62,7 +63,33 @@ class Creature:
 
         return world
 
+    def LocateMate(self,preyLookingForMate):
+        self.energy -= LOSSPERSTEP
+        if self not in preyLookingForMate:
+            preyLookingForMate.append(self)
+        lowest = 99999999
+        closestmate = None
+        for prey in preyLookingForMate:
+            if self.GetDistanceBetween(self.position,prey.position) < lowest and prey.sex != self.sex:
+                closestmate = prey
 
+        if closestmate != None:
+            if self.mate == None:
+                if self.sex == "f":
+                    if closestmate.sex == "m":
+                        if self.PotentialMateFound(closestmate):
+                            preyLookingForMate.remove(self)
+                            preyLookingForMate.remove(self.mate)
+                            #wait
+                if self.sex == "m":
+                    if closestmate.sex == "f":
+                        if self.PotentialMateFound(closestmate):
+                            preyLookingForMate.remove(self)
+                            preyLookingForMate.remove(self.mate)
+                            target = self.mate.position
+                            if target.position != self.position.position:
+                                self.currentpath = self.FindPath(target)
+                       
 
     def AdvancePath(self):
         #self.position = self.worldmap[self.currentpath.stack[self.currentpath.size][0]][self.currentpath.stack[self.currentpath.size][1]]
@@ -77,7 +104,6 @@ class Creature:
             self.mate.urgeReproduce = URGE_REPRODUCE
             self.mate.mate = None
             self.mate = None
-            print(self.urgeReproduce,"urge")
             return 1
         self.energy -= LOSSPERSTEP
         return -1
@@ -137,6 +163,8 @@ class Prey(Creature):
         
 
     def Update(self,berryList,fertileList,spawnableList,preyLookingForMate):
+        print(self.energy)
+        self.age += 1
         self.urgeReproduce -= URGELOSSPERSTEP
         if self.energy <= 0:
             if self.mate:
@@ -151,8 +179,10 @@ class Prey(Creature):
             option = self.ChooseActivity()
             match option[0]:
                 case "f":
+                    print("flee")
                     pass
                 case "e":
+                    print("eat")
                     target = self.Forage(berryList)
                     if target == -1:
                         target = self.Wander(spawnableList)
@@ -163,32 +193,12 @@ class Prey(Creature):
                     else:
                         self.currentpath = self.FindPath(target)
                 case "w":
+                    print("wander")
                     target = self.Wander(spawnableList)
                     self.currentpath = self.FindPath(target)
                 case "r":
-                    self.energy -= LOSSPERSTEP
-                    if self not in preyLookingForMate:
-                        preyLookingForMate.append(self)
-                    for prey in preyLookingForMate:
-                        if self.mate == None:
-                            if self.sex == "f":
-                                if prey.sex == "m":
-                                    if self.PotentialMateFound(prey):
-                                        preyLookingForMate.remove(self)
-                                        preyLookingForMate.remove(self.mate)
-                                        #wait
-                                        break
-                            if self.sex == "m":
-                                if prey.sex == "f":
-                                    if self.PotentialMateFound(prey):
-                                        preyLookingForMate.remove(self)
-                                        preyLookingForMate.remove(self.mate)
-                                        target = self.mate.position
-                                        if target.position != self.position.position:
-                                            print(target.position)
-                                            self.currentpath = self.FindPath(target)
-                                        
-                                        break
+                    print("reproduce")
+                    self.LocateMate(preyLookingForMate)
                         
         else:
             if self.mate:
@@ -207,6 +217,7 @@ class Prey(Creature):
                 action = self.AdvancePath()
                 if action == 0:
                     berryList.remove(self.foodTarget)
+                    fertileList.append(self.foodTarget)
                 
                     
 
@@ -218,12 +229,15 @@ class Prey(Creature):
             return "f"
 
         choiceweights[0] += (BASE_ENERGY-self.energy) #eat chance
-        choiceweights[1] += (self.energy/BASE_ENERGY + self.urgeReproduce/URGE_REPRODUCE) #chance to wander
+        choiceweights[1] += (self.energy/BASE_ENERGY + self.urgeReproduce/URGE_REPRODUCE)*10 #chance to wander
         choiceweights[2] += (URGE_REPRODUCE-self.urgeReproduce)*MULTI  #chance to reproduce
         
         for index,weight in enumerate(choiceweights):
             weight = min(max(weight,0.1),MAXCHOICEWEIGHT)
             choiceweights[index] = weight
+        if self.age > MINREPROAGE:
+            choiceweights[2] = 0
+        print(choiceweights)
         return random.choices(["e","w","r"],choiceweights,k=1)
 
     def Forage(self,berryList):
