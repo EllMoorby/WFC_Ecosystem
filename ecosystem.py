@@ -164,15 +164,20 @@ class Prey(Creature):
         
 
     def Update(self,berryList,fertileList,spawnableList,preyLookingForMate):
+        print(self)
         self.age += 1
         self.urgeReproduce -= URGELOSSPERSTEP
         if self.energy <= 0:
+            print("death")
+            print(self)
+            if len(self.currentpath.stack) != 0:
+                print(self.currentpath.stack[self.currentpath.size].position)
             if self.mate:
                 self.mate.mate = None
                 self.mate = None
             print(self.foodTarget)
             if self.foodTarget:
-                print("removing target")
+                print("removing target",self.foodTarget.position, self.foodTarget.target)
                 self.foodTarget.hasTarget = False
                 print(self.foodTarget.hasTarget)
                 self.foodTarget = None
@@ -198,6 +203,7 @@ class Prey(Creature):
                         self.currentpath.AddToStack(target)
                         self.AdvancePath()
                     else:
+                        print(target.position,"target")
                         self.currentpath = self.FindPath(target)
                 case "w":
                     print("wander")
@@ -209,6 +215,9 @@ class Prey(Creature):
                         
         else:
             if self.mate:
+                self.foodTarget.hasBerry = False
+                self.foodTarget.target = False
+                self.foodTarget = None
                 if self.currentpath.stack[0].position != self.mate.position.position and self.position.position != self.mate.position.position:
                     target = self.mate.position
                     self.currentpath = self.FindPath(target)
@@ -252,13 +261,13 @@ class Prey(Creature):
         lowestberry = None
         for berry in berryList:
             dist = self.GetDistanceBetween(berry,self.position)
-            print(berry.hasTarget)
+            print(berry.hasTarget,berry.position,berry.target)
             if not(berry.hasTarget) and dist < lowest:
                 lowest = dist
                 lowestberry = berry
         if lowestberry == None:
             return -1
-        
+        lowestberry.target = self
         lowestberry.hasTarget = True
         self.foodTarget = lowestberry
         lowestberryInCreatureWorld = self.world[lowestberry.position[0]][lowestberry.position[1]]

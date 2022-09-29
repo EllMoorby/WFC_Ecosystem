@@ -37,6 +37,7 @@ class Cell:
         self.bias = {} #current cell bias
         self.hasBerry = False #whether the cell has a Berry
         self.hasTarget = False #whether the cell has a creature targeting it
+        self.target = None
         for item in self.possibletiles:
             self.bias[item] = 1
 

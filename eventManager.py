@@ -80,6 +80,7 @@ class EventManager:
         if len(self.fertileList) != 0:
             newberry = choice(self.fertileList)
             newberry.hasBerry = True #ensure the tile knows it has a berry attatched
+            newberry.hasTarget = False 
             self.berryList.append(newberry)
             self.fertileList.remove(newberry)
             self.renderer.RenderBerry(newberry) #render the berry
