@@ -102,8 +102,6 @@ class EventManager:
         for creature in self.preyList:
             action = creature.Update(self.berryList,self.fertileList,self.spawnableList,self.preyLookingForMate)
             if action == -1: #if dead remove them from preylist
-                if creature.foodTarget:
-                    creature.foodTarget.hasTarget = False
                 self.preyList.remove(creature)
                 self.deadPreyList.append(creature)
                 creature.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"deadrabbit.png")).convert_alpha(),(CELLSIZE,CELLSIZE))
