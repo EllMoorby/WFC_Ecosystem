@@ -112,6 +112,7 @@ class EventManager:
 
         self.BerryUpdate()
         pygame.display.flip()
+        pygame.display.set_caption("{:.2f}".format(self.engine.clock.get_fps()))
         
 
     def Main(self,pr): #main program
@@ -130,6 +131,8 @@ class EventManager:
                         self.SpawnBerry()
                 if event.type == pygame.QUIT:
                     plt.plot(self.preyListLength_perframe)
+                    plt.xlabel("Number of Frames")
+                    plt.ylabel("Amount of Creatures")
                     plt.show()
                     stats = pstats.Stats(pr)
                     stats.sort_stats(pstats.SortKey.TIME)

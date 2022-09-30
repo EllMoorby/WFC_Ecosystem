@@ -30,6 +30,8 @@ class Creature:
         self.sex = random.choice(SEXLIST)
         self.alive = True
         self.age = 0
+        self.deathage = random.randint(MINDEATHAGE,MAXDEATHAGE)
+        self.timebetweenmates = 0
         
 
         _map = self.CreateCreatureWorld()
@@ -101,6 +103,7 @@ class Creature:
             return 0
 
         if self.mate and self.mate.position.position == self.position.position:
+            self.timebetweenmates = 0
             self.urgeReproduce = URGE_REPRODUCE
             self.mate.urgeReproduce = URGE_REPRODUCE
             self.mate.mate = None
@@ -113,7 +116,7 @@ class Creature:
 
     def FindPath(self,target):
         if target.position == self.position.position:print("error")
-        self.world = self.CreateCreatureWorld()
+        self.world = self.CreateCreatureWorld() # i wanna remove THIS
         #move towards target, otherwise create a random target position
         pathfinder = PathFinder(self,target)
         pathfinder.InitiatePathfind()
@@ -164,22 +167,16 @@ class Prey(Creature):
         
 
     def Update(self,berryList,fertileList,spawnableList,preyLookingForMate):
-        print(self)
         self.age += 1
-        self.urgeReproduce -= URGELOSSPERSTEP
-        if self.energy <= 0:
-            print("death")
-            print(self)
-            if len(self.currentpath.stack) != 0:
-                print(self.currentpath.stack[self.currentpath.size].position)
+        self.timebetweenmates += 1
+        if self.age < MINREPROAGE or self.timebetweenmates <= TIMEBETWEENMATES:
+            self.urgeReproduce -= URGELOSSPERSTEP
+        if self.energy <= 0 or (self.age >= self.deathage):
             if self.mate:
                 self.mate.mate = None
                 self.mate = None
-            print(self.foodTarget)
             if self.foodTarget:
-                print("removing target",self.foodTarget.position, self.foodTarget.target)
                 self.foodTarget.hasTarget = False
-                print(self.foodTarget.hasTarget)
                 self.foodTarget = None
                 
             if self in preyLookingForMate:
@@ -191,10 +188,8 @@ class Prey(Creature):
             option = self.ChooseActivity()
             match option[0]:
                 case "f":
-                    print("flee")
                     pass
                 case "e":
-                    print("eat")
                     target = self.Forage(berryList)
                     if target == -1:
                         target = self.Wander(spawnableList)
@@ -203,21 +198,19 @@ class Prey(Creature):
                         self.currentpath.AddToStack(target)
                         self.AdvancePath()
                     else:
-                        print(target.position,"target")
                         self.currentpath = self.FindPath(target)
                 case "w":
-                    print("wander")
                     target = self.Wander(spawnableList)
                     self.currentpath = self.FindPath(target)
                 case "r":
-                    print("reproduce")
                     self.LocateMate(preyLookingForMate)
                         
         else:
             if self.mate:
-                self.foodTarget.hasBerry = False
-                self.foodTarget.target = False
-                self.foodTarget = None
+                if self.foodTarget:
+                    self.foodTarget.hasTarget = False
+                    self.foodTarget.target = None
+                    self.foodTarget = None
                 if self.currentpath.stack[0].position != self.mate.position.position and self.position.position != self.mate.position.position:
                     target = self.mate.position
                     self.currentpath = self.FindPath(target)
@@ -251,9 +244,8 @@ class Prey(Creature):
         for index,weight in enumerate(choiceweights):
             weight = min(max(weight,0.1),MAXCHOICEWEIGHT)
             choiceweights[index] = weight
-        if self.age < MINREPROAGE:
+        if self.age < MINREPROAGE or self.timebetweenmates <= TIMEBETWEENMATES:
             choiceweights[2] = 0
-        print(choiceweights)
         return random.choices(["e","w","r"],choiceweights,k=1)
 
     def Forage(self,berryList):
@@ -261,7 +253,6 @@ class Prey(Creature):
         lowestberry = None
         for berry in berryList:
             dist = self.GetDistanceBetween(berry,self.position)
-            print(berry.hasTarget,berry.position,berry.target)
             if not(berry.hasTarget) and dist < lowest:
                 lowest = dist
                 lowestberry = berry
