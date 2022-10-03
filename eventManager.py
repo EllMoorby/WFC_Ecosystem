@@ -25,6 +25,7 @@ class EventManager:
         self.deadPreyList = [] #A list of all prey objects which are deceased
         self.deadPredatorList = [] #A list of all predator objects which are deceased
         self.preyLookingForMate = [] #A list of all prey looking for a mate
+        self.predatorLookingForMate = [] #A list of all predators looking for a mate
         self.preyListLength_perframe = []
 
     def SplitWorld(self): #split the world into fertile, spawnable land into a dictionary
@@ -104,10 +105,16 @@ class EventManager:
             action = creature.Update(self.berryList,self.fertileList,self.spawnableList,self.preyLookingForMate)
             if action == -1: #if dead remove them from preylist
                 self.preyList.remove(creature)
-                self.deadPreyList.append(creature)
-                creature.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"deadrabbit.png")).convert_alpha(),(CELLSIZE,CELLSIZE))
             elif action == 0:
-                self.preyList.append(Prey(choice(self.spawnableList),self.world,self.renderer))
+                self.preyList.append(Prey(creature.position,self.world,self.renderer))
+
+        for creature in self.predatorList:
+            action = creature.Update(self.preyList,self.spawnableList,self.predatorLookingForMate)
+            if action == -1: #if dead remove them from predatorlist
+                self.predatorList.remove(creature)
+            elif action == 0:
+                self.predatorList.append(Predator(creature.position,self.world,self.renderer))
+
         self.preyListLength_perframe.append(len(self.preyList))
 
         self.BerryUpdate()

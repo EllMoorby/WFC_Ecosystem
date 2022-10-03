@@ -26,12 +26,12 @@ class Creature:
         self.count = 0
         self.foodTarget = None
         self.mate = None
-        self.matePosition = None
         self.sex = random.choice(SEXLIST)
         self.alive = True
         self.age = 0
         self.deathage = random.randint(MINDEATHAGE,MAXDEATHAGE)
         self.timebetweenmates = 0
+        self.lookingForMate = False
         
 
         _map = self.CreateCreatureWorld()
@@ -97,10 +97,19 @@ class Creature:
         #self.position = self.worldmap[self.currentpath.stack[self.currentpath.size][0]][self.currentpath.stack[self.currentpath.size][1]]
         self.position = self.currentpath.stack[self.currentpath.size]
         self.currentpath.RemoveFromStack()
-        if self.foodTarget and self.foodTarget.position == self.position.position:
-            self.energy = BASE_ENERGY
-            self.foodTarget.hasTarget = False
-            return 0
+        if isinstance(self, Prey()):
+            if self.foodTarget and self.foodTarget.position == self.position.position:
+                self.energy = BASE_ENERGY
+                self.foodTarget.hasTarget = False
+                return 0
+        else:
+            if self.preyTarget and self.preyTarget.position.position == self.position.position:
+                self.energy = BASE_ENERGY
+                self.preyTarget.hasPredator = False
+                self.preyTarget.predator = None
+                self.preyTarget = None
+                return 2
+
 
         if self.mate and self.mate.position.position == self.position.position:
             self.timebetweenmates = 0
@@ -141,21 +150,107 @@ class Predator(Creature):
         super().__init__(position,world,renderer)
         self.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"fox.png")).convert_alpha(),(CELLSIZE,CELLSIZE))
         self.urgeHunt = URGE_HUNT
+        self.preyTarget = None
 
     def Hunt(self,preyList):
         lowest = 99999999
         lowestprey = None
         for prey in preyList:
-            dist = self.GetDistanceBetween(prey,self)
-            if not(prey.hasTarget) and dist < lowest:
+            dist = self.GetDistanceBetween(prey.position,self.position)
+            if not(prey.hasPredator) and dist < lowest:
                 lowest = dist
                 lowestprey = prey
+        if lowestprey == None:
+            return -1
+        lowestprey.predator = self
+        lowestprey.hasPredator = True
+        self.preyTarget = lowestprey
         lowestpreyInCreatureWorld = self.world[lowestprey.position[0]][lowestprey.position[1]]
-        lowestpreyInCreatureWorld.hasPredator = True
         return lowestpreyInCreatureWorld
 
-    def Update(self):
-        pass
+    def Update(self,preyList,spawnableList,predatorLookingForMate):
+        self.age += 1
+        self.timebetweenmates += 1
+        if self.age < MINREPROAGE_PREDATOR or self.timebetweenmates <= TIMEBETWEENMATES_PREDATOR:
+            self.urgeReproduce -= URGELOSSPERSTEP
+        if self.energy <= 0 or (self.age >= self.deathage):
+            if self.mate:
+                self.mate.mate = None
+                self.mate = None
+            if self.preyTarget:
+                self.preyTarget.hasPredator = False
+                self.preyTarget.predator = None
+                self.preyTarget = None
+                
+            if self in predatorLookingForMate:
+                predatorLookingForMate.remove(self)
+            self.alive = False
+            return -1
+        if len(self.currentpath.stack) == 0:
+            self.preyTarget = None
+            option = self.ChooseActivity()
+            match option[0]:
+                case "f":
+                    pass
+                case "e":
+                    target = self.Hunt(preyList)
+                    if target == -1:
+                        target = self.Wander(spawnableList)
+                        self.currentpath = self.FindPath(target)
+                    elif target.position == self.position.position:
+                        self.currentpath.AddToStack(target)
+                        self.AdvancePath()
+                    else:
+                        self.currentpath = self.FindPath(target)
+                case "w":
+                    target = self.Wander(spawnableList)
+                    self.currentpath = self.FindPath(target)
+                case "r":
+                    self.LocateMate(predatorLookingForMate)
+                        
+        else:
+            if self.mate:
+                if self.preyTarget:
+                    self.preyTarget.hasPredator = False
+                    self.preyTarget.predator = None
+                    self.preyTarget = None
+                if self.currentpath.stack[0].position != self.mate.position.position and self.position.position != self.mate.position.position:
+                    target = self.mate.position
+                    self.currentpath = self.FindPath(target)
+                elif self.sex[0] == "m" and self.mate.position.position != self.position.position:
+                    action = self.AdvancePath()
+                    if action == 1:
+                        return 0
+                elif self.sex[0] == "m" and self.mate.position.position == self.position.position:
+                    return 0
+
+                pass
+            else:
+                action = self.AdvancePath()
+                if action == 2:
+                    preyList.remove(self.preyTarget)
+                    pass
+                if self.preyTarget.position.position != self.currentpath.stack[0].position:
+                    #add the rabbits movement to the path
+                    pass
+                    
+        self.renderer.DrawCreature(self)
+
+    def ChooseActivity(self):
+        choiceweights = BASECHOICEWEIGHTS.copy()
+        if self.hasPredator:
+            return "f"
+
+        choiceweights[0] += (BASE_ENERGY-self.energy) #eat chance
+        choiceweights[1] += (self.energy/BASE_ENERGY + self.urgeReproduce/URGE_REPRODUCE)*10 #chance to wander
+        choiceweights[2] += (URGE_REPRODUCE-self.urgeReproduce)*MULTI  #chance to reproduce
+        
+        for index,weight in enumerate(choiceweights):
+            weight = min(max(weight,0.1),MAXCHOICEWEIGHT)
+            choiceweights[index] = weight
+        if self.age < MINREPROAGE or self.timebetweenmates <= TIMEBETWEENMATES:
+            choiceweights[2] = 0
+        return random.choices(["e","w","r"],choiceweights,k=1)
 
 class Prey(Creature):
     def __init__(self,position,world,renderer):
@@ -163,7 +258,8 @@ class Prey(Creature):
         self.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"rabbit.png")).convert_alpha(),(CELLSIZE,CELLSIZE))
         self.hasPredator = False
         self.health = BASE_HEALTH
-        self.lookingForMate = False
+        self.predator = None
+  
         
 
     def Update(self,berryList,fertileList,spawnableList,preyLookingForMate):
