@@ -4,6 +4,29 @@ import random
 import math
 import pygame
 
+class Queue:
+    def __init__(self):
+        self.fPointer = 0
+        self.rPointer = -1
+        self.list = []
+
+    def AddToQueue(self,item):
+        self.rPointer += 1
+        self.list.append(item)
+
+    def RemoveFromQueue(self):
+        if self.fPointer < self.rPointer:
+            item = self.list[self.fPointer]
+            self.list.pop(self.fPointer)
+            self.fPointer += 1
+            return item
+
+    def ClearQueue(self):
+        self.fPointer = -1
+        self.rPointer = -1
+        self.list = []
+    
+
 
 class CreatureCell:
     def __init__(self,position,tile) -> None:
@@ -32,6 +55,7 @@ class Creature:
         self.deathage = random.randint(MINDEATHAGE,MAXDEATHAGE)
         self.timebetweenmates = 0
         self.lookingForMate = False
+        self.extraMovement = Queue()
         
 
         _map = self.CreateCreatureWorld()
@@ -95,20 +119,29 @@ class Creature:
 
     def AdvancePath(self):
         #self.position = self.worldmap[self.currentpath.stack[self.currentpath.size][0]][self.currentpath.stack[self.currentpath.size][1]]
-        self.position = self.currentpath.stack[self.currentpath.size]
-        self.currentpath.RemoveFromStack()
-        if isinstance(self, Prey()):
+        
+        if isinstance(self, Prey):
             if self.foodTarget and self.foodTarget.position == self.position.position:
                 self.energy = BASE_ENERGY
                 self.foodTarget.hasTarget = False
                 return 0
         else:
+            print(self.preyTarget)
             if self.preyTarget and self.preyTarget.position.position == self.position.position:
                 self.energy = BASE_ENERGY
                 self.preyTarget.hasPredator = False
                 self.preyTarget.predator = None
-                self.preyTarget = None
+                self.extraMovement.ClearQueue()
                 return 2
+
+
+        if len(self.extraMovement.list) != 0 and len(self.currentpath.stack) == 0:
+            self.position = self.extraMovement.RemoveFromQueue()
+            return
+            
+        
+        self.position = self.currentpath.stack[self.currentpath.size]
+        self.currentpath.RemoveFromStack()
 
 
         if self.mate and self.mate.position.position == self.position.position:
@@ -152,6 +185,8 @@ class Predator(Creature):
         self.urgeHunt = URGE_HUNT
         self.preyTarget = None
 
+
+
     def Hunt(self,preyList):
         lowest = 99999999
         lowestprey = None
@@ -165,10 +200,11 @@ class Predator(Creature):
         lowestprey.predator = self
         lowestprey.hasPredator = True
         self.preyTarget = lowestprey
-        lowestpreyInCreatureWorld = self.world[lowestprey.position[0]][lowestprey.position[1]]
+        lowestpreyInCreatureWorld = self.world[lowestprey.position.position[0]][lowestprey.position.position[1]]
         return lowestpreyInCreatureWorld
 
     def Update(self,preyList,spawnableList,predatorLookingForMate):
+        print(self.extraMovement.list)
         self.age += 1
         self.timebetweenmates += 1
         if self.age < MINREPROAGE_PREDATOR or self.timebetweenmates <= TIMEBETWEENMATES_PREDATOR:
@@ -186,13 +222,14 @@ class Predator(Creature):
                 predatorLookingForMate.remove(self)
             self.alive = False
             return -1
-        if len(self.currentpath.stack) == 0:
+        if len(self.currentpath.stack) == 0 and len(self.extraMovement.list) == 0:
             self.preyTarget = None
             option = self.ChooseActivity()
             match option[0]:
                 case "f":
                     pass
                 case "e":
+                    print("eat")
                     target = self.Hunt(preyList)
                     if target == -1:
                         target = self.Wander(spawnableList)
@@ -228,18 +265,20 @@ class Predator(Creature):
             else:
                 action = self.AdvancePath()
                 if action == 2:
+                    print(preyList)
+                    print(self.preyTarget)
                     preyList.remove(self.preyTarget)
+                    self.preyTarget = None
                     pass
-                if self.preyTarget.position.position != self.currentpath.stack[0].position:
-                    #add the rabbits movement to the path
-                    pass
+                if self.preyTarget and len(self.currentpath.stack) != 0:
+                    if self.preyTarget.position.position != self.currentpath.stack[0].position:
+                        self.extraMovement.AddToQueue(self.preyTarget.position)
+                        pass
                     
         self.renderer.DrawCreature(self)
 
     def ChooseActivity(self):
         choiceweights = BASECHOICEWEIGHTS.copy()
-        if self.hasPredator:
-            return "f"
 
         choiceweights[0] += (BASE_ENERGY-self.energy) #eat chance
         choiceweights[1] += (self.energy/BASE_ENERGY + self.urgeReproduce/URGE_REPRODUCE)*10 #chance to wander

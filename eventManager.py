@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 
 class EventManager:
     def __init__(self):
-        self.creaturecount = CREATURECOUNT #Number of creatures
         self.world = [] #The current map
         self.berryList = [] #A list of all berrys
         self.preyList = [] #A list of prey instantiated
@@ -92,9 +91,11 @@ class EventManager:
 
     def InitializeCreatures(self): #instantiate all creatures using the amount of creatures determined from constants
         
-        for creature in range(self.creaturecount):
+        for creature in range(PREYCOUNT):
             #give them a random position, an image and pass both world + renderer as parameters
             self.preyList.append(Prey(choice(self.spawnableList),self.world,self.renderer))
+        for creature in range(PREDATORCOUNT):
+            self.predatorList.append(Predator(choice(self.spawnableList),self.world,self.renderer))
 
     def Update(self): #update to be looped once per frame
         self.renderer.RenderWorld(self.world) #draw world
