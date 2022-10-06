@@ -69,13 +69,6 @@ class EventManager:
             world,self.tilelist = GenerateMap()
             pygame.display.flip()
             return world
-            """try:
-                pass
-                #self.renderer.RenderWorld(self.world)
-            except:
-                continue
-            else:
-                return world"""
 
 
     def SpawnBerry(self): #spawn a berry at a random fertile spot
@@ -130,6 +123,7 @@ class EventManager:
     def Main(self,pr): #main program
         self.world = self.CreateWorld() #generate a world
         self.SplitWorld() #split the world into fertile,spawnable,etc.
+        self.InitialiseFandHcosts()
         self.InitializeCreatures()
         playing = True # create a playing loop
         while playing:
@@ -142,14 +136,13 @@ class EventManager:
                     if event.key == pygame.K_u:
                         self.SpawnBerry()
                 if event.type == pygame.QUIT:
-                    plt.plot(self.preyListLength_perframe)
+                    plt.plot(self.preyListLength_perframe,label="Prey",color="b")
+                    plt.plot(self.predatorListLength_perframe,label="Predators",color="r")
                     plt.xlabel("Number of Frames")
-                    plt.ylabel("Amount of Prey")
+                    plt.ylabel("Amount of Creatures")
+                    plt.legend()
                     plt.show()
-                    plt.plot(self.predatorListLength_perframe)
-                    plt.xlabel("Number of Frames")
-                    plt.ylabel("Amount of Predators")
-                    plt.show()
+                    
                     stats = pstats.Stats(pr)
                     stats.sort_stats(pstats.SortKey.TIME)
                     stats.dump_stats(filename="test.prof")

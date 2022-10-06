@@ -92,32 +92,7 @@ class Creature:
 
         return world
 
-    def LocateMate(self,preyLookingForMate):
-        self.energy -= LOSSPERSTEP
-        if self not in preyLookingForMate:
-            preyLookingForMate.append(self)
-        lowest = 99999999
-        closestmate = None
-        for prey in preyLookingForMate:
-            if self.GetDistanceBetween(self.position,prey.position) < lowest and prey.sex != self.sex:
-                closestmate = prey
-
-        if closestmate != None:
-            if self.mate == None:
-                if self.sex == "f":
-                    if closestmate.sex == "m":
-                        if self.PotentialMateFound(closestmate):
-                            preyLookingForMate.remove(self)
-                            preyLookingForMate.remove(self.mate)
-                            #wait
-                if self.sex == "m":
-                    if closestmate.sex == "f":
-                        if self.PotentialMateFound(closestmate):
-                            preyLookingForMate.remove(self)
-                            preyLookingForMate.remove(self.mate)
-                            target = self.mate.position
-                            if target.position != self.position.position:
-                                self.currentpath = self.FindPath(target)
+    
                        
 
     
@@ -151,9 +126,38 @@ class Predator(Creature):
         self.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"fox.png")).convert_alpha(),(CELLSIZE,CELLSIZE))
         self.preyTarget = None
         self.foodTarget = None
+        self.mateTarget = None
         self.energy = BASE_ENERGY_PREDATOR
         self.urgeReproduce = URGE_REPRODUCE_PREDATOR
         self.deathage = random.randint(MINDEATHAGE_PREDATOR,MAXDEATHAGE_PREDATOR)
+
+    def LocateMate(self,lookingForMate):
+        self.energy -= ENERGYLOSSPERSTEP_PREDATOR
+        if self not in lookingForMate:
+            lookingForMate.append(self)
+        lowest = 99999999
+        closestmate = None
+        for creature in lookingForMate:
+            if self.GetDistanceBetween(self.position,creature.position) < lowest and creature.sex != self.sex:
+                closestmate = creature
+
+        if closestmate != None:
+            if self.mate == None:
+                if self.sex == "f":
+                    if closestmate.sex == "m":
+                        if self.PotentialMateFound(closestmate):
+                            lookingForMate.remove(self)
+                            lookingForMate.remove(self.mate)
+                            #wait
+                if self.sex == "m":
+                    if closestmate.sex == "f":
+                        if self.PotentialMateFound(closestmate):
+                            lookingForMate.remove(self)
+                            lookingForMate.remove(self.mate)
+                            target = self.mate.position
+                            self.mateTarget = target
+                            if target.position != self.position.position:
+                                self.currentpath = self.FindPath(target)
 
 
 
@@ -176,13 +180,14 @@ class Predator(Creature):
 
 
         if self.mate and self.mate.position.position == self.position.position:
+            self.mateTarget = None
             self.timebetweenmates = 0
             self.urgeReproduce = URGE_REPRODUCE_PREDATOR
             self.mate.urgeReproduce = URGE_REPRODUCE_PREDATOR
             self.mate.mate = None
             self.mate = None
             return 1
-        self.energy -= LOSSPERSTEP
+        self.energy -= ENERGYLOSSPERSTEP_PREDATOR
         return -1
         #if len(self.currentpath.stack) == 0: self.currentpath = None
 
@@ -254,9 +259,18 @@ class Predator(Creature):
                         self.preyTarget.hasPredator = False
                         self.preyTarget.predator = None
                         self.preyTarget = None
-                    if self.foodTarget != self.mate.position.position and self.position.position != self.mate.position.position:
+                    for item in self.currentpath.stack:
+                        print(item.position,end=" ")
+                    print(" ")
+                    if self.sex[0] == "m":
+                        print(self.sex)
+                    if self.mate.position.position == self.position.position:
+                        print("works")
+                    if len(self.currentpath.stack) == 0 or (self.currentpath.stack[0].position != self.mate.position.position and self.position.position != self.mate.position.position):
                         target = self.mate.position
+                        self.mateTarget = target
                         self.currentpath = self.FindPath(target)
+                        print("test")
                     elif self.sex[0] == "m" and self.mate.position.position != self.position.position:
                         print("walkin to mate")
                         action = self.AdvancePath()
@@ -265,7 +279,8 @@ class Predator(Creature):
                     elif self.sex[0] == "m" and self.mate.position.position == self.position.position:
                         return 0
 
-                    print("waiting for mate")
+                    print("waiting for mate",self,self.sex,self.position.position,self.mate,self.mate.sex,self.mate.position.position)
+                    print("---------------------------")
                 else:
                     self.mate.mate = None
                     self.mate = None
@@ -314,6 +329,34 @@ class Prey(Creature):
         self.predator = None
         self.urgeReproduce = URGE_REPRODUCE_PREY
         self.deathage = random.randint(MINDEATHAGE_PREY,MAXDEATHAGE_PREY)
+    
+    def LocateMate(self,lookingForMate):
+        self.energy -= ENERGYLOSSPERSTEP_PREY
+        if self not in lookingForMate:
+            lookingForMate.append(self)
+        lowest = 99999999
+        closestmate = None
+        for creature in lookingForMate:
+            if self.GetDistanceBetween(self.position,creature.position) < lowest and creature.sex != self.sex:
+                closestmate = creature
+
+        if closestmate != None:
+            if self.mate == None:
+                if self.sex == "f":
+                    if closestmate.sex == "m":
+                        if self.PotentialMateFound(closestmate):
+                            lookingForMate.remove(self)
+                            lookingForMate.remove(self.mate)
+                            #wait
+                if self.sex == "m":
+                    if closestmate.sex == "f":
+                        if self.PotentialMateFound(closestmate):
+                            lookingForMate.remove(self)
+                            lookingForMate.remove(self.mate)
+                            target = self.mate.position
+                            self.mateTarget = target
+                            if target.position != self.position.position:
+                                self.currentpath = self.FindPath(target)
   
 
     def AdvancePath(self):
@@ -336,7 +379,7 @@ class Prey(Creature):
             self.mate.mate = None
             self.mate = None
             return 1
-        self.energy -= LOSSPERSTEP
+        self.energy -= ENERGYLOSSPERSTEP_PREY
         return -1
         #if len(self.currentpath.stack) == 0: self.currentpath = None
         
