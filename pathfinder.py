@@ -17,6 +17,10 @@ class Stack:
             self.size -= 1
             return item
         else:return
+
+    def ClearStack(self): #clear the stack
+        self.stack = []
+        self.size = -1
     
     def __iter__(self): #calling itself returns the stack for ease of use
         return self.stack

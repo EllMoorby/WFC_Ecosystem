@@ -26,6 +26,7 @@ class EventManager:
         self.preyLookingForMate = [] #A list of all prey looking for a mate
         self.predatorLookingForMate = [] #A list of all predators looking for a mate
         self.preyListLength_perframe = []
+        self.predatorListLength_perframe = []
 
     def SplitWorld(self): #split the world into fertile, spawnable land into a dictionary
         #reset all values, a new world was created
@@ -34,6 +35,7 @@ class EventManager:
         self.fertileList = []
         self.spawnableList = []
         self.preyListLength_perframe = []
+        self.predatorListLength_perframe = []
 
         #expand the dictionary to allow all tiles to be added as keys
         for tile in self.tilelist:
@@ -107,7 +109,8 @@ class EventManager:
             if action == -1: #if dead remove them from preylist
                 self.preyList.remove(creature)
             elif action == 0:
-                self.preyList.append(Prey(creature.position,self.world,self.renderer))
+                for x in range(random.randint(MINOFFSPRING_PREY,MAXOFFSPRING_PREY)):
+                    self.preyList.append(Prey(creature.position,self.world,self.renderer))
 
         for creature in self.predatorList:
             action = creature.Update(self.preyList,self.spawnableList,self.predatorLookingForMate)
@@ -117,6 +120,7 @@ class EventManager:
                 self.predatorList.append(Predator(creature.position,self.world,self.renderer))
 
         self.preyListLength_perframe.append(len(self.preyList))
+        self.predatorListLength_perframe.append(len(self.predatorList))
 
         self.BerryUpdate()
         pygame.display.flip()
@@ -140,7 +144,11 @@ class EventManager:
                 if event.type == pygame.QUIT:
                     plt.plot(self.preyListLength_perframe)
                     plt.xlabel("Number of Frames")
-                    plt.ylabel("Amount of Creatures")
+                    plt.ylabel("Amount of Prey")
+                    plt.show()
+                    plt.plot(self.predatorListLength_perframe)
+                    plt.xlabel("Number of Frames")
+                    plt.ylabel("Amount of Predators")
                     plt.show()
                     stats = pstats.Stats(pr)
                     stats.sort_stats(pstats.SortKey.TIME)
