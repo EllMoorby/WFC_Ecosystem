@@ -259,28 +259,17 @@ class Predator(Creature):
                         self.preyTarget.hasPredator = False
                         self.preyTarget.predator = None
                         self.preyTarget = None
-                    for item in self.currentpath.stack:
-                        print(item.position,end=" ")
-                    print(" ")
-                    if self.sex[0] == "m":
-                        print(self.sex)
-                    if self.mate.position.position == self.position.position:
-                        print("works")
                     if len(self.currentpath.stack) == 0 or (self.currentpath.stack[0].position != self.mate.position.position and self.position.position != self.mate.position.position):
                         target = self.mate.position
                         self.mateTarget = target
                         self.currentpath = self.FindPath(target)
-                        print("test")
                     elif self.sex[0] == "m" and self.mate.position.position != self.position.position:
-                        print("walkin to mate")
                         action = self.AdvancePath()
                         if action == 1:
                             return 0
                     elif self.sex[0] == "m" and self.mate.position.position == self.position.position:
                         return 0
 
-                    print("waiting for mate",self,self.sex,self.position.position,self.mate,self.mate.sex,self.mate.position.position)
-                    print("---------------------------")
                 else:
                     self.mate.mate = None
                     self.mate = None

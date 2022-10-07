@@ -27,6 +27,7 @@ class EventManager:
         self.predatorLookingForMate = [] #A list of all predators looking for a mate
         self.preyListLength_perframe = []
         self.predatorListLength_perframe = []
+        self.worldDict = {}
 
     def SplitWorld(self): #split the world into fertile, spawnable land into a dictionary
         #reset all values, a new world was created
@@ -123,7 +124,6 @@ class EventManager:
     def Main(self,pr): #main program
         self.world = self.CreateWorld() #generate a world
         self.SplitWorld() #split the world into fertile,spawnable,etc.
-        self.InitialiseFandHcosts()
         self.InitializeCreatures()
         playing = True # create a playing loop
         while playing:
@@ -136,6 +136,12 @@ class EventManager:
                     if event.key == pygame.K_u:
                         self.SpawnBerry()
                 if event.type == pygame.QUIT:
+                    fig = plt.figure()
+                    ax = fig.add_subplot(1,1,1)
+                    ax.spines["left"].set_position("zero")
+                    ax.spines["bottom"].set_position("zero")
+                    ax.spines["right"].set_color("none")
+                    ax.spines["top"].set_color("none")
                     plt.plot(self.preyListLength_perframe,label="Prey",color="b")
                     plt.plot(self.predatorListLength_perframe,label="Predators",color="r")
                     plt.xlabel("Number of Frames")
