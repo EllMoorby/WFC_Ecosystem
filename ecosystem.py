@@ -50,7 +50,6 @@ class Creature:
         self.worldmap = world
         self.currentpath = Stack()
         self.renderer = renderer
-        self.count = 0
         self.foodTarget = None
         self.mate = None
         self.sex = random.choice(SEXLIST)
