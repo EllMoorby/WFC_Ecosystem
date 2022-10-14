@@ -3,9 +3,7 @@ import json
 import random
 from pygame import image,transform
 from os import path
-from renderer import Renderer
 
-renderer = Renderer()
 
 class Tile:
     def __init__(self,imgpath,name,adjacencylist,bias,weight,traversable,fertile) -> None:
@@ -169,7 +167,6 @@ def WFC(world,possibletiles): #the main wave function collapse algorithm
         return -1,-1 #if program has finished return
     cell.possibletiles = []
     cell.bias = cell.tile.bias
-    renderer.DrawCell(cell) #render the cell
     world = Propogate(cell,world) #propogate information from the cell to the surrounding cells
     if world == -1: return -1,-1
     else: return world, possibletiles
