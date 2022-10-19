@@ -1,5 +1,4 @@
 import tkinter as tk
-import tkinter.font
 
 class GUI(tk.Tk):
     def __init__(self, *args, **kwargs):

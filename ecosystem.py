@@ -1,4 +1,3 @@
-from distutils.command.clean import clean
 from constants import *
 from pathfinder import PathFinder,Stack
 import random
@@ -125,7 +124,6 @@ class Predator(Creature):
         super().__init__(position,world,renderer)
         self.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"fox.png")).convert_alpha(),(CELLSIZE,CELLSIZE))
         self.preyTarget = None
-        self.foodTarget = None
         self.mateTarget = None
         self.energy = BASE_ENERGY_PREDATOR
         self.urgeReproduce = URGE_REPRODUCE_PREDATOR

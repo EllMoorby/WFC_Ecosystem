@@ -48,8 +48,8 @@ class Cell:
             return 0
         else: return -1 #comparing two cells compares the size of possible tiles
     
-    """def __str__(self):
-        return self.tile.name[0] #when called, the first letter of the tile is returned"""
+    def __str__(self):
+        return self.tile.name[0] #when called, the first letter of the tile is returned
 
 def PrintWorld(world): #prints the current world in console
     for row in world:

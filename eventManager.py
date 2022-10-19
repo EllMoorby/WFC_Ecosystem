@@ -27,7 +27,6 @@ class EventManager:
         self.predatorLookingForMate = [] #A list of all predators looking for a mate
         self.preyListLength_perframe = []
         self.predatorListLength_perframe = []
-        self.worldDict = {}
 
     def SplitWorld(self): #split the world into fertile, spawnable land into a dictionary
         #reset all values, a new world was created
