@@ -15,7 +15,6 @@ class EventManager:
         self.berryList = [] #A list of all berrys
         self.preyList = [] #A list of prey instantiated
         self.predatorList = [] #A list of all predators instantiated
-        self.renderer = Renderer() #Creature a new renderer, for renderering
         self.engine = Engine() #Create a new engine, for deltatime and FPS
         self.tilelist = [] #A list of all possible tiles
         self.tiledict = {} #Dictionary of all tile types
@@ -28,8 +27,43 @@ class EventManager:
         self.preyListLength_perframe = []
         self.predatorListLength_perframe = []
 
+    def TempMapViewer(self):
+        running = True
+        smallrenderer = Renderer(SCREENWIDTH/2,SCREENHEIGHT/2,CELLSIZE/2)
+
+        world = self.CreateWorld()
+        smallrenderer.RenderWorld(world)
+        pygame.display.flip()
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.world = world
+                    running = False
+                    pygame.quit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        world = self.CreateWorld()
+                        smallrenderer.RenderWorld(world)
+                        pygame.display.flip()
+                    elif event.key == pygame.K_ESCAPE:
+                        self.world = world
+                        running = False
+                        pygame.quit()
+
+
+    def CreateWorld(self): #create a world
+        while True:
+            #attempt to create a new world
+            world,self.tilelist = GenerateMap()
+            return world
+        
+
     def SplitWorld(self): #split the world into fertile, spawnable land into a dictionary
         #reset all values, a new world was created
+        self.preyList = []
+        self.predatorList = []
+        self.deadPreyList = []
+        self.deadPredatorList = []
         self.tiledict = {}
         self.berryList = []
         self.fertileList = []
@@ -59,16 +93,7 @@ class EventManager:
                 
 
 
-    def CreateWorld(self): #create a world
-        while True:
-            #attempt to create a new world
-            self.preyList = []
-            self.predatorList = []
-            self.deadPreyList = []
-            self.deadPredatorList = []
-            world,self.tilelist = GenerateMap()
-            pygame.display.flip()
-            return world
+    
 
 
     def SpawnBerry(self): #spawn a berry at a random fertile spot
@@ -121,7 +146,8 @@ class EventManager:
         
 
     def Main(self,pr): #main program
-        self.world = self.CreateWorld() #generate a world
+        self.renderer = Renderer(SCREENWIDTH,SCREENHEIGHT,CELLSIZE) #Creature a new renderer, for renderering
+        #self.world = self.CreateWorld() #generate a world
         self.SplitWorld() #split the world into fertile,spawnable,etc.
         self.InitializeCreatures()
         playing = True # create a playing loop

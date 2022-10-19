@@ -2,14 +2,15 @@ import pygame
 from constants import *
 
 class Renderer:
-    def __init__(self):
-        self.screen = pygame.display.set_mode([SCREENWIDTH, SCREENHEIGHT])
+    def __init__(self,screenwidth,screenheight,cellsize):
+        self.cellsize = cellsize
+        self.screen = pygame.display.set_mode([screenwidth, screenheight])
         self.screen.fill([0, 0, 0])
-        self.berryimg = pygame.transform.scale(pygame.image.load(BERRYIMG).convert_alpha(),(CELLSIZE,CELLSIZE))
+        self.berryimg = pygame.transform.scale(pygame.image.load(BERRYIMG).convert_alpha(),(self.cellsize,self.cellsize))
     
 
     def DrawCell(self,cell):
-        self.screen.blit(cell.tile.img,(cell.position[0]*CELLSIZE,cell.position[1]*CELLSIZE))
+        self.screen.blit(cell.tile.img,(cell.position[0]*self.cellsize,cell.position[1]*self.cellsize))
     
     def ClearScreen(self):
         self.screen.fill([0, 0, 0])
@@ -21,8 +22,8 @@ class Renderer:
 
 
     def DrawCreature(self,creature):
-        self.screen.blit(creature.img,(creature.position.position[0]*CELLSIZE,creature.position.position[1]*CELLSIZE))
+        self.screen.blit(creature.img,(creature.position.position[0]*self.cellsize,creature.position.position[1]*self.cellsize))
 
 
     def RenderBerry(self,cell):
-        self.screen.blit(self.berryimg,(cell.position[0]*CELLSIZE,cell.position[1]*CELLSIZE))
+        self.screen.blit(self.berryimg,(cell.position[0]*self.cellsize,cell.position[1]*self.cellsize))
