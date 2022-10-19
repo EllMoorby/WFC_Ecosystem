@@ -145,8 +145,11 @@ class EventManager:
         pygame.display.set_caption("{:.2f}".format(self.engine.clock.get_fps()))
         
 
-    def Main(self,pr): #main program
+    def Main(self): #main program
         self.renderer = Renderer(SCREENWIDTH,SCREENHEIGHT,CELLSIZE) #Creature a new renderer, for renderering
+        if self.world == []:
+            self.world = self.CreateWorld()
+        
         #self.world = self.CreateWorld() #generate a world
         self.SplitWorld() #split the world into fertile,spawnable,etc.
         self.InitializeCreatures()
@@ -174,11 +177,11 @@ class EventManager:
                     plt.legend()
                     plt.show()
                     
-                    stats = pstats.Stats(pr)
+                    """stats = pstats.Stats(pr)
                     stats.sort_stats(pstats.SortKey.TIME)
-                    stats.dump_stats(filename="test.prof")
+                    stats.dump_stats(filename="test.prof")"""
 
-                    playing = False
+                    pygame.quit()
             self.Update()
             self.engine.update_dt()
 
