@@ -45,10 +45,6 @@ class GUI(tk.Tk):
         self.show_frame(MainMenu)
         with open(path.join("Saves","preset.json"),"r") as f:
             data = json.load(f)
-            self.fps = data["FPS"]
-            self.screenwidth = data["SCREENWIDTH"]
-            self.screenheight = data["SCREENHEIGHT"]
-            self.cellsize = data["CELLSIZE"]
             self.preycount = data["PREYCOUNT"]
             self.baseenergyprey = data["BASE_ENERGY_PREY"]
             self.mindeathageprey = data["MINDEATHAGE_PREY"]
@@ -64,8 +60,12 @@ class GUI(tk.Tk):
             self.berryconst = data["BERRYCONST"]
             self.maxwander = data["MAXWANDERDIST"]
 
-        with open(path.join("Saves","preset.json"),"r") as start, open(path.join("Saves","temp.json"),"w") as to:
-            to.write(start.read())
+        with open(path.join("Saves","settings.json"), "r") as d:
+            data = json.load(d)
+            self.fps = data["FPS"]
+            self.screenwidth = data["SCREENWIDTH"]
+            self.screenheight = data["SCREENHEIGHT"]
+            self.cellsize = data["CELLSIZE"]
             
 
 
@@ -241,7 +241,7 @@ class CreateSimulationMenu(tk.Frame):
         viewerbutton = tk.Button(self,text="Open World Viewer",command=lambda: self.OpenViewer(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         viewerbutton.grid(row=8,column=3,columnspan=2)
 
-        startbutton = tk.Button(self,text="Start Simulation",command=lambda: self.StartSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
+        startbutton = tk.Button(self,text="Start Simulation",command=lambda: self.StartSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry,preyTBMEntry,predatorTBMEntry),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         startbutton.grid(row=15,column=0,columnspan=5)
 
     def Back(self,parent,controller):
@@ -252,10 +252,12 @@ class CreateSimulationMenu(tk.Frame):
         controller.show_frame(MainMenu)
 
     def OpenViewer(self,parent,controller):
+        controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
         controller.eventManager.TempMapViewer()
 
-    def StartSimulation(self,parent,controller,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander):
-        controller.eventManager.InitializeValues(preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander)
+    def StartSimulation(self,parent,controller,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
+        controller.eventManager.InitializeValues(int(preycount.get()),int(predatorcount.get()),int(baseenergyprey.get()),int(mindeathageprey.get()),int(maxdeathageprey.get()),int(energylprey.get()),int(baseenergypredator.get()),int(mindeathagepredator.get()),int(maxdeathagepredator.get()),int(energylpredator.get()),float(berryconst.get()),int(maxwander.get()),int(preyTBM.get()),int(predatorTBM.get()))
+        controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
         controller.eventManager.Main()
 
 
@@ -292,16 +294,16 @@ class Settings(tk.Frame):
         cellsizeEntry.grid(row=3,column=1,padx=(15,5))
 
         fpsLabel = tk.Label(self,text="FPS",font = controller.guifont)
-        fpsLabel.grid(row=1,column=0)
+        fpsLabel.grid(row=4,column=0)
         fpsEntry = tk.Entry(self, textvariable=fps, validate="key",validatecommand=(controller.validint,"%P"))
-        fpsEntry.grid(row=1,column=1,padx=(15,5))
+        fpsEntry.grid(row=4,column=1,padx=(15,5))
 
     def Back(self,parent,controller,cellsizeEntry,screenWidthEntry,screenHeightEntry,fpsEntry):
-        controller.cellsize = cellsizeEntry
-        controller.screenwidth = screenWidthEntry
-        controller.screenheight = screenHeightEntry
-        controller.fps = fpsEntry
-
+        controller.cellsize = int(cellsizeEntry.get())
+        controller.screenwidth = int(screenWidthEntry.get())
+        controller.screenheight = int(screenHeightEntry.get())
+        controller.fps = int(fpsEntry.get())
+        controller.eventManager.InitializeSettings(controller.screenheight,controller.screenwidth,controller.cellsize,controller.fps)
         controller.clear_widgets(self)
         frame = MainMenu(parent, controller)
         controller.frames[MainMenu] = frame

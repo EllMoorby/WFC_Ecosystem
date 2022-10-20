@@ -15,7 +15,6 @@ class EventManager:
         self.berryList = [] #A list of all berrys
         self.preyList = [] #A list of prey instantiated
         self.predatorList = [] #A list of all predators instantiated
-        self.engine = Engine() #Create a new engine, for deltatime and FPS
         self.tilelist = [] #A list of all possible tiles
         self.tiledict = {} #Dictionary of all tile types
         self.fertileList = [] #A list of all fertile land where berrys can grow
@@ -27,7 +26,7 @@ class EventManager:
         self.preyListLength_perframe = []
         self.predatorListLength_perframe = []
 
-    def InitializeValues(self,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander):
+    def InitializeValues(self,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
         self.PREYCOUNT = preycount
         self.PREDATORCOUNT = predatorcount
         self.BASEENERGYPREY = baseenergyprey
@@ -40,6 +39,8 @@ class EventManager:
         self.ENERGYLPREDATOR = energylpredator
         self.BERRYCONST = berryconst
         self.MAXWANDERDIST = maxwander
+        self.TIMEBETWEENMATES_PREDATOR = predatorTBM
+        self.TIMEBETWEENMATES_PREY = preyTBM
 
     def InitializeSettings(self,screenheight,screenwidth,cellsize,fps):
         self.SCREENHEIGHT = screenheight
@@ -74,7 +75,7 @@ class EventManager:
     def CreateWorld(self): #create a world
         while True:
             #attempt to create a new world
-            world,self.tilelist = GenerateMap()
+            world,self.tilelist = GenerateMap(self.CELLSIZE,self.SCREENHEIGHT,self.SCREENWIDTH)
             return world
         
 
@@ -133,9 +134,9 @@ class EventManager:
         
         for creature in range(self.PREYCOUNT):
             #give them a random position, an image and pass both world + renderer as parameters
-            self.preyList.append(Prey(choice(self.spawnableList),self.world,self.renderer))
+            self.preyList.append(Prey(choice(self.spawnableList),self.world,self.renderer,self.BASEENERGYPREY,self.MINDEATHAGEPREY,self.MAXDEATHAGEPREY,self.ENERGYLPREY,self.TIMEBETWEENMATES_PREY,self.CELLSIZE,self.SCREENWIDTH,self.SCREENHEIGHT))
         for creature in range(self.PREDATORCOUNT):
-            self.predatorList.append(Predator(choice(self.spawnableList),self.world,self.renderer))
+            self.predatorList.append(Predator(choice(self.spawnableList),self.world,self.renderer,self.BASEENERGYPREDATOR,self.MINDEATHAGEPREDATOR,self.MAXDEATHAGEPREDATOR,self.ENERGYLPREDATOR,self.TIMEBETWEENMATES_PREDATOR,self.CELLSIZE,self.SCREENWIDTH,self.SCREENHEIGHT))
 
     def Update(self): #update to be looped once per frame
         self.renderer.RenderWorld(self.world) #draw world
@@ -167,6 +168,7 @@ class EventManager:
 
     def Main(self): #main program
         self.renderer = Renderer(self.SCREENWIDTH,self.SCREENHEIGHT,self.CELLSIZE) #Creature a new renderer, for renderering
+        self.engine = Engine(self.FPS) #Create a new engine, for deltatime and FPS
         if self.world == []:
             self.world = self.CreateWorld()
         

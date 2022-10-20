@@ -44,8 +44,10 @@ class CreatureCell:
         self.traversable = self.tile.traversable
 
 class Creature:
-    def __init__(self,position,world,renderer,cellsize):
+    def __init__(self,position,world,renderer,cellsize,screenwidth,screenheight):
         self.CELLSIZE = cellsize
+        self.SCREENWIDTH = screenwidth
+        self.SCREENHEIGHT = screenheight
         self.position = position
         self.worldmap = world
         self.currentpath = Stack()
@@ -101,7 +103,7 @@ class Creature:
         if target.position == self.position.position:print("error")
         self.world = self.CreateCreatureWorld() # i wanna remove THIS
         #move towards target, otherwise create a random target position
-        pathfinder = PathFinder(self,target)
+        pathfinder = PathFinder(self,target,self.SCREENHEIGHT,self.SCREENWIDTH,self.CELLSIZE)
         pathfinder.InitiatePathfind()
         currentpath = pathfinder.path
         
@@ -120,8 +122,8 @@ class Creature:
 
 
 class Predator(Creature):
-    def __init__(self,position,world,renderer,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,timebetweenmatespredator):
-        super().__init__(position,world,renderer)
+    def __init__(self,position,world,renderer,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,timebetweenmatespredator,cellsize,screenwidth,screenheight):
+        super().__init__(position,world,renderer,cellsize,screenwidth,screenheight)
         self.BASE_ENERGY_PREDATOR = baseenergypredator
         self.MINDEATHAGE_PREDATOR = mindeathagepredator
         self.MAXDEATHAGE_PREDATOR = maxdeathagepredator
@@ -313,8 +315,8 @@ class Predator(Creature):
         return random.choices(["e","w","r"],choiceweights,k=1)
 
 class Prey(Creature):
-    def __init__(self,position,world,renderer,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,timebetweenmatesprey):
-        super().__init__(position,world,renderer)
+    def __init__(self,position,world,renderer,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,timebetweenmatesprey,cellsize,screenwidth,screenheight):
+        super().__init__(position,world,renderer,cellsize,screenwidth,screenheight)
         self.TIMEBETWEENMATES_PREY = timebetweenmatesprey
         self.BASE_ENERGY_PREY = baseenergyprey
         self.MINDEATHAGE_PREY = mindeathageprey

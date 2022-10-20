@@ -187,7 +187,7 @@ def GenerateMap(cellsize,screenheight,screenwidth):
     #runs the WFC algorithm for each cell object, ensuring every cell has a tile 
     for row in world:
         for cell in row:
-            world,possibletiles = WFC(world,possibletiles.copy())
+            world,possibletiles = WFC(world,possibletiles.copy(),cellsize,screenheight,screenwidth)
             if world == -1: #if the there was a collision, regenerate the map
                 return GenerateMap()
     return world,tilelist
