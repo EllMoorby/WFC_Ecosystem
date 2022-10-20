@@ -6,8 +6,8 @@ from os import path
 
 
 class Tile:
-    def __init__(self,imgpath,name,adjacencylist,bias,weight,traversable,fertile) -> None:
-        self.img = transform.scale(image.load(path.join(TILES_FOLDER,imgpath)).convert_alpha(),(CELLSIZE,CELLSIZE)) #png of file
+    def __init__(self,imgpath,name,adjacencylist,bias,weight,traversable,fertile,cellsize) -> None:
+        self.img = transform.scale(image.load(path.join(TILES_FOLDER,imgpath)).convert_alpha(),(cellsize,cellsize)) #png of file
         self.adjacencylist = adjacencylist #List of other tile objects allowed to TOUCH
         self.name = name
         self.bias = {}
@@ -132,11 +132,11 @@ def Collapse(origincell,newcell): #collapses adjacent cell's possible tiles depe
 
 
 
-def Propogate(cell,world):
+def Propogate(cell,world,screenwidth,cellsize,screenheight):
     for y in range(-1,2):
         for x in range(-1,2):
             try:
-                if x==y==0 or not(0 <= cell.position[0]+x <= ((SCREENWIDTH // CELLSIZE)-1)) or not(0 <= cell.position[1]+y <= ((SCREENHEIGHT // CELLSIZE)-1)):
+                if x==y==0 or not(0 <= cell.position[0]+x <= ((screenwidth // cellsize)-1)) or not(0 <= cell.position[1]+y <= ((screenheight // cellsize)-1)):
                     raise ValueError
                 UpdateBias(cell,world[cell.position[0]+x][cell.position[1]+y]) #update biases for the adjacent cell depending on the origin cell
                 if Collapse(cell,world[cell.position[0]+x][cell.position[1]+y]):#collapse items not in the tiles adjacencylist from the other cells possible tiles
@@ -150,24 +150,24 @@ def Propogate(cell,world):
 def RandomTileFromPossible(cell):
     return random.choice(cell.possibletiles) #chooses a random tile out of possible tiles
     
-def GetPossibleTiles(): #reads the JSON file
+def GetPossibleTiles(cellsize): #reads the JSON file
     tilelist = []
     with open(path.join(TILES_FOLDER,"textures.json")) as f: #opens a JSON file
         data = json.load(f)
         for tile in data["tiles"]:
-            tilelist.append(Tile(tile["image"],tile["name"],tile["adjacency"],tile["bias"],tile["weight"],tile["traversable"],tile["fertile"])) #appends data from file into a tile object
+            tilelist.append(Tile(tile["image"],tile["name"],tile["adjacency"],tile["bias"],tile["weight"],tile["traversable"],tile["fertile"],cellsize)) #appends data from file into a tile object
 
     for tile in tilelist:
         tile.UpdateTilelist(tilelist) #updates the tile list from a list of strings to a list of tile objects
     return tilelist
 
-def WFC(world,possibletiles): #the main wave function collapse algorithm
+def WFC(world,possibletiles,cellsize,screenheight,screenwidth): #the main wave function collapse algorithm
     cell = Observe(world,possibletiles) #choose a cell
     if cell ==-1:
         return -1,-1 #if program has finished return
     cell.possibletiles = []
     cell.bias = cell.tile.bias
-    world = Propogate(cell,world) #propogate information from the cell to the surrounding cells
+    world = Propogate(cell,world,screenwidth,cellsize,screenheight) #propogate information from the cell to the surrounding cells
     if world == -1: return -1,-1
     else: return world, possibletiles
 
@@ -175,14 +175,14 @@ def WFC(world,possibletiles): #the main wave function collapse algorithm
 
 
 
-def GenerateMap():
-    possibletiles = GetAdjacencyList(GetPossibleTiles()) #gets the tileset for the map
+def GenerateMap(cellsize,screenheight,screenwidth):
+    possibletiles = GetAdjacencyList(GetPossibleTiles(cellsize)) #gets the tileset for the map
     tilelist = possibletiles
     world = []
     #generate the world with cell objects
-    for cellx in range(SCREENWIDTH // CELLSIZE):
+    for cellx in range(screenwidth // cellsize):
         world.append([])
-        for celly in range(SCREENHEIGHT // CELLSIZE):
+        for celly in range(screenheight // cellsize):
             world[cellx].append(Cell(possibletiles.copy(),(cellx,celly)))
     #runs the WFC algorithm for each cell object, ensuring every cell has a tile 
     for row in world:

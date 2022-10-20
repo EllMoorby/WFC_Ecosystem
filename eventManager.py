@@ -27,9 +27,29 @@ class EventManager:
         self.preyListLength_perframe = []
         self.predatorListLength_perframe = []
 
+    def InitializeValues(self,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander):
+        self.PREYCOUNT = preycount
+        self.PREDATORCOUNT = predatorcount
+        self.BASEENERGYPREY = baseenergyprey
+        self.MINDEATHAGEPREY = mindeathageprey
+        self.MAXDEATHAGEPREY = maxdeathageprey
+        self.ENERGYLPREY = energylprey
+        self.BASEENERGYPREDATOR = baseenergypredator
+        self.MINDEATHAGEPREDATOR = mindeathagepredator
+        self.MAXDEATHAGEPREDATOR = maxdeathagepredator
+        self.ENERGYLPREDATOR = energylpredator
+        self.BERRYCONST = berryconst
+        self.MAXWANDERDIST = maxwander
+
+    def InitializeSettings(self,screenheight,screenwidth,cellsize,fps):
+        self.SCREENHEIGHT = screenheight
+        self.SCREENWIDTH = screenwidth
+        self.CELLSIZE = cellsize
+        self.FPS = fps
+
     def TempMapViewer(self):
         running = True
-        smallrenderer = Renderer(SCREENWIDTH/2,SCREENHEIGHT/2,CELLSIZE/2)
+        smallrenderer = Renderer(self.SCREENWIDTH/2,self.SCREENHEIGHT/2,self.CELLSIZE/2)
 
         world = self.CreateWorld()
         smallrenderer.RenderWorld(world)
@@ -106,15 +126,15 @@ class EventManager:
             self.renderer.RenderBerry(newberry) #render the berry
     
     def BerryUpdate(self):
-        for x in range(random.poisson(lam=BERRYCONST,size=1)[0]):
+        for x in range(random.poisson(lam=self.BERRYCONST,size=1)[0]):
             self.SpawnBerry()
 
     def InitializeCreatures(self): #instantiate all creatures using the amount of creatures determined from constants
         
-        for creature in range(PREYCOUNT):
+        for creature in range(self.PREYCOUNT):
             #give them a random position, an image and pass both world + renderer as parameters
             self.preyList.append(Prey(choice(self.spawnableList),self.world,self.renderer))
-        for creature in range(PREDATORCOUNT):
+        for creature in range(self.PREDATORCOUNT):
             self.predatorList.append(Predator(choice(self.spawnableList),self.world,self.renderer))
 
     def Update(self): #update to be looped once per frame
@@ -146,7 +166,7 @@ class EventManager:
         
 
     def Main(self): #main program
-        self.renderer = Renderer(SCREENWIDTH,SCREENHEIGHT,CELLSIZE) #Creature a new renderer, for renderering
+        self.renderer = Renderer(self.SCREENWIDTH,self.SCREENHEIGHT,self.CELLSIZE) #Creature a new renderer, for renderering
         if self.world == []:
             self.world = self.CreateWorld()
         

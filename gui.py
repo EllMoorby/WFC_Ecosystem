@@ -4,6 +4,7 @@ from turtle import screensize
 from eventManager import EventManager
 import tkinter.font
 from constants import *
+import json
 
 def int_callback(entry, max=None, min=None):
     if entry == "":
@@ -240,7 +241,7 @@ class CreateSimulationMenu(tk.Frame):
         viewerbutton = tk.Button(self,text="Open World Viewer",command=lambda: self.OpenViewer(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         viewerbutton.grid(row=8,column=3,columnspan=2)
 
-        startbutton = tk.Button(self,text="Start Simulation",command=lambda: self.StartSimulation(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
+        startbutton = tk.Button(self,text="Start Simulation",command=lambda: self.StartSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         startbutton.grid(row=15,column=0,columnspan=5)
 
     def Back(self,parent,controller):
@@ -253,29 +254,8 @@ class CreateSimulationMenu(tk.Frame):
     def OpenViewer(self,parent,controller):
         controller.eventManager.TempMapViewer()
 
-    def StartSimulation(self,parent,controller):
-        
-
-        with open (path.join("Saves","temp.json"),"w") as edit:
-            data = json.load(edit)
-            """data["FPS"] = controller.fps
-            data["SCREENWIDTH"] = controller.screenwidth
-            data["SCREENHEIGHT"] = controller.screenheight
-            data["CELLSIZE"] = controller.cellsize
-            data["PREYCOUNT"] = controller.preycount
-            data["BASE_ENERGY_PREY"] = controller.baseenergyprey
-            data["MINDEATHAGE_PREY"] = controller.mindeathageprey
-            data["MAXDEATHAGE_PREY"] = controller.maxdeathageprey
-            data["TIMEBETWEENMATES_PREY"] = controller.timebetweenprey
-            data["ENERGYLOSSPERSTEP_PREY"] = controller.energylprey
-            data["PREDATORCOUNT"] = controller.predatorcount
-            data["BASE_ENERGY_PREDATOR"] = controller.baseenergypredator
-            data["MINDEATHAGE_PREDATOR"] = controller.mindeathagepredator
-            data["MAXDEATHAGE_PREDATOR"] = controller.maxdeathagepredator
-            data["TIMEBETWEENMATES_PREDATOR"] = controller.timebetweenpredator
-            data["ENERGYLOSSPERSTEP_PREDATOR"] = controller.energylpredator
-            data["BERRYCONST"] = controller.berryconst
-            data["MAXWANDERDIST"] = controller.maxwander"""
+    def StartSimulation(self,parent,controller,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander):
+        controller.eventManager.InitializeValues(preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander)
         controller.eventManager.Main()
 
 

@@ -27,7 +27,10 @@ class Stack:
 
     
 class PathFinder:
-    def __init__(self,creature,target):
+    def __init__(self,creature,target,screenheight,screenwidth,cellsize):
+        self.SCREENWIDTH = screenwidth
+        self.SCREENHEIGHT = screenheight
+        self.CELLSIZE = cellsize
         self.world = creature.world.copy() #get the world map in CreatureCells
         self.creature = creature.position
         self.target = target
@@ -56,7 +59,7 @@ class PathFinder:
         #loop through cells around position
         for x in range(-1,2):
             for y in range(-1,2):
-                if (position != [x,y] and (0 <= position[0]+x <= ((SCREENWIDTH // CELLSIZE)-1)) and (0 <= position[1]+y <= ((SCREENHEIGHT // CELLSIZE)-1))): #filter out cells that are outside the playable space or are the current position
+                if (position != [x,y] and (0 <= position[0]+x <= ((self.SCREENWIDTH // self.CELLSIZE)-1)) and (0 <= position[1]+y <= ((self.SCREENHEIGHT // self.CELLSIZE)-1))): #filter out cells that are outside the playable space or are the current position
                     if (position[0] + x,position[1] + y) != self.creature.position:
                         if self.world[position[0] + x][position[1] + y].pointer == None: #if the cells has not already been explored
                             self.world[position[0] + x][position[1] + y].pointer = self.world[position[0]][position[1]] #sets pointer to the position of the origin cell
