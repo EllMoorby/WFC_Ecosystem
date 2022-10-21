@@ -394,7 +394,7 @@ class Settings(tk.Frame):
         screenheight = tk.IntVar(value=controller.screenheight)
         cellsize = tk.IntVar(value=controller.cellsize)
 
-        backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller,cellsizeEntry,screenWidthEntry,screenHeightEntry,fpsEntry),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 5)
+        backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller,cellsizeEntry,screenWidthEntry,screenHeightEntry,fpsEntry),relief="flat",font = controller.guifont,activebackground="#9d9898",width = 5,background="#f27e10")
         backbutton.grid(row=30,column=7)
 
         menuText = tk.Label(self,text="Settings",font = controller.titlefont)
@@ -440,7 +440,7 @@ class LoadSimulation(tk.Frame):
         self.rowconfigure(30, weight=4)
         self.columnconfigure(7, weight=4)
 
-        backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 5)
+        backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller),relief="flat",font = controller.guifont,activebackground="#9d9898",width = 5,background="#f27e10")
         backbutton.grid(row=30,column=7)
 
         menuText = tk.Label(self,text="Load Simulation",font = controller.titlefont)
@@ -450,11 +450,14 @@ class LoadSimulation(tk.Frame):
 
         optmenu = tkk.Combobox(self, values=filelist, state='readonly',textvariable="Choose a Save",font=controller.guifont)
         optmenu.grid(row=1,column=0)
-        runbutton = tk.Button(self,text="Run",command=lambda: self.Run(parent,controller,optmenu.get()),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 5)
+        runbutton = tk.Button(self,text="Run",background="#51e41e",relief="flat",command=lambda: self.Run(parent,controller,optmenu.get()),font = controller.guifont,activebackground="#9d9898",width = 5)
         runbutton.grid(row=2,column=0)
 
         graphbutton = tk.Button(self,text="Show Population Graph",background="#b8b8b8",command=lambda: self.ShowPopulationGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         graphbutton.grid(row=3,column=0)
+
+        genebutton = tk.Button(self,text="Show Gene Graph",background="#b8b8b8",command=lambda: self.ShowGeneGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
+        genebutton.grid(row=4,column=0)
 
     def Back(self,parent,controller):
         controller.clear_widgets(self)
