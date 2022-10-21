@@ -3,6 +3,8 @@ from constants import *
 
 class Renderer:
     def __init__(self,screenwidth,screenheight,cellsize):
+        self.screenwidth = screenwidth
+        self.screenheight = screenheight
         self.cellsize = cellsize
         self.screen = pygame.display.set_mode([screenwidth, screenheight])
         self.screen.fill([0, 0, 0])
@@ -27,3 +29,10 @@ class Renderer:
 
     def RenderBerry(self,cell):
         self.screen.blit(self.berryimg,(cell.position[0]*self.cellsize,cell.position[1]*self.cellsize))
+
+    def DrawText(self,text):
+        pygame.font.init()
+        font = pygame.font.SysFont("Bahnschrift",20)
+        text = font.render(text,True,(0,0,0))
+
+        self.screen.blit(text,(0,0))

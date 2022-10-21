@@ -122,19 +122,25 @@ class Creature:
 
 
 class Predator(Creature):
-    def __init__(self,position,world,renderer,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,timebetweenmatespredator,cellsize,screenwidth,screenheight):
+    def __init__(self,position,world,renderer,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,timebetweenmatespredator,cellsize,screenwidth,screenheight,parentalGene=None):
         super().__init__(position,world,renderer,cellsize,screenwidth,screenheight)
         self.BASE_ENERGY_PREDATOR = baseenergypredator
         self.MINDEATHAGE_PREDATOR = mindeathagepredator
         self.MAXDEATHAGE_PREDATOR = maxdeathagepredator
         self.ENERGYLOSSPERSTEP_PREDATOR = energylpredator
-        self.TIMEBETWEENMATES_PREDATOR = timebetweenmatespredator
         self.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"fox.png")).convert_alpha(),(self.CELLSIZE,self.CELLSIZE))
         self.preyTarget = None
         self.mateTarget = None
         self.energy = self.BASE_ENERGY_PREDATOR
         self.urgeReproduce = URGE_REPRODUCE_PREDATOR
         self.deathage = random.randint(self.MINDEATHAGE_PREDATOR,self.MAXDEATHAGE_PREDATOR)
+        if parentalGene == None:
+            self.gestationGene = random.randint(1,100)
+        else:
+            self.gestationGene = parentalGene + random.randint(-10,10)
+        
+        self.MINREPROAGE = (MINREPROAGE_PREDATOR - MINREPROAGERANGE/2) + (MINREPROAGERANGE*(self.gestationGene/100))
+        self.TIMEBETWEENMATES_PREDATOR = (timebetweenmatespredator-TIMEBETWEENMATESRANGE/2) + (TIMEBETWEENMATESRANGE*(self.gestationGene/100))
 
     def LocateMate(self,lookingForMate):
         self.energy -= self.ENERGYLOSSPERSTEP_PREDATOR
@@ -214,7 +220,7 @@ class Predator(Creature):
         lowestpreyInCreatureWorld = self.world[lowestprey.position.position[0]][lowestprey.position.position[1]]
         return lowestpreyInCreatureWorld
 
-    def Update(self,preyList,spawnableList,predatorLookingForMate):
+    def Update(self,preyList,spawnableList,predatorLookingForMate,predatorList):
         self.age += 1
         self.timebetweenmates += 1
         if self.age < MINREPROAGE_PREDATOR or self.timebetweenmates <= self.TIMEBETWEENMATES_PREDATOR:
@@ -237,9 +243,8 @@ class Predator(Creature):
             self.extraMovement.ClearQueue()
             self.preyTarget = None
             option = self.ChooseActivity()
+            print(option,self)
             match option[0]:
-                case "f":
-                    pass
                 case "e":
                     target = self.Hunt(preyList)
                     if target == -1:
@@ -259,7 +264,7 @@ class Predator(Creature):
                         
         else:
             if self.mate:
-                if self.mate.alive:
+                if self.mate.alive or self.mate not in predatorList:
                     if self.preyTarget:
                         self.preyTarget.hasPredator = False
                         self.preyTarget.predator = None
@@ -303,21 +308,26 @@ class Predator(Creature):
     def ChooseActivity(self):
         choiceweights = BASECHOICEWEIGHTS.copy()
 
-        choiceweights[0] += (self.BASE_ENERGY_PREDATOR-self.energy) #eat chance
-        choiceweights[1] += (self.energy/self.BASE_ENERGY_PREDATOR + self.urgeReproduce/URGE_REPRODUCE_PREDATOR)*10 #chance to wander
-        choiceweights[2] += (URGE_REPRODUCE_PREDATOR-self.urgeReproduce)*MULTI  #chance to reproduce
+        choiceweights[0] += (100-((self.energy/self.BASE_ENERGY_PREDATOR)*100))+random.randint(-URGETOEATRANGE,URGETOEATRANGE) #eat chance
+        choiceweights[1] += (((self.energy/self.BASE_ENERGY_PREDATOR)*100)+((self.urgeReproduce/URGE_REPRODUCE_PREDATOR)*100))/2#chance to wander
+        choiceweights[2] += 100-((self.urgeReproduce/URGE_REPRODUCE_PREDATOR)*100)  #chance to reproduce
         
         for index,weight in enumerate(choiceweights):
             weight = min(max(weight,0.1),MAXCHOICEWEIGHT)
             choiceweights[index] = weight
         if self.age < MINREPROAGE_PREDATOR or self.timebetweenmates <= self.TIMEBETWEENMATES_PREDATOR:
             choiceweights[2] = 0
-        return random.choices(["e","w","r"],choiceweights,k=1)
+
+
+        if choiceweights[1] == max(choiceweights):
+            return ["w"]
+        else:
+            return random.choices(["e","w","r"],choiceweights,k=1)
 
 class Prey(Creature):
-    def __init__(self,position,world,renderer,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,timebetweenmatesprey,cellsize,screenwidth,screenheight):
+    def __init__(self,position,world,renderer,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,timebetweenmatesprey,cellsize,screenwidth,screenheight,parentGestationGene=None):
         super().__init__(position,world,renderer,cellsize,screenwidth,screenheight)
-        self.TIMEBETWEENMATES_PREY = timebetweenmatesprey
+        
         self.BASE_ENERGY_PREY = baseenergyprey
         self.MINDEATHAGE_PREY = mindeathageprey
         self.MAXDEATHAGE_PREY = maxdeathageprey
@@ -328,6 +338,13 @@ class Prey(Creature):
         self.predator = None
         self.urgeReproduce = URGE_REPRODUCE_PREY
         self.deathage = random.randint(self.MINDEATHAGE_PREY,self.MAXDEATHAGE_PREY)
+        if parentGestationGene == None:
+            self.gestationGene = random.randint(1,100)
+        else:
+            self.gestationGene = parentGestationGene + random.randint(-10,10)
+        self.numberOfOffspring = math.ceil((MAXOFFSPRING_PREY * (self.gestationGene/100)))
+        self.MINREPROAGE = (MINREPROAGE_PREY - MINREPROAGERANGE/2) + (MINREPROAGERANGE*(self.gestationGene/100))
+        self.TIMEBETWEENMATES_PREY = (timebetweenmatesprey-TIMEBETWEENMATESRANGE/2) + (TIMEBETWEENMATESRANGE*(self.gestationGene/100))
     
     def LocateMate(self,lookingForMate):
         self.energy -= self.ENERGYLOSSPERSTEP_PREY
@@ -386,7 +403,7 @@ class Prey(Creature):
     def Update(self,berryList,fertileList,spawnableList,preyLookingForMate):
         self.age += 1
         self.timebetweenmates += 1
-        if self.age < MINREPROAGE_PREY or self.timebetweenmates <= self.TIMEBETWEENMATES_PREY:
+        if self.age < self.MINREPROAGE or self.timebetweenmates <= self.TIMEBETWEENMATES_PREY:
             self.urgeReproduce -= URGELOSSPERSTEP
         if self.energy <= 0 or (self.age >= self.deathage):
             if self.mate:
@@ -466,7 +483,7 @@ class Prey(Creature):
         for index,weight in enumerate(choiceweights):
             weight = min(max(weight,0.1),MAXCHOICEWEIGHT)
             choiceweights[index] = weight
-        if self.age < MINREPROAGE_PREY or self.timebetweenmates <= self.TIMEBETWEENMATES_PREY:
+        if self.age < self.MINREPROAGE or self.timebetweenmates <= self.TIMEBETWEENMATES_PREY:
             choiceweights[2] = 0
         return random.choices(["e","w","r"],choiceweights,k=1)
 

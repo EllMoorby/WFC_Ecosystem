@@ -1,23 +1,21 @@
-from asyncio import constants
 import tkinter as tk
-from turtle import screensize
 from eventManager import EventManager
 import tkinter.font
+import tkinter.ttk as tkk
 from constants import *
 import json
+import os
+import matplotlib.pyplot as plt
 
-def int_callback(entry, max=None, min=None):
+def int_callback(entry):
     if entry == "":
         return True
     try:
         int(entry)
-        if max is not None and min is not None:
-            if entry > max or entry < min:
-                return False
-            else:return True
     except:
         return False
     else: return True
+
 
 class GUI(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -44,28 +42,28 @@ class GUI(tk.Tk):
         frame.grid(row=0,column=0,sticky="ns")
         self.show_frame(MainMenu)
         with open(path.join("Saves","preset.json"),"r") as f:
-            data = json.load(f)
-            self.preycount = data["PREYCOUNT"]
-            self.baseenergyprey = data["BASE_ENERGY_PREY"]
-            self.mindeathageprey = data["MINDEATHAGE_PREY"]
-            self.maxdeathageprey = data["MAXDEATHAGE_PREY"]
-            self.timebetweenprey = data["TIMEBETWEENMATES_PREY"]
-            self.energylprey = data["ENERGYLOSSPERSTEP_PREY"]
-            self.predatorcount = data["PREDATORCOUNT"]
-            self.baseenergypredator = data["BASE_ENERGY_PREDATOR"]
-            self.mindeathagepredator = data["MINDEATHAGE_PREDATOR"]
-            self.maxdeathagepredator = data["MAXDEATHAGE_PREDATOR"]
-            self.timebetweenpredator = data["TIMEBETWEENMATES_PREDATOR"]
-            self.energylpredator = data["ENERGYLOSSPERSTEP_PREDATOR"]
-            self.berryconst = data["BERRYCONST"]
-            self.maxwander = data["MAXWANDERDIST"]
+            self.presetdata = json.load(f)
+            self.preycount = self.presetdata["PREYCOUNT"]
+            self.baseenergyprey = self.presetdata["BASE_ENERGY_PREY"]
+            self.mindeathageprey = self.presetdata["MINDEATHAGE_PREY"]
+            self.maxdeathageprey = self.presetdata["MAXDEATHAGE_PREY"]
+            self.timebetweenprey = self.presetdata["TIMEBETWEENMATES_PREY"]
+            self.energylprey = self.presetdata["ENERGYLOSSPERSTEP_PREY"]
+            self.predatorcount = self.presetdata["PREDATORCOUNT"]
+            self.baseenergypredator = self.presetdata["BASE_ENERGY_PREDATOR"]
+            self.mindeathagepredator = self.presetdata["MINDEATHAGE_PREDATOR"]
+            self.maxdeathagepredator = self.presetdata["MAXDEATHAGE_PREDATOR"]
+            self.timebetweenpredator = self.presetdata["TIMEBETWEENMATES_PREDATOR"]
+            self.energylpredator = self.presetdata["ENERGYLOSSPERSTEP_PREDATOR"]
+            self.berryconst = self.presetdata["BERRYCONST"]
+            self.maxwander = self.presetdata["MAXWANDERDIST"]
 
-        with open(path.join("Saves","settings.json"), "r") as d:
-            data = json.load(d)
-            self.fps = data["FPS"]
-            self.screenwidth = data["SCREENWIDTH"]
-            self.screenheight = data["SCREENHEIGHT"]
-            self.cellsize = data["CELLSIZE"]
+        with open(path.join("Settings","settings.json"), "r") as d:
+            self.settingsdata = json.load(d)
+            self.fps = self.settingsdata["FPS"]
+            self.screenwidth = self.settingsdata["SCREENWIDTH"]
+            self.screenheight = self.settingsdata["SCREENHEIGHT"]
+            self.cellsize = self.settingsdata["CELLSIZE"]
             
 
 
@@ -79,6 +77,12 @@ class GUI(tk.Tk):
             widget.destroy()
 
     def Quit(self,event=None):
+        self.settingsdata["FPS"] = self.fps
+        self.settingsdata["SCREENWIDTH"] = self.screenwidth
+        self.settingsdata["SCREENHEIGHT"] = self.screenheight
+        self.settingsdata["CELLSIZE"] = self.cellsize
+        with open(path.join("Settings","settings.json"), "w") as q:
+            json.dump(self.settingsdata,q)
         quit()
 
     def toggle_fullscreen(self,event=None):
@@ -110,7 +114,7 @@ class MainMenu(tk.Frame):
         settings = tk.Button(self,text="Settings",command=lambda: self.Settings(parent,controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
         settings.grid(row=3,column=0)
 
-        quit_ = tk.Button(self,text="Quit",command=self.Quit,relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
+        quit_ = tk.Button(self,text="Quit",command=lambda: self.Quit(controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
         quit_.grid(row=4,column=0)
 
     def MovetoSimulationMenu(self,parent,controller):
@@ -120,8 +124,12 @@ class MainMenu(tk.Frame):
         frame.grid(row=0,column=0,sticky="ns")
         controller.show_frame(CreateSimulationMenu)
 
-    def LoadtoSimulationMenu(self):
-        pass
+    def LoadtoSimulationMenu(self,parent,controller):
+        controller.clear_widgets(self)
+        frame = LoadSimulation(parent, controller)
+        controller.frames[LoadSimulation] = frame
+        frame.grid(row=0,column=0,sticky="ns")
+        controller.show_frame(LoadSimulation)
 
     def Settings(self,parent,controller):
         controller.clear_widgets(self)
@@ -130,7 +138,13 @@ class MainMenu(tk.Frame):
         frame.grid(row=0,column=0,sticky="ns")
         controller.show_frame(Settings)
 
-    def Quit(self):
+    def Quit(self,controller):
+        controller.settingsdata["FPS"] = controller.fps
+        controller.settingsdata["SCREENWIDTH"] = controller.screenwidth
+        controller.settingsdata["SCREENHEIGHT"] = controller.screenheight
+        controller.settingsdata["CELLSIZE"] = controller.cellsize
+        with open(path.join("Settings","settings.json"), "w") as q:
+            json.dump(controller.settingsdata,q)
         quit()
 
     
@@ -142,7 +156,7 @@ class CreateSimulationMenu(tk.Frame):
         tk.Frame.__init__(self,parent)
         self.rowconfigure(30, weight=4)
         self.columnconfigure(7, weight=4)
-
+        self.rowconfigure(12, weight=4)
         preyCount = tk.IntVar(value=controller.preycount)
         predatorCount = tk.IntVar(value=controller.predatorcount)
         preyBaseEnergy = tk.IntVar(value=controller.baseenergyprey)
@@ -158,7 +172,7 @@ class CreateSimulationMenu(tk.Frame):
         MaxWanderDistance = tk.IntVar(value=controller.maxwander)
         berryConst = tk.IntVar(value=controller.berryconst)
 
-        backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 5)
+        backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller),relief="flat",font = controller.guifont,activebackground="#9d9898",width = 5,background="#f27e10")
         backbutton.grid(row=30,column=7)
 
         
@@ -230,19 +244,31 @@ class CreateSimulationMenu(tk.Frame):
 
         wanderdistlabel = tk.Label(self,text="Max Wander Distance",font = controller.guifont)
         wanderdistlabel.grid(row=8,column=0)
-        wanderdistentry = tk.Entry(self, textvariable=MaxWanderDistance, validate="key",validatecommand=(controller.validint,"%P"))
+        wanderdistentry = tk.Entry(self, textvariable=MaxWanderDistance, validate="key",validatecommand=(controller.validint,"%P"),relief="flat")
         wanderdistentry.grid(row=8,column=1,padx=(5,25))
         
         berrylabel = tk.Label(self,text="Berry Number",font = controller.guifont)
         berrylabel.grid(row=9,column=0)
-        berryentry = tk.Entry(self, textvariable=berryConst, validate="key",validatecommand=(controller.validint,"%P"))
+        berryentry = tk.Entry(self, textvariable=berryConst, validate="key",validatecommand=(controller.validint,"%P"),relief="flat")
         berryentry.grid(row=9,column=1,padx=(5,25))
 
-        viewerbutton = tk.Button(self,text="Open World Viewer",command=lambda: self.OpenViewer(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
+        viewerbutton = tk.Button(self,text="Open World Viewer",background="#b8b8b8",command=lambda: self.OpenViewer(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         viewerbutton.grid(row=8,column=3,columnspan=2)
 
-        startbutton = tk.Button(self,text="Start Simulation",command=lambda: self.StartSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry,preyTBMEntry,predatorTBMEntry),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
-        startbutton.grid(row=15,column=0,columnspan=5)
+        graphbutton = tk.Button(self,text="Show Population Graph",background="#b8b8b8",command=lambda: self.ShowPopulationGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
+        graphbutton.grid(row=10,column=3,columnspan=2)
+
+        genegraphbutton = tk.Button(self,text="Show Gene Graph",background="#b8b8b8",command=lambda: self.ShowGeneGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
+        genegraphbutton.grid(row=11,column=3,columnspan=2)
+
+        startbutton = tk.Button(self,text="Start Simulation",background="#51e41e",relief="flat",command=lambda: self.StartSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry,preyTBMEntry,predatorTBMEntry),font = controller.guifont,activebackground="#9d9898",width = 20)
+        startbutton.grid(row=12,column=0,columnspan=5)
+
+        savebutton = tk.Button(self,text="Save Parameters",background="#b8b8b8",command=lambda: self.SaveSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry,preyTBMEntry,predatorTBMEntry),font = controller.guifont,activebackground="#9d9898",width = 20,relief="groove")
+        savebutton.grid(row=9,column=3,columnspan=2)
+
+        checkbox = tk.Checkbutton(self,text="Genes",onvalue=True,offvalue=False,font=controller.guifont,width=10)
+        checkbox.grid(row=10,column=0,columnspan=2)
 
     def Back(self,parent,controller):
         controller.clear_widgets(self)
@@ -250,6 +276,40 @@ class CreateSimulationMenu(tk.Frame):
         controller.frames[MainMenu] = frame
         frame.grid(row=0,column=0,sticky="ns")
         controller.show_frame(MainMenu)
+
+    def ShowGeneGraphs(self,parent,controller):
+        plt.close("all")
+        if controller.eventManager.gestationGeneSizePrey_preframe == []:
+            return
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        ax.spines["left"].set_position("zero")
+        ax.spines["bottom"].set_position("zero")
+        ax.spines["right"].set_color("none")
+        ax.spines["top"].set_color("none")
+        plt.plot(controller.eventManager.gestationGeneSizePrey_preframe,label="Prey",color="b")
+        plt.plot(controller.eventManager.gestationGeneSizePredator_preframe,label="Predators",color="r")
+        plt.xlabel("Number of Frames")
+        plt.ylabel("Strength Of Gene")
+        plt.legend()
+        plt.show()
+
+    def ShowPopulationGraphs(self,parent,controller):
+        plt.close("all")
+        if controller.eventManager.preyListLength_perframe == [] or controller.eventManager.predatorListLength_perframe == []:
+            return
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        ax.spines["left"].set_position("zero")
+        ax.spines["bottom"].set_position("zero")
+        ax.spines["right"].set_color("none")
+        ax.spines["top"].set_color("none")
+        plt.plot(controller.eventManager.preyListLength_perframe,label="Prey",color="b")
+        plt.plot(controller.eventManager.predatorListLength_perframe,label="Predators",color="r")
+        plt.xlabel("Number of Frames")
+        plt.ylabel("Amount of Creatures")
+        plt.legend()
+        plt.show()
 
     def OpenViewer(self,parent,controller):
         controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
@@ -259,6 +319,68 @@ class CreateSimulationMenu(tk.Frame):
         controller.eventManager.InitializeValues(int(preycount.get()),int(predatorcount.get()),int(baseenergyprey.get()),int(mindeathageprey.get()),int(maxdeathageprey.get()),int(energylprey.get()),int(baseenergypredator.get()),int(mindeathagepredator.get()),int(maxdeathagepredator.get()),int(energylpredator.get()),float(berryconst.get()),int(maxwander.get()),int(preyTBM.get()),int(predatorTBM.get()))
         controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
         controller.eventManager.Main()
+
+    def SaveSimulation(self,parent,controller,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
+        popup = tk.Tk()
+        popup.title("Save")
+        popup.geometry("200x200")
+
+        savename = tk.StringVar(value="save1")
+
+        savenameLabel = tk.Label(popup,text="Save Name",font = controller.guifont)
+        savenameLabel.grid(row=0,column=0)
+        savenameEntry = tk.Entry(popup,textvariable=savename)
+        savenameEntry.grid(row=0,column=1,padx=(15,5))
+
+        savebutton = tk.Button(popup,text="Save",command=lambda: self.Save(popup,controller,savenameEntry,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
+        savebutton.grid(row=1,column=0)
+        savebutton = tk.Button(popup,text="Cancel",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
+        savebutton.grid(row=1,column=1)
+
+        popup.mainloop()
+
+    def Save(self,popup,controller,savename,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
+        controller.preycount = int(preycount.get())
+        controller.baseenergyprey = int(baseenergyprey.get())
+        controller.mindeathageprey = int(mindeathageprey.get())
+        controller.maxdeathageprey = int(maxdeathageprey.get())
+        controller.timebetweenprey = int(preyTBM.get())
+        controller.energylprey = int(energylprey.get())
+        controller.predatorcount = int(predatorcount.get())
+        controller.baseenergypredator = int(baseenergypredator.get())
+        controller.mindeathagepredator = int(mindeathagepredator.get())
+        controller.maxdeathagepredator = int(maxdeathagepredator.get())
+        controller.timebetweenpredator = int(predatorTBM.get())
+        controller.energylpredator = int(energylpredator.get())
+        controller.berryconst = float(berryconst.get())
+        controller.maxwander = int(maxwander.get())
+        savename = savename.get()
+        savename = savename + ".json"
+        controller.presetdata["PREYCOUNT"] = controller.preycount
+        controller.presetdata["BASE_ENERGY_PREY"] = controller.baseenergyprey
+        controller.presetdata["MINDEATHAGE_PREY"] = controller.mindeathageprey
+        controller.presetdata["MAXDEATHAGE_PREY"] = controller.maxdeathageprey
+        controller.presetdata["TIMEBETWEENMATES_PREY"] = controller.timebetweenprey
+        controller.presetdata["ENERGYLOSSPERSTEP_PREY"] = controller.energylprey
+        controller.presetdata["PREDATORCOUNT"] = controller.predatorcount
+        controller.presetdata["BASE_ENERGY_PREDATOR"] = controller.baseenergypredator
+        controller.presetdata["MINDEATHAGE_PREDATOR"] = controller.mindeathagepredator
+        controller.presetdata["MAXDEATHAGE_PREDATOR"] = controller.maxdeathagepredator
+        controller.presetdata["TIMEBETWEENMATES_PREDATOR"] = controller.timebetweenpredator
+        controller.presetdata["ENERGYLOSSPERSTEP_PREDATOR"] = controller.energylpredator
+        controller.presetdata["BERRYCONST"] = controller.berryconst
+        controller.presetdata["MAXWANDERDIST"] = controller.maxwander
+        if savename != "preset.json":
+            with open(path.join("Saves",savename), "w") as save:
+                json.dump(controller.presetdata,save)
+
+        self.Close(popup)
+
+
+        
+
+    def Close(self, tkinter):
+        tkinter.destroy()
 
 
 class Settings(tk.Frame):
@@ -309,3 +431,94 @@ class Settings(tk.Frame):
         controller.frames[MainMenu] = frame
         frame.grid(row=0,column=0,sticky="ns")
         controller.show_frame(MainMenu)
+
+
+class LoadSimulation(tk.Frame):
+    def __init__(self,parent,controller):
+        tk.Frame.__init__(self,parent)
+
+        self.rowconfigure(30, weight=4)
+        self.columnconfigure(7, weight=4)
+
+        backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 5)
+        backbutton.grid(row=30,column=7)
+
+        menuText = tk.Label(self,text="Load Simulation",font = controller.titlefont)
+        menuText.grid(row=0,column=0,columnspan=2)
+
+        filelist = [fname for fname in os.listdir(SAVES_FOLDER) if fname.endswith('.json')]
+
+        optmenu = tkk.Combobox(self, values=filelist, state='readonly',textvariable="Choose a Save",font=controller.guifont)
+        optmenu.grid(row=1,column=0)
+        runbutton = tk.Button(self,text="Run",command=lambda: self.Run(parent,controller,optmenu.get()),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 5)
+        runbutton.grid(row=2,column=0)
+
+        graphbutton = tk.Button(self,text="Show Population Graph",background="#b8b8b8",command=lambda: self.ShowPopulationGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
+        graphbutton.grid(row=3,column=0)
+
+    def Back(self,parent,controller):
+        controller.clear_widgets(self)
+        frame = MainMenu(parent, controller)
+        controller.frames[MainMenu] = frame
+        frame.grid(row=0,column=0,sticky="ns")
+        controller.show_frame(MainMenu)
+    
+    def Run(self,parent,controller,option):
+        option = str(option)
+        with open(path.join("Saves",option),"r") as f:
+            self.presetdata = json.load(f)
+            self.preycount = self.presetdata["PREYCOUNT"]
+            self.baseenergyprey = self.presetdata["BASE_ENERGY_PREY"]
+            self.mindeathageprey = self.presetdata["MINDEATHAGE_PREY"]
+            self.maxdeathageprey = self.presetdata["MAXDEATHAGE_PREY"]
+            self.timebetweenprey = self.presetdata["TIMEBETWEENMATES_PREY"]
+            self.energylprey = self.presetdata["ENERGYLOSSPERSTEP_PREY"]
+            self.predatorcount = self.presetdata["PREDATORCOUNT"]
+            self.baseenergypredator = self.presetdata["BASE_ENERGY_PREDATOR"]
+            self.mindeathagepredator = self.presetdata["MINDEATHAGE_PREDATOR"]
+            self.maxdeathagepredator = self.presetdata["MAXDEATHAGE_PREDATOR"]
+            self.timebetweenpredator = self.presetdata["TIMEBETWEENMATES_PREDATOR"]
+            self.energylpredator = self.presetdata["ENERGYLOSSPERSTEP_PREDATOR"]
+            self.berryconst = self.presetdata["BERRYCONST"]
+            self.maxwander = self.presetdata["MAXWANDERDIST"]
+        
+        controller.eventManager.InitializeValues(self.preycount,self.predatorcount,self.baseenergyprey,self.mindeathageprey,self.maxdeathageprey,self.energylprey,self.baseenergyprey,self.mindeathagepredator,self.maxdeathagepredator,self.energylpredator,self.berryconst,self.maxwander,self.timebetweenprey,self.timebetweenpredator)
+        controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
+        controller.eventManager.Main()
+
+    def ShowGeneGraphs(self,parent,controller):
+        plt.close("all")
+        if controller.eventManager.gestationGeneSizePrey_preframe == []:
+            return
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        ax.spines["left"].set_position("zero")
+        ax.spines["bottom"].set_position("zero")
+        ax.spines["right"].set_color("none")
+        ax.spines["top"].set_color("none")
+        plt.plot(controller.eventManager.gestationGeneSizePrey_preframe,label="Prey",color="b")
+        plt.plot(controller.eventManager.gestationGeneSizePredator_preframe,label="Predators",color="r")
+        plt.xlabel("Number of Frames")
+        plt.ylabel("Strength Of Gene")
+        plt.legend()
+        plt.show()
+
+    def ShowPopulationGraphs(self,parent,controller):
+        plt.close("all")
+        if controller.eventManager.preyListLength_perframe == [] or controller.eventManager.predatorListLength_perframe == []:
+            return
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        ax.spines["left"].set_position("zero")
+        ax.spines["bottom"].set_position("zero")
+        ax.spines["right"].set_color("none")
+        ax.spines["top"].set_color("none")
+        plt.plot(controller.eventManager.preyListLength_perframe,label="Prey",color="b")
+        plt.plot(controller.eventManager.predatorListLength_perframe,label="Predators",color="r")
+        plt.xlabel("Number of Frames")
+        plt.ylabel("Amount of Creatures")
+        plt.legend()
+        plt.show()
+
+
+

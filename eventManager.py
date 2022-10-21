@@ -7,7 +7,7 @@ import pygame
 from waveFunctionCollapse import GenerateMap
 import pstats
 from numpy import random
-import matplotlib.pyplot as plt
+
 
 class EventManager:
     def __init__(self):
@@ -25,6 +25,8 @@ class EventManager:
         self.predatorLookingForMate = [] #A list of all predators looking for a mate
         self.preyListLength_perframe = []
         self.predatorListLength_perframe = []
+        self.gestationGeneSizePrey_preframe = []
+        self.gestationGeneSizePredator_preframe = []
 
     def InitializeValues(self,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
         self.PREYCOUNT = preycount
@@ -51,11 +53,15 @@ class EventManager:
     def TempMapViewer(self):
         running = True
         smallrenderer = Renderer(self.SCREENWIDTH/2,self.SCREENHEIGHT/2,self.CELLSIZE/2)
+        
+        
 
         world = self.CreateWorld()
         smallrenderer.RenderWorld(world)
+        smallrenderer.DrawText("Press r to refresh")
         pygame.display.flip()
         while running:
+            
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.world = world
@@ -65,6 +71,7 @@ class EventManager:
                     if event.key == pygame.K_r:
                         world = self.CreateWorld()
                         smallrenderer.RenderWorld(world)
+                        smallrenderer.DrawText("Press r to refresh")
                         pygame.display.flip()
                     elif event.key == pygame.K_ESCAPE:
                         self.world = world
@@ -91,7 +98,8 @@ class EventManager:
         self.spawnableList = []
         self.preyListLength_perframe = []
         self.predatorListLength_perframe = []
-
+        self.gestationGeneSizePrey_preframe = []
+        self.gestationGeneSizePredator_preframe = []
         #expand the dictionary to allow all tiles to be added as keys
         for tile in self.tilelist:
             self.tiledict[tile] = []
@@ -112,10 +120,6 @@ class EventManager:
                 for item in self.tiledict[key]:
                     self.spawnableList.append(item)
                 
-
-
-    
-
 
     def SpawnBerry(self): #spawn a berry at a random fertile spot
         if len(self.fertileList) != 0:
@@ -139,6 +143,8 @@ class EventManager:
             self.predatorList.append(Predator(choice(self.spawnableList),self.world,self.renderer,self.BASEENERGYPREDATOR,self.MINDEATHAGEPREDATOR,self.MAXDEATHAGEPREDATOR,self.ENERGYLPREDATOR,self.TIMEBETWEENMATES_PREDATOR,self.CELLSIZE,self.SCREENWIDTH,self.SCREENHEIGHT))
 
     def Update(self): #update to be looped once per frame
+        gestationGeneSizePrey = 0
+        gestationGeneSizePredator = 0
         self.renderer.RenderWorld(self.world) #draw world
         for berry in self.berryList:
             self.renderer.RenderBerry(berry)
@@ -148,15 +154,22 @@ class EventManager:
             if action == -1: #if dead remove them from preylist
                 self.preyList.remove(creature)
             elif action == 0:
-                for x in range(random.randint(MINOFFSPRING_PREY,MAXOFFSPRING_PREY)):
-                    self.preyList.append(Prey(creature.position,self.world,self.renderer))
-
+                for x in range(creature.numberOfOffspring):
+                    self.preyList.append(Prey(creature.position,self.world,self.renderer,self.BASEENERGYPREY,self.MINDEATHAGEPREY,self.MAXDEATHAGEPREY,self.ENERGYLPREY,self.TIMEBETWEENMATES_PREY,self.CELLSIZE,self.SCREENWIDTH,self.SCREENHEIGHT,creature.gestationGene))
+            gestationGeneSizePrey += creature.gestationGene
+        if len(self.preyList) != 0:
+            self.gestationGeneSizePrey_preframe.append((gestationGeneSizePrey/len(self.preyList)))
         for creature in self.predatorList:
-            action = creature.Update(self.preyList,self.spawnableList,self.predatorLookingForMate)
+            action = creature.Update(self.preyList,self.spawnableList,self.predatorLookingForMate,self.predatorList)
             if action == -1: #if dead remove them from predatorlist
                 self.predatorList.remove(creature)
             elif action == 0:
-                self.predatorList.append(Predator(creature.position,self.world,self.renderer))
+                self.predatorList.append(Predator(creature.position,self.world,self.renderer,self.BASEENERGYPREDATOR,self.MINDEATHAGEPREDATOR,self.MAXDEATHAGEPREDATOR,self.ENERGYLPREDATOR,self.TIMEBETWEENMATES_PREDATOR,self.CELLSIZE,self.SCREENWIDTH,self.SCREENHEIGHT,creature.gestationGene))
+            
+            gestationGeneSizePredator += creature.gestationGene
+    
+        if len(self.predatorList) != 0:
+            self.gestationGeneSizePredator_preframe.append((gestationGeneSizePredator/len(self.predatorList)))
 
         self.preyListLength_perframe.append(len(self.preyList))
         self.predatorListLength_perframe.append(len(self.predatorList))
@@ -186,18 +199,6 @@ class EventManager:
                     if event.key == pygame.K_u:
                         self.SpawnBerry()
                 if event.type == pygame.QUIT:
-                    fig = plt.figure()
-                    ax = fig.add_subplot(1,1,1)
-                    ax.spines["left"].set_position("zero")
-                    ax.spines["bottom"].set_position("zero")
-                    ax.spines["right"].set_color("none")
-                    ax.spines["top"].set_color("none")
-                    plt.plot(self.preyListLength_perframe,label="Prey",color="b")
-                    plt.plot(self.predatorListLength_perframe,label="Predators",color="r")
-                    plt.xlabel("Number of Frames")
-                    plt.ylabel("Amount of Creatures")
-                    plt.legend()
-                    plt.show()
                     
                     """stats = pstats.Stats(pr)
                     stats.sort_stats(pstats.SortKey.TIME)

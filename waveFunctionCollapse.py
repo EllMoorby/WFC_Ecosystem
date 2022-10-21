@@ -189,7 +189,7 @@ def GenerateMap(cellsize,screenheight,screenwidth):
         for cell in row:
             world,possibletiles = WFC(world,possibletiles.copy(),cellsize,screenheight,screenwidth)
             if world == -1: #if the there was a collision, regenerate the map
-                return GenerateMap()
+                return GenerateMap(cellsize,screenheight,screenwidth)
     return world,tilelist
 
 
