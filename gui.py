@@ -21,7 +21,7 @@ class GUI(tk.Tk):
     def __init__(self, *args, **kwargs):
         self.eventManager = EventManager()
         tk.Tk.__init__(self, *args, **kwargs)
-        self.title("Main Menu")
+        self.title("Ecosystem Simulation+")
         self.geometry("1920x1080")
         self.attributes("-fullscreen", True)
         self.validint = self.register(int_callback)
@@ -267,8 +267,6 @@ class CreateSimulationMenu(tk.Frame):
         savebutton = tk.Button(self,text="Save Parameters",background="#b8b8b8",command=lambda: self.SaveSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry,preyTBMEntry,predatorTBMEntry),font = controller.guifont,activebackground="#9d9898",width = 20,relief="groove")
         savebutton.grid(row=9,column=3,columnspan=2)
 
-        checkbox = tk.Checkbutton(self,text="Genes",onvalue=True,offvalue=False,font=controller.guifont,width=10)
-        checkbox.grid(row=10,column=0,columnspan=2)
 
     def Back(self,parent,controller):
         controller.clear_widgets(self)
@@ -291,6 +289,8 @@ class CreateSimulationMenu(tk.Frame):
         plt.plot(controller.eventManager.gestationGeneSizePredator_preframe,label="Predators",color="r")
         plt.xlabel("Number of Frames")
         plt.ylabel("Strength Of Gene")
+        plt.ylim(top=100,bottom=0)
+        plt.xlim(left=0)
         plt.legend()
         plt.show()
 
@@ -323,7 +323,7 @@ class CreateSimulationMenu(tk.Frame):
     def SaveSimulation(self,parent,controller,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
         popup = tk.Tk()
         popup.title("Save")
-        popup.geometry("200x200")
+        popup.geometry("280x200")
 
         savename = tk.StringVar(value="save1")
 
@@ -503,6 +503,8 @@ class LoadSimulation(tk.Frame):
         plt.plot(controller.eventManager.gestationGeneSizePredator_preframe,label="Predators",color="r")
         plt.xlabel("Number of Frames")
         plt.ylabel("Strength Of Gene")
+        plt.ylim(top=100,bottom=0)
+        plt.xlim(left=0)
         plt.legend()
         plt.show()
 

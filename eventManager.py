@@ -53,7 +53,7 @@ class EventManager:
     def TempMapViewer(self):
         running = True
         smallrenderer = Renderer(self.SCREENWIDTH/2,self.SCREENHEIGHT/2,self.CELLSIZE/2)
-        
+        pygame.display.set_caption("Map Preview")
         
 
         world = self.CreateWorld()
@@ -182,6 +182,7 @@ class EventManager:
     def Main(self): #main program
         self.renderer = Renderer(self.SCREENWIDTH,self.SCREENHEIGHT,self.CELLSIZE) #Creature a new renderer, for renderering
         self.engine = Engine(self.FPS) #Create a new engine, for deltatime and FPS
+        pygame.display.set_caption("Simulation")
         if self.world == []:
             self.world = self.CreateWorld()
         
