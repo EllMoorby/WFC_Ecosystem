@@ -42,7 +42,7 @@ class GUI(tk.Tk): #Main GUI class
         frame.grid(row=0,column=0,sticky="ns")
         self.show_frame(MainMenu) #Show the main menu
         #preload all the attributes from a JSON file
-        with open(path.join("Settings","preset.json"),"r") as f:
+        with open(path.join("Saves","preset.json"),"r") as f:
             self.presetdata = json.load(f)
             self.preycount = self.presetdata["PREYCOUNT"]
             self.baseenergyprey = self.presetdata["BASE_ENERGY_PREY"]
@@ -187,15 +187,16 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         menuText.grid(row=0,column=0,columnspan=5)
         #Add all labels for entry boxes
         #Add Entry boxes for all values
+        #They are all gridded accoringly
         preyCountLabel = tk.Label(self,text="Starting Number of Prey",font = controller.guifont)
         preyCountLabel.grid(row=1,column=0)
         preyCountEntry = tk.Entry(self, textvariable=preyCount, validate="key",validatecommand=(controller.validint,"%P"))
         preyCountEntry.grid(row=1,column=1,padx=(5,25))
 
         predatorCountLabel = tk.Label(self,text="Starting Number of Predators",font = controller.guifont)
-        predatorCountLabel.grid(row=1,column=4)
+        predatorCountLabel.grid(row=1,column=3)
         predatorCountEntry = tk.Entry(self, textvariable=predatorCount,validate="key",validatecommand=(controller.validint,"%P"))
-        predatorCountEntry.grid(row=1,column=3,padx=(25,5))
+        predatorCountEntry.grid(row=1,column=4,padx=(25,5))
 
         preyBaseEnergyLabel = tk.Label(self,text="Maxiumum Prey Energy",font = controller.guifont)
         preyBaseEnergyLabel.grid(row=2,column=0)
@@ -203,9 +204,9 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         preyBaseEnergyEntry.grid(row=2,column=1,padx=(5,25))
 
         predatorBaseEnergyLabel = tk.Label(self,text="Maximum Predator Energy",font = controller.guifont)
-        predatorBaseEnergyLabel.grid(row=2,column=4)
+        predatorBaseEnergyLabel.grid(row=2,column=3)
         predatorBaseEnergyEntry = tk.Entry(self, textvariable=predatorBaseEnergy,validate="key",validatecommand=(controller.validint,"%P"))
-        predatorBaseEnergyEntry.grid(row=2,column=3,padx=(25,5))
+        predatorBaseEnergyEntry.grid(row=2,column=4,padx=(25,5))
 
         preyMaxDeathageLabel = tk.Label(self,text="Maxiumum Prey Death Age",font = controller.guifont)
         preyMaxDeathageLabel.grid(row=3,column=0)
@@ -213,9 +214,9 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         preyMaxDeathageEntry.grid(row=3,column=1,padx=(5,25))
 
         predatorMaxDeathageLabel = tk.Label(self,text="Maximum Predator Death Age",font = controller.guifont)
-        predatorMaxDeathageLabel.grid(row=3,column=4)
+        predatorMaxDeathageLabel.grid(row=3,column=3)
         predatorMaxDeathageEntry = tk.Entry(self, textvariable=predatorMaxDeathage,validate="key",validatecommand=(controller.validint,"%P"))
-        predatorMaxDeathageEntry.grid(row=3,column=3,padx=(25,5))
+        predatorMaxDeathageEntry.grid(row=3,column=4,padx=(25,5))
         
         preyMaxDeathageLabel = tk.Label(self,text="Minimum Prey Death Age",font = controller.guifont)
         preyMaxDeathageLabel.grid(row=4,column=0)
@@ -223,9 +224,9 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         preyMaxDeathageEntry.grid(row=4,column=1,padx=(5,25))
 
         predatorMinDeathageLabel = tk.Label(self,text="Minimum Predator Death Age",font = controller.guifont)
-        predatorMinDeathageLabel.grid(row=4,column=4)
+        predatorMinDeathageLabel.grid(row=4,column=3)
         predatorMinDeathageEntry = tk.Entry(self, textvariable=predatorMinDeathage,validate="key",validatecommand=(controller.validint,"%P"))
-        predatorMinDeathageEntry.grid(row=4,column=3,padx=(25,5))
+        predatorMinDeathageEntry.grid(row=4,column=4,padx=(25,5))
 
         preyEnergyLossLabel = tk.Label(self,text="Prey Energy Loss per Step",font = controller.guifont)
         preyEnergyLossLabel.grid(row=5,column=0)
@@ -233,9 +234,9 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         preyEnergyLossEntry.grid(row=5,column=1,padx=(5,25))
 
         predatorEnergyLossLabel = tk.Label(self,text="Predator Energy Loss per Step",font = controller.guifont)
-        predatorEnergyLossLabel.grid(row=5,column=4)
+        predatorEnergyLossLabel.grid(row=5,column=3)
         predatorEnergyLossEntry = tk.Entry(self, textvariable=predatorEnergyLoss,validate="key",validatecommand=(controller.validint,"%P"))
-        predatorEnergyLossEntry.grid(row=5,column=3,padx=(25,5))
+        predatorEnergyLossEntry.grid(row=5,column=4,padx=(25,5))
 
         preyTBMLabel = tk.Label(self,text="Prey Time Between Mates",font = controller.guifont)
         preyTBMLabel.grid(row=6,column=0)
@@ -243,9 +244,9 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         preyTBMEntry.grid(row=6,column=1,padx=(5,25))
 
         predatorTBMLabel = tk.Label(self,text="Predator Time Between Mates",font = controller.guifont)
-        predatorTBMLabel.grid(row=6,column=4)
+        predatorTBMLabel.grid(row=6,column=3)
         predatorTBMEntry = tk.Entry(self, textvariable=predatorTimeBetweenMates,validate="key",validatecommand=(controller.validint,"%P"))
-        predatorTBMEntry.grid(row=6,column=3,padx=(25,5))
+        predatorTBMEntry.grid(row=6,column=4,padx=(25,5))
 
         othersTitle = tk.Label(self,text="Other Settings",font = controller.textfont)
         othersTitle.grid(row=7,column=0,columnspan=2)
@@ -260,19 +261,19 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         berryentry = tk.Entry(self, textvariable=berryConst, validate="key",validatecommand=(controller.validint,"%P"),relief="flat")
         berryentry.grid(row=9,column=1,padx=(5,25))
 
-        #Create buttons which open menus
+        #Create a button which displays the world world viewer
         viewerbutton = tk.Button(self,text="Open World Viewer",background="#b8b8b8",command=lambda: self.OpenViewer(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         viewerbutton.grid(row=8,column=3,columnspan=2)
-
+        #Create a button which displays a graph of the population of the previous simulation
         graphbutton = tk.Button(self,text="Show Population Graph",background="#b8b8b8",command=lambda: self.ShowPopulationGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         graphbutton.grid(row=10,column=3,columnspan=2)
-
+        #Create a button which displays a graph of the average gene
         genegraphbutton = tk.Button(self,text="Show Gene Graph",background="#b8b8b8",command=lambda: self.ShowGeneGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         genegraphbutton.grid(row=11,column=3,columnspan=2)
-
+        #Create a button which which retrieves all values from the entry boxes
         startbutton = tk.Button(self,text="Start Simulation",background="#51e41e",relief="flat",command=lambda: self.StartSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry,preyTBMEntry,predatorTBMEntry),font = controller.guifont,activebackground="#9d9898",width = 20)
         startbutton.grid(row=12,column=0,columnspan=5)
-
+        #Create a button which opens a popup window to save the simulation
         savebutton = tk.Button(self,text="Save Parameters",background="#b8b8b8",command=lambda: self.SaveSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry,preyTBMEntry,predatorTBMEntry),font = controller.guifont,activebackground="#9d9898",width = 20,relief="groove")
         savebutton.grid(row=9,column=3,columnspan=2)
 
@@ -317,40 +318,51 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         ax.spines["top"].set_color("none")
         plt.plot(controller.eventManager.preyListLength_perframe,label="Prey",color="b")
         plt.plot(controller.eventManager.predatorListLength_perframe,label="Predators",color="r")
+        #label axes
         plt.xlabel("Number of Frames")
         plt.ylabel("Amount of Creatures")
+        plt.ylim(top=100,bottom=0)
+        plt.xlim(left=0)
         plt.legend()
         plt.show()
 
-    def OpenViewer(self,parent,controller):
+    def OpenViewer(self,parent,controller): #Open a viewer of the world
         controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
         controller.eventManager.TempMapViewer()
 
     def StartSimulation(self,parent,controller,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
+        #Get all values from entry boxes and send them to the eventManager
         controller.eventManager.InitializeValues(int(preycount.get()),int(predatorcount.get()),int(baseenergyprey.get()),int(mindeathageprey.get()),int(maxdeathageprey.get()),int(energylprey.get()),int(baseenergypredator.get()),int(mindeathagepredator.get()),int(maxdeathagepredator.get()),int(energylpredator.get()),float(berryconst.get()),int(maxwander.get()),int(preyTBM.get()),int(predatorTBM.get()))
+        #Get the settings from the JSON file
         controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
+        #Run the program
         controller.eventManager.Main()
 
     def SaveSimulation(self,parent,controller,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
+        #Open a popup box
         popup = tk.Tk()
-        popup.title("Save")
-        popup.geometry("280x200")
+        popup.title("Save") #Set the window title
+        popup.geometry("280x200") #Set the window size
 
         savename = tk.StringVar(value="save1")
 
+        #Save Entry box where the name will be inputted
         savenameLabel = tk.Label(popup,text="Save Name",font = controller.guifont)
         savenameLabel.grid(row=0,column=0)
         savenameEntry = tk.Entry(popup,textvariable=savename)
         savenameEntry.grid(row=0,column=1,padx=(15,5))
 
+        #Run the Save function on press of a button
         savebutton = tk.Button(popup,text="Save",command=lambda: self.Save(popup,controller,savenameEntry,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
         savebutton.grid(row=1,column=0)
+        #Create a button whwich closes the window
         savebutton = tk.Button(popup,text="Cancel",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
         savebutton.grid(row=1,column=1)
 
         popup.mainloop()
 
     def Save(self,popup,controller,savename,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
+        #assign all values from entry boxes to variables
         controller.preycount = int(preycount.get())
         controller.baseenergyprey = int(baseenergyprey.get())
         controller.mindeathageprey = int(mindeathageprey.get())
@@ -365,8 +377,10 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         controller.energylpredator = int(energylpredator.get())
         controller.berryconst = float(berryconst.get())
         controller.maxwander = int(maxwander.get())
+        #create a savename from the name and ".json" extension
         savename = savename.get()
         savename = savename + ".json"
+        #Assign the values to the dictionary
         controller.presetdata["PREYCOUNT"] = controller.preycount
         controller.presetdata["BASE_ENERGY_PREY"] = controller.baseenergyprey
         controller.presetdata["MINDEATHAGE_PREY"] = controller.mindeathageprey
@@ -381,6 +395,8 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         controller.presetdata["ENERGYLOSSPERSTEP_PREDATOR"] = controller.energylpredator
         controller.presetdata["BERRYCONST"] = controller.berryconst
         controller.presetdata["MAXWANDERDIST"] = controller.maxwander
+
+        #Create a new file from the new dictionary
         if savename != "preset.json":
             with open(path.join("Saves",savename), "w") as save:
                 json.dump(controller.presetdata,save)
@@ -391,12 +407,14 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         
 
     def Close(self, tkinter):
+        #close the window
         tkinter.destroy()
 
 
-class Settings(tk.Frame):
+class Settings(tk.Frame): #Create the settings class
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
+        #configure rows and columns 
         self.rowconfigure(30, weight=4)
         self.columnconfigure(7, weight=4)
 
