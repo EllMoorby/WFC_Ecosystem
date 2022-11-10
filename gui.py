@@ -7,7 +7,7 @@ import json
 import os
 import matplotlib.pyplot as plt
 
-def int_callback(entry):
+def int_callback(entry): #defines a callback function which determines if "entry" is an integer
     if entry == "":
         return True
     try:
@@ -17,31 +17,32 @@ def int_callback(entry):
     else: return True
 
 
-class GUI(tk.Tk):
+class GUI(tk.Tk): #Main GUI class
     def __init__(self, *args, **kwargs):
-        self.eventManager = EventManager()
+        self.eventManager = EventManager() #Start an event manager instance
         tk.Tk.__init__(self, *args, **kwargs)
-        self.title("Ecosystem Simulation+")
-        self.geometry("1920x1080")
-        self.attributes("-fullscreen", True)
-        self.validint = self.register(int_callback)
-        self.titlefont = tk.font.Font(family = "Bahnschrift", size =40,weight="bold")
+        self.title("Ecosystem Simulation+") #Add a title to the window
+        self.geometry("1920x1080") #Set the window size to 1920x1080
+        self.attributes("-fullscreen", True) #Set the window to fullscreen
+        self.validint = self.register(int_callback) #Register a callback function
+        self.titlefont = tk.font.Font(family = "Bahnschrift", size =40,weight="bold") #Setup fonts for the text
         self.textfont = tk.font.Font(family="Helvetica", size=30,weight="bold")
         self.guifont = tk.font.Font(family="Bahnschrift", size=18)
-        self.container = tk.Frame(self)
+        self.container = tk.Frame(self) #Add a frame
         self.container.pack(side="top",fill="both",expand=True)
         self.container.grid_rowconfigure(0,weight=1)
         self.container.grid_columnconfigure(0,weight=1)
-        self.fullscreen = True
-        self.bind("<F11>", self.toggle_fullscreen)
-        self.bind("<Escape>", self.Quit)
+        self.fullscreen = True #Start the window in fullscreen
+        self.bind("<F11>", self.toggle_fullscreen) #Bind F11 to toggle_fullscreen
+        self.bind("<Escape>", self.Quit) #Bind Escape to quit
 
         self.frames = {}
         frame = MainMenu(self.container, self)
-        self.frames[MainMenu] = frame
+        self.frames[MainMenu] = frame #Add the frame to the dictionary
         frame.grid(row=0,column=0,sticky="ns")
-        self.show_frame(MainMenu)
-        with open(path.join("Saves","preset.json"),"r") as f:
+        self.show_frame(MainMenu) #Show the main menu
+        #preload all the attributes from a JSON file
+        with open(path.join("Settings","preset.json"),"r") as f:
             self.presetdata = json.load(f)
             self.preycount = self.presetdata["PREYCOUNT"]
             self.baseenergyprey = self.presetdata["BASE_ENERGY_PREY"]
@@ -58,6 +59,7 @@ class GUI(tk.Tk):
             self.berryconst = self.presetdata["BERRYCONST"]
             self.maxwander = self.presetdata["MAXWANDERDIST"]
 
+        #preload all the current settings
         with open(path.join("Settings","settings.json"), "r") as d:
             self.settingsdata = json.load(d)
             self.fps = self.settingsdata["FPS"]
@@ -67,16 +69,17 @@ class GUI(tk.Tk):
             
 
 
-    def show_frame(self, cont):
+    def show_frame(self, cont): #show the frame
         frame = self.frames[cont]
         self.active_frame = frame
         frame.tkraise()
 
-    def clear_widgets(self,frame):
+    def clear_widgets(self,frame): #clear the screen
         for widget in frame.winfo_children():
             widget.destroy()
 
-    def Quit(self,event=None):
+    def Quit(self,event=None): #Quit the program
+        #Save the settings to the JSON file
         self.settingsdata["FPS"] = self.fps
         self.settingsdata["SCREENWIDTH"] = self.screenwidth
         self.settingsdata["SCREENHEIGHT"] = self.screenheight
@@ -85,7 +88,7 @@ class GUI(tk.Tk):
             json.dump(self.settingsdata,q)
         quit()
 
-    def toggle_fullscreen(self,event=None):
+    def toggle_fullscreen(self,event=None): #Toggle the fullscreen
         if self.fullscreen:
             self.attributes("-fullscreen", False)
             self.fullscreen = False
@@ -96,15 +99,16 @@ class GUI(tk.Tk):
     
 
 
-class MainMenu(tk.Frame):
+class MainMenu(tk.Frame): #Main Menu
     def __init__(self, parent,controller):
         tk.Frame.__init__(self, parent)
         buttonwidth = 17
         buttonrelief = "groove"
-
-        menuText = tk.Label(self,text="Ecosystem Simulator+",font = controller.titlefont)
+        
+        menuText = tk.Label(self,text="Ecosystem Simulator+",font = controller.titlefont) 
         menuText.grid(row=0,column=0)
-
+        #Add main menu buttons to the screen
+        #Grid the menu buttons
         createSimulation = tk.Button(self,text="Create Simulation",command=lambda: self.MovetoSimulationMenu(parent,controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
         createSimulation.grid(row=1,column=0)
 
@@ -117,28 +121,28 @@ class MainMenu(tk.Frame):
         quit_ = tk.Button(self,text="Quit",command=lambda: self.Quit(controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
         quit_.grid(row=4,column=0)
 
-    def MovetoSimulationMenu(self,parent,controller):
+    def MovetoSimulationMenu(self,parent,controller): #Change the frame to the Simulation Menu
         controller.clear_widgets(self)
         frame = CreateSimulationMenu(parent, controller)
         controller.frames[CreateSimulationMenu] = frame
         frame.grid(row=0,column=0,sticky="ns")
         controller.show_frame(CreateSimulationMenu)
 
-    def LoadtoSimulationMenu(self,parent,controller):
+    def LoadtoSimulationMenu(self,parent,controller): #Change the frame to the LoadSimulation Menu
         controller.clear_widgets(self)
         frame = LoadSimulation(parent, controller)
         controller.frames[LoadSimulation] = frame
         frame.grid(row=0,column=0,sticky="ns")
         controller.show_frame(LoadSimulation)
 
-    def Settings(self,parent,controller):
+    def Settings(self,parent,controller): #Load the Settings Menu
         controller.clear_widgets(self)
         frame = Settings(parent, controller)
         controller.frames[Settings] = frame
         frame.grid(row=0,column=0,sticky="ns")
         controller.show_frame(Settings)
 
-    def Quit(self,controller):
+    def Quit(self,controller): #Save the settings and quit the program
         controller.settingsdata["FPS"] = controller.fps
         controller.settingsdata["SCREENWIDTH"] = controller.screenwidth
         controller.settingsdata["SCREENHEIGHT"] = controller.screenheight
@@ -151,12 +155,14 @@ class MainMenu(tk.Frame):
 
 
 
-class CreateSimulationMenu(tk.Frame):
+class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
-        self.rowconfigure(30, weight=4)
+        self.rowconfigure(30, weight=4) #configure rows and columns so buttons can be placed there
         self.columnconfigure(7, weight=4)
         self.rowconfigure(12, weight=4)
+
+        #set the default values
         preyCount = tk.IntVar(value=controller.preycount)
         predatorCount = tk.IntVar(value=controller.predatorcount)
         preyBaseEnergy = tk.IntVar(value=controller.baseenergyprey)
@@ -171,14 +177,16 @@ class CreateSimulationMenu(tk.Frame):
         predatorTimeBetweenMates = tk.IntVar(value=controller.timebetweenpredator)
         MaxWanderDistance = tk.IntVar(value=controller.maxwander)
         berryConst = tk.IntVar(value=controller.berryconst)
-
+        
+        #create a back button
         backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller),relief="flat",font = controller.guifont,activebackground="#9d9898",width = 5,background="#f27e10")
         backbutton.grid(row=30,column=7)
 
         
         menuText = tk.Label(self,text="Create Simulation",font = controller.titlefont)
         menuText.grid(row=0,column=0,columnspan=5)
-        
+        #Add all labels for entry boxes
+        #Add Entry boxes for all values
         preyCountLabel = tk.Label(self,text="Starting Number of Prey",font = controller.guifont)
         preyCountLabel.grid(row=1,column=0)
         preyCountEntry = tk.Entry(self, textvariable=preyCount, validate="key",validatecommand=(controller.validint,"%P"))
@@ -252,6 +260,7 @@ class CreateSimulationMenu(tk.Frame):
         berryentry = tk.Entry(self, textvariable=berryConst, validate="key",validatecommand=(controller.validint,"%P"),relief="flat")
         berryentry.grid(row=9,column=1,padx=(5,25))
 
+        #Create buttons which open menus
         viewerbutton = tk.Button(self,text="Open World Viewer",background="#b8b8b8",command=lambda: self.OpenViewer(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         viewerbutton.grid(row=8,column=3,columnspan=2)
 
@@ -268,16 +277,16 @@ class CreateSimulationMenu(tk.Frame):
         savebutton.grid(row=9,column=3,columnspan=2)
 
 
-    def Back(self,parent,controller):
+    def Back(self,parent,controller): #Return to the previous frame
         controller.clear_widgets(self)
         frame = MainMenu(parent, controller)
         controller.frames[MainMenu] = frame
         frame.grid(row=0,column=0,sticky="ns")
         controller.show_frame(MainMenu)
 
-    def ShowGeneGraphs(self,parent,controller):
+    def ShowGeneGraphs(self,parent,controller): #Show the graph of gene strength
         plt.close("all")
-        if controller.eventManager.gestationGeneSizePrey_preframe == []:
+        if controller.eventManager.gestationGeneSizePrey_preframe == [] or controller.eventManager.gestationGeneSizePredator_preframe == []: #if no data is written, program has not been run. Therefore the graph can not be shown
             return
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -285,8 +294,10 @@ class CreateSimulationMenu(tk.Frame):
         ax.spines["bottom"].set_position("zero")
         ax.spines["right"].set_color("none")
         ax.spines["top"].set_color("none")
+        #plot the gene averages
         plt.plot(controller.eventManager.gestationGeneSizePrey_preframe,label="Prey",color="b")
         plt.plot(controller.eventManager.gestationGeneSizePredator_preframe,label="Predators",color="r")
+        #label axes
         plt.xlabel("Number of Frames")
         plt.ylabel("Strength Of Gene")
         plt.ylim(top=100,bottom=0)
@@ -294,9 +305,9 @@ class CreateSimulationMenu(tk.Frame):
         plt.legend()
         plt.show()
 
-    def ShowPopulationGraphs(self,parent,controller):
+    def ShowPopulationGraphs(self,parent,controller): #display the population of the graphs
         plt.close("all")
-        if controller.eventManager.preyListLength_perframe == [] or controller.eventManager.predatorListLength_perframe == []:
+        if controller.eventManager.preyListLength_perframe == [] or controller.eventManager.predatorListLength_perframe == []: #if there is no data in either list, the program has never been ran, therefore graph cannpt be shown
             return
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
