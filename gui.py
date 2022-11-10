@@ -104,7 +104,6 @@ class MainMenu(tk.Frame): #Main Menu
         tk.Frame.__init__(self, parent)
         buttonwidth = 17
         buttonrelief = "groove"
-        
         menuText = tk.Label(self,text="Ecosystem Simulator+",font = controller.titlefont) 
         menuText.grid(row=0,column=0)
         #Add main menu buttons to the screen
@@ -417,18 +416,19 @@ class Settings(tk.Frame): #Create the settings class
         #configure rows and columns 
         self.rowconfigure(30, weight=4)
         self.columnconfigure(7, weight=4)
-
+        #Assign variables to attributes in the JSON file
         fps = tk.IntVar(value=controller.fps)
         screenwidth = tk.IntVar(value=controller.screenwidth)
         screenheight = tk.IntVar(value=controller.screenheight)
         cellsize = tk.IntVar(value=controller.cellsize)
 
+        #Add a back button to return to the main menu
         backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller,cellsizeEntry,screenWidthEntry,screenHeightEntry,fpsEntry),relief="flat",font = controller.guifont,activebackground="#9d9898",width = 5,background="#f27e10")
         backbutton.grid(row=30,column=7)
 
         menuText = tk.Label(self,text="Settings",font = controller.titlefont)
         menuText.grid(row=0,column=0,columnspan=2)
-
+        #Labels and buttons for each attribute of settings
         screenHeightLabel = tk.Label(self,text="Screen Height",font = controller.guifont)
         screenHeightLabel.grid(row=1,column=0)
         screenHeightEntry = tk.Entry(self, textvariable=screenheight, validate="key",validatecommand=(controller.validint,"%P"))
@@ -450,45 +450,49 @@ class Settings(tk.Frame): #Create the settings class
         fpsEntry.grid(row=4,column=1,padx=(15,5))
 
     def Back(self,parent,controller,cellsizeEntry,screenWidthEntry,screenHeightEntry,fpsEntry):
+        #retrieves all data from the entry boxes
         controller.cellsize = int(cellsizeEntry.get())
         controller.screenwidth = int(screenWidthEntry.get())
         controller.screenheight = int(screenHeightEntry.get())
         controller.fps = int(fpsEntry.get())
-        controller.eventManager.InitializeSettings(controller.screenheight,controller.screenwidth,controller.cellsize,controller.fps)
-        controller.clear_widgets(self)
+        controller.eventManager.InitializeSettings(controller.screenheight,controller.screenwidth,controller.cellsize,controller.fps) #change the values in the event manager
+        controller.clear_widgets(self) #clear the screen
         frame = MainMenu(parent, controller)
         controller.frames[MainMenu] = frame
         frame.grid(row=0,column=0,sticky="ns")
-        controller.show_frame(MainMenu)
+        controller.show_frame(MainMenu) #moving back to the main menu
 
 
-class LoadSimulation(tk.Frame):
+class LoadSimulation(tk.Frame): #Create the LoadSimulation class
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
-
+        #configure rows and columns so buttons can be placed
         self.rowconfigure(30, weight=4)
         self.columnconfigure(7, weight=4)
-
+        #Back button to return to the main menu
         backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller),relief="flat",font = controller.guifont,activebackground="#9d9898",width = 5,background="#f27e10")
         backbutton.grid(row=30,column=7)
 
         menuText = tk.Label(self,text="Load Simulation",font = controller.titlefont)
         menuText.grid(row=0,column=0,columnspan=2)
 
+        #create a list of all JSON files that are in the Saves directory
         filelist = [fname for fname in os.listdir(SAVES_FOLDER) if fname.endswith('.json')]
 
+        #Drop down menu to show all the JSON files in the Saves directory
         optmenu = tkk.Combobox(self, values=filelist, state='readonly',textvariable="Choose a Save",font=controller.guifont)
         optmenu.grid(row=1,column=0)
+        #Button which starts the simulation with the values selected
         runbutton = tk.Button(self,text="Run",background="#51e41e",relief="flat",command=lambda: self.Run(parent,controller,optmenu.get()),font = controller.guifont,activebackground="#9d9898",width = 5)
         runbutton.grid(row=2,column=0)
-
+        #Button to display a graph of the population
         graphbutton = tk.Button(self,text="Show Population Graph",background="#b8b8b8",command=lambda: self.ShowPopulationGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         graphbutton.grid(row=3,column=0)
-
+        #Button to display a graph of the Gene strength
         genebutton = tk.Button(self,text="Show Gene Graph",background="#b8b8b8",command=lambda: self.ShowGeneGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         genebutton.grid(row=4,column=0)
 
-    def Back(self,parent,controller):
+    def Back(self,parent,controller): #Returns to the main menu
         controller.clear_widgets(self)
         frame = MainMenu(parent, controller)
         controller.frames[MainMenu] = frame
@@ -497,6 +501,7 @@ class LoadSimulation(tk.Frame):
     
     def Run(self,parent,controller,option):
         option = str(option)
+        #Loads the data from the save into variables
         with open(path.join("Saves",option),"r") as f:
             self.presetdata = json.load(f)
             self.preycount = self.presetdata["PREYCOUNT"]
@@ -514,13 +519,15 @@ class LoadSimulation(tk.Frame):
             self.berryconst = self.presetdata["BERRYCONST"]
             self.maxwander = self.presetdata["MAXWANDERDIST"]
         
+        #Initialize these values into the eventManager
         controller.eventManager.InitializeValues(self.preycount,self.predatorcount,self.baseenergyprey,self.mindeathageprey,self.maxdeathageprey,self.energylprey,self.baseenergyprey,self.mindeathagepredator,self.maxdeathagepredator,self.energylpredator,self.berryconst,self.maxwander,self.timebetweenprey,self.timebetweenpredator)
         controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
+        #Run the main program
         controller.eventManager.Main()
 
     def ShowGeneGraphs(self,parent,controller):
         plt.close("all")
-        if controller.eventManager.gestationGeneSizePrey_preframe == []:
+        if controller.eventManager.gestationGeneSizePrey_preframe == [] or controller.eventManager.gestationGeneSizePredator_preframe == []: #Check if data is stored to be graphed. No data means the simulation has not run yet
             return
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -528,6 +535,7 @@ class LoadSimulation(tk.Frame):
         ax.spines["bottom"].set_position("zero")
         ax.spines["right"].set_color("none")
         ax.spines["top"].set_color("none")
+        #Plot the gene strength data
         plt.plot(controller.eventManager.gestationGeneSizePrey_preframe,label="Prey",color="b")
         plt.plot(controller.eventManager.gestationGeneSizePredator_preframe,label="Predators",color="r")
         plt.xlabel("Number of Frames")
@@ -539,7 +547,7 @@ class LoadSimulation(tk.Frame):
 
     def ShowPopulationGraphs(self,parent,controller):
         plt.close("all")
-        if controller.eventManager.preyListLength_perframe == [] or controller.eventManager.predatorListLength_perframe == []:
+        if controller.eventManager.preyListLength_perframe == [] or controller.eventManager.predatorListLength_perframe == []:#Check if data is stored to be graphed. No data means the simulation has not run yet 
             return
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -547,6 +555,7 @@ class LoadSimulation(tk.Frame):
         ax.spines["bottom"].set_position("zero")
         ax.spines["right"].set_color("none")
         ax.spines["top"].set_color("none")
+        #plot the population graphs
         plt.plot(controller.eventManager.preyListLength_perframe,label="Prey",color="b")
         plt.plot(controller.eventManager.predatorListLength_perframe,label="Predators",color="r")
         plt.xlabel("Number of Frames")

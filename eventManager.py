@@ -29,6 +29,7 @@ class EventManager:
         self.gestationGeneSizePredator_preframe = []
 
     def InitializeValues(self,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
+        #Transfer the values inputted to variables within the program
         self.PREYCOUNT = preycount
         self.PREDATORCOUNT = predatorcount
         self.BASEENERGYPREY = baseenergyprey
@@ -45,17 +46,19 @@ class EventManager:
         self.TIMEBETWEENMATES_PREY = preyTBM
 
     def InitializeSettings(self,screenheight,screenwidth,cellsize,fps):
+        #Transfer the settings inputted to variables within the program
         self.SCREENHEIGHT = screenheight
         self.SCREENWIDTH = screenwidth
         self.CELLSIZE = cellsize
         self.FPS = fps
 
-    def TempMapViewer(self):
+    def TempMapViewer(self): #create a smaller renderer to show a preview of the map
         running = True
+        #Create a renderer with half the size of the screenwidth/height, with the same amount of cells
         smallrenderer = Renderer(self.SCREENWIDTH/2,self.SCREENHEIGHT/2,self.CELLSIZE/2)
         pygame.display.set_caption("Map Preview")
         
-
+        #Create the world
         world = self.CreateWorld()
         smallrenderer.RenderWorld(world)
         smallrenderer.DrawText("Press r to refresh")
@@ -69,6 +72,7 @@ class EventManager:
                     pygame.quit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
+                        #refresh the world map
                         world = self.CreateWorld()
                         smallrenderer.RenderWorld(world)
                         smallrenderer.DrawText("Press r to refresh")
@@ -130,7 +134,7 @@ class EventManager:
             self.fertileList.remove(newberry)
             self.renderer.RenderBerry(newberry) #render the berry
     
-    def BerryUpdate(self):
+    def BerryUpdate(self): #spawn a random amount of berrys based on a Poisson distribution
         for x in range(random.poisson(lam=self.BERRYCONST,size=1)[0]):
             self.SpawnBerry()
 
@@ -200,11 +204,6 @@ class EventManager:
                     if event.key == pygame.K_u:
                         self.SpawnBerry()
                 if event.type == pygame.QUIT:
-                    
-                    """stats = pstats.Stats(pr)
-                    stats.sort_stats(pstats.SortKey.TIME)
-                    stats.dump_stats(filename="test.prof")"""
-
                     pygame.quit()
             self.Update()
             self.engine.update_dt()

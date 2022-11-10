@@ -4,29 +4,29 @@ import random
 import math
 import pygame
 
-class Queue:
+class Queue: #Create a queue class
     def __init__(self):
-        self.fPointer = 0
-        self.rPointer = -1
-        self.list = []
+        self.fPointer = 0 #Create a front pointer pointing to the first element of the queue
+        self.rPointer = -1 #Create a back pointer pointing to the last element of the queue
+        self.list = [] #The queue itself
 
-    def AddToQueue(self,item):
+    def AddToQueue(self,item): #Append an item at the end of the queue and increase the rear pointer
         self.rPointer += 1
         self.list.append(item)
 
-    def RemoveFromQueue(self):
+    def RemoveFromQueue(self): #Pop the front item of the queue and return the item
         if self.fPointer <= self.rPointer:
             item = self.list[self.fPointer]
             self.list.pop(self.fPointer)
             self.rPointer-=1
             return item
 
-    def ClearQueue(self):
+    def ClearQueue(self): #Empty the queue and reset it
         self.fPointer = 0
         self.rPointer = -1
         self.list = []
 
-    def BackOfQueue(self):
+    def BackOfQueue(self): #Returns the item in the back of a queue, unless it is empty then it returns nothing
         if self.fPointer <= self.rPointer:
             return self.list[self.rPointer]
         return
@@ -36,49 +36,49 @@ class Queue:
 class CreatureCell:
     def __init__(self,position,tile) -> None:
         self.position = (position[0],position[1])
-        self.tile = tile
-        self.g_cost = 0 #dist from start
-        self.h_cost = 0 #dist from end
+        self.tile = tile #The tile's tile object
+        self.g_cost = 0 #dist of a cell from start
+        self.h_cost = 0 #dist of a cell from end
         self.f_cost = 0 #Gcost+Hcost
-        self.pointer = None
-        self.traversable = self.tile.traversable
+        self.pointer = None #Pointer
+        self.traversable = self.tile.traversable #Boolean, if the tile is traversable
 
-class Creature:
+class Creature: #Create a generic creature class
     def __init__(self,position,world,renderer,cellsize,screenwidth,screenheight):
         self.CELLSIZE = cellsize
         self.SCREENWIDTH = screenwidth
         self.SCREENHEIGHT = screenheight
         self.position = position
-        self.worldmap = world
-        self.currentpath = Stack()
-        self.renderer = renderer
-        self.foodTarget = None
-        self.mate = None
-        self.sex = random.choice(SEXLIST)
-        self.alive = True
-        self.age = 0
-        self.timebetweenmates = 0
-        self.lookingForMate = False
-        self.extraMovement = Queue()
+        self.worldmap = world #The map of the current world
+        self.currentpath = Stack() #Create a stack of the current path
+        self.renderer = renderer #Create a renderer
+        self.foodTarget = None #The food that the creature is targetting
+        self.mate = None #The creatures current mate
+        self.sex = random.choice(SEXLIST) #A random sex is chosen
+        self.alive = True #Boolean of the creature is alive
+        self.age = 0 #The current age of the creature in frames
+        self.timebetweenmates = 0 #The time between mates in frames
+        self.lookingForMate = False #Whether the creature is currently looking for a mate
+        self.extraMovement = Queue() #Create a queu of extraMovement
         
 
-        _map = self.CreateCreatureWorld()
+        _map = self.CreateCreatureWorld() #The current map in creature cells
         self.world = _map
     
-    def RequestMate(self, mate):
+    def RequestMate(self, mate): #Accept the request to be a mate if the creature does not have a mate
         if self.mate == None:
             self.mate = mate
             return True
         else:return False
 
 
-    def PotentialMateFound(self, mate):
+    def PotentialMateFound(self, mate): #Send a request to a potential mate to check if both are in need of a mate
         if mate.RequestMate(self):
             self.mate = mate
             return True
         else:return False
 
-    def GetDistanceBetween(self,item1,item2):
+    def GetDistanceBetween(self,item1,item2): #return the distance between two cells, item1 and item2
         dx = item1.position[0] - item2.position[0]
         dy = item1.position[1] - item2.position[1]
         return math.sqrt(dx*dx + dy*dy)
