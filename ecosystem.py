@@ -84,7 +84,7 @@ class Creature: #Create a generic creature class
         return math.sqrt(dx*dx + dy*dy)
 
 
-    def CreateCreatureWorld(self):
+    def CreateCreatureWorld(self): #Create a 2D array of creature cells, mirroring the world map
         world = []
         for index,row in enumerate(self.worldmap):
             world.append([])
@@ -101,110 +101,114 @@ class Creature: #Create a generic creature class
 
     def FindPath(self,target):
         if target.position == self.position.position:print("error")
-        self.world = self.CreateCreatureWorld() # i wanna remove THIS
-        #move towards target, otherwise create a random target position
-        pathfinder = PathFinder(self,target,self.SCREENHEIGHT,self.SCREENWIDTH,self.CELLSIZE)
-        pathfinder.InitiatePathfind()
-        currentpath = pathfinder.path
+        self.world = self.CreateCreatureWorld() #Create a 2D array of creature cells, mirroring the world map with cell costs
+        pathfinder = PathFinder(self,target,self.SCREENHEIGHT,self.SCREENWIDTH,self.CELLSIZE) #Create a new pathfinder object to search the map
+        pathfinder.InitiatePathfind() #Path find towards a target
+        currentpath = pathfinder.path #Set the path the pathfinder found to the current path
         
         return currentpath
         
 
-    def Wander(self,spawnableList):
-        possibleWanderTiles = []
-        for item in spawnableList:
+    def Wander(self,spawnableList): #Choose a random cell within a distance and pathfind there
+        possibleWanderTiles = [] #List of all possible tiles within a range
+        for item in spawnableList: #find all tiles which are spawnable
             if self.GetDistanceBetween(self.position,item) <= MAXWANDERDISTANCE and item.position != self.position.position:
                 possibleWanderTiles.append(item)
 
-        cell = random.choice(possibleWanderTiles)
-        cell = self.world[cell.position[0]][cell.position[1]]
+        cell = random.choice(possibleWanderTiles) #Choose a random cell
+        cell = self.world[cell.position[0]][cell.position[1]] #Transfer that cell to inworld positions
         return cell
 
 
-class Predator(Creature):
+class Predator(Creature): #Create the predator class, which inherits from the Creature class
     def __init__(self,position,world,renderer,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,timebetweenmatespredator,cellsize,screenwidth,screenheight,parentalGene=None):
         super().__init__(position,world,renderer,cellsize,screenwidth,screenheight)
+        #Set all values imported from the eventManager to constants
         self.BASE_ENERGY_PREDATOR = baseenergypredator
         self.MINDEATHAGE_PREDATOR = mindeathagepredator
         self.MAXDEATHAGE_PREDATOR = maxdeathagepredator
         self.ENERGYLOSSPERSTEP_PREDATOR = energylpredator
-        self.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"fox.png")).convert_alpha(),(self.CELLSIZE,self.CELLSIZE))
+        self.img = pygame.transform.scale(pygame.image.load(path.join(CREATURE_FOLDER,"fox.png")).convert_alpha(),(self.CELLSIZE,self.CELLSIZE)) #The scaled image of the predator
         self.preyTarget = None
         self.mateTarget = None
         self.energy = self.BASE_ENERGY_PREDATOR
         self.urgeReproduce = URGE_REPRODUCE_PREDATOR
-        self.deathage = random.randint(self.MINDEATHAGE_PREDATOR,self.MAXDEATHAGE_PREDATOR)
-        if parentalGene == None:
+        self.deathage = random.randint(self.MINDEATHAGE_PREDATOR,self.MAXDEATHAGE_PREDATOR) #A random deathage is chosen between two values
+        if parentalGene == None: #If their parent has no parental gene, then they get a random gene strength
             self.gestationGene = random.randint(1,100)
-        else:
+        else: #If the parent has a parental gene, then it is changed slightly to advance mutation
             self.gestationGene = parentalGene + random.randint(-10,10)
+            if self.gestationGene > 100: #lock the value to 0 < gene < 100
+                self.gestationGene = 100
+            elif self.gestationGene < 0:
+                self.gestationGene = 0
         
-        self.MINREPROAGE = (MINREPROAGE_PREDATOR - MINREPROAGERANGE/2) + (MINREPROAGERANGE*(self.gestationGene/100))
-        self.TIMEBETWEENMATES_PREDATOR = (timebetweenmatespredator-TIMEBETWEENMATESRANGE/2) + (TIMEBETWEENMATESRANGE*(self.gestationGene/100))
+        self.MINREPROAGE = (MINREPROAGE_PREDATOR - MINREPROAGERANGE/2) + (MINREPROAGERANGE*(self.gestationGene/100)) #The minimum age a predator can reproduce is within a range which is determined by the strength of the gene
+        self.TIMEBETWEENMATES_PREDATOR = (timebetweenmatespredator-TIMEBETWEENMATESRANGE/2) + (TIMEBETWEENMATESRANGE*(self.gestationGene/100)) #The time between predators reproducing is within a range which is determined by the strength of the gene
 
-    def LocateMate(self,lookingForMate):
-        self.energy -= self.ENERGYLOSSPERSTEP_PREDATOR
-        if self not in lookingForMate:
+    def LocateMate(self,lookingForMate): #The locating of another mate
+        self.energy -= self.ENERGYLOSSPERSTEP_PREDATOR # Lose energy per search
+        if self not in lookingForMate: #Add self to the waiting list if not already
             lookingForMate.append(self)
         lowest = 99999999
         closestmate = None
-        for creature in lookingForMate:
+        for creature in lookingForMate: #Search through all mates within the mating list and find the closest of the opposite gender
             if self.GetDistanceBetween(self.position,creature.position) < lowest and creature.sex != self.sex:
                 closestmate = creature
 
-        if closestmate != None:
+        if closestmate != None: #If the closest mate has been found
             if self.mate == None:
                 if self.sex == "f":
                     if closestmate.sex == "m":
-                        if self.PotentialMateFound(closestmate):
+                        if self.PotentialMateFound(closestmate): #If the request to be mate has been allowed remove both the predator and mate from the waiting list
                             lookingForMate.remove(self)
                             lookingForMate.remove(self.mate)
                             #wait
                 if self.sex == "m":
                     if closestmate.sex == "f":
-                        if self.PotentialMateFound(closestmate):
+                        if self.PotentialMateFound(closestmate): #If the request to be mate has been allowed remove both the predator and mate from the waiting list
                             lookingForMate.remove(self)
                             lookingForMate.remove(self.mate)
+                            #If the predator is male, start pathfinding towards female
                             target = self.mate.position
                             self.mateTarget = target
                             if target.position != self.position.position:
                                 self.currentpath = self.FindPath(target)
 
 
-
-    def AdvancePath(self):
+    def AdvancePath(self): #Advance 1 cell forward across the map
         #self.position = self.worldmap[self.currentpath.stack[self.currentpath.size][0]][self.currentpath.stack[self.currentpath.size][1]]
-        if len(self.extraMovement.list) != 0 and len(self.currentpath.stack) == 0:
+        if len(self.extraMovement.list) != 0 and len(self.currentpath.stack) == 0: #If no extra movement, and the path is empty, set position to the finish
             self.position = self.extraMovement.RemoveFromQueue()
-        else:
+        else: #Advance path by 1 and remove that from queue
             self.position = self.currentpath.stack[self.currentpath.size]
-            self.currentpath.RemoveFromStack()
-        if self.preyTarget and self.preyTarget.position.position == self.position.position:
+            self.currentpath.RemoveFromStack() 
+        if self.preyTarget and self.preyTarget.position.position == self.position.position: #If they have reached their target, consume it
             self.energy = self.BASE_ENERGY_PREDATOR
             self.preyTarget.hasPredator = False
             self.preyTarget.predator = None
             self.foodTarget = None
             self.extraMovement.ClearQueue()
-            return 2
+            return 2 #Return code for consumed target
 
         
 
 
-        if self.mate and self.mate.position.position == self.position.position:
+        if self.mate and self.mate.position.position == self.position.position: #If on current mate
             self.mateTarget = None
             self.timebetweenmates = 0
             self.urgeReproduce = URGE_REPRODUCE_PREDATOR
             self.mate.urgeReproduce = URGE_REPRODUCE_PREDATOR
             self.mate.mate = None
             self.mate = None
-            return 1
+            return 1 #Return code for reproduce
         self.energy -= self.ENERGYLOSSPERSTEP_PREDATOR
         return -1
         #if len(self.currentpath.stack) == 0: self.currentpath = None
 
 
 
-    def Hunt(self,preyList):
+    def Hunt(self,preyList): #Choose the closest prey out of the list of prey
         lowest = 99999999
         lowestprey = None
         for prey in preyList:
@@ -342,6 +346,10 @@ class Prey(Creature):
             self.gestationGene = random.randint(1,100)
         else:
             self.gestationGene = parentGestationGene + random.randint(-10,10)
+            if self.gestationGene > 100:
+                self.gestationGene = 100
+            elif self.gestationGene < 0:
+                self.gestationGene = 0
         self.numberOfOffspring = math.ceil((MAXOFFSPRING_PREY * (self.gestationGene/100)))
         self.MINREPROAGE = (MINREPROAGE_PREY - MINREPROAGERANGE/2) + (MINREPROAGERANGE*(self.gestationGene/100))
         self.TIMEBETWEENMATES_PREY = (timebetweenmatesprey-TIMEBETWEENMATESRANGE/2) + (TIMEBETWEENMATESRANGE*(self.gestationGene/100))
