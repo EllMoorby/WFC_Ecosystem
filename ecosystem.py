@@ -153,8 +153,10 @@ class Predator(Creature): #Create the predator class, which inherits from the Cr
         lowest = 99999999
         closestmate = None
         for creature in lookingForMate: #Search through all mates within the mating list and find the closest of the opposite gender
-            if self.GetDistanceBetween(self.position,creature.position) < lowest and creature.sex != self.sex:
+            dist = self.GetDistanceBetween(self.position,creature.position)
+            if dist < lowest and creature.sex != self.sex:
                 closestmate = creature
+                lowest = dist
 
         if closestmate != None: #If the closest mate has been found
             if self.mate == None:
@@ -355,168 +357,156 @@ class Prey(Creature):
         self.MINREPROAGE = (MINREPROAGE_PREY - MINREPROAGERANGE/2) + (MINREPROAGERANGE*(self.gestationGene/100)) #Minimum reproduction age based off gestation gene
         self.TIMEBETWEENMATES_PREY = (timebetweenmatesprey-TIMEBETWEENMATESRANGE/2) + (TIMEBETWEENMATESRANGE*(self.gestationGene/100)) #Time between mates based off gestation gene
     
-    def LocateMate(self,lookingForMate):
-        self.energy -= self.ENERGYLOSSPERSTEP_PREY
-        if self not in lookingForMate:
+    def LocateMate(self,lookingForMate): #Find a mate
+        self.energy -= self.ENERGYLOSSPERSTEP_PREY #Lose energy every time they mate
+        if self not in lookingForMate: #Add self to mating list, if not in the list already
             lookingForMate.append(self)
         lowest = 99999999
         closestmate = None
-        for creature in lookingForMate:
-            if self.GetDistanceBetween(self.position,creature.position) < lowest and creature.sex != self.sex:
+        for creature in lookingForMate: #Cycle through all others looking for mate
+            dist = self.GetDistanceBetween(self.position,creature.position)
+            if dist < lowest and creature.sex != self.sex: #Find the closest mate of opposite sex so far
                 closestmate = creature
+                lowest = dist
 
-        if closestmate != None:
+        if closestmate != None: #If there is a mate
             if self.mate == None:
-                if self.sex == "f":
+                if self.sex == "f": #Request mate
                     if closestmate.sex == "m":
                         if self.PotentialMateFound(closestmate):
                             lookingForMate.remove(self)
                             lookingForMate.remove(self.mate)
                             #wait
-                if self.sex == "m":
+                if self.sex == "m": #Request mate
                     if closestmate.sex == "f":
                         if self.PotentialMateFound(closestmate):
                             lookingForMate.remove(self)
                             lookingForMate.remove(self.mate)
                             target = self.mate.position
                             self.mateTarget = target
-                            if target.position != self.position.position:
+                            if target.position != self.position.position: #If male and not on they mate, pathfind to target
                                 self.currentpath = self.FindPath(target)
   
 
-    def AdvancePath(self):
+    def AdvancePath(self): #Advance along a current path
         #self.position = self.worldmap[self.currentpath.stack[self.currentpath.size][0]][self.currentpath.stack[self.currentpath.size][1]]
-        self.position = self.currentpath.stack[self.currentpath.size]
-        self.currentpath.RemoveFromStack()
+        self.position = self.currentpath.stack[self.currentpath.size] #Set current position to the item on the top of the stack
+        self.currentpath.RemoveFromStack() #Remove the last item from the top of the stack
     
-        if self.foodTarget and self.foodTarget.position == self.position.position:
+        if self.foodTarget and self.foodTarget.position == self.position.position: #If there is a food target and the prey is in that location, consume the target
             self.energy = self.BASE_ENERGY_PREY
             self.foodTarget.hasTarget = False
-            return 0
+            return 0 #Return the code for consume target
 
         
 
 
-        if self.mate and self.mate.position.position == self.position.position:
+        if self.mate and self.mate.position.position == self.position.position: #If have a mate and on the same location, mate
             self.timebetweenmates = 0
             self.urgeReproduce = URGE_REPRODUCE_PREY
             self.mate.urgeReproduce = URGE_REPRODUCE_PREY
             self.mate.mate = None
             self.mate = None
-            return 1
-        self.energy -= self.ENERGYLOSSPERSTEP_PREY
+            return 1 #Return code for reproduce
+        self.energy -= self.ENERGYLOSSPERSTEP_PREY #Lose energy per step moved
         return -1
         #if len(self.currentpath.stack) == 0: self.currentpath = None
         
 
-    def Update(self,berryList,fertileList,spawnableList,preyLookingForMate):
-        self.age += 1
+    def Update(self,berryList,fertileList,spawnableList,preyLookingForMate): #Main update loop
+        self.age += 1 #Increase age once per frame
         self.timebetweenmates += 1
-        if self.age < self.MINREPROAGE or self.timebetweenmates <= self.TIMEBETWEENMATES_PREY:
+        if self.age < self.MINREPROAGE or self.timebetweenmates <= self.TIMEBETWEENMATES_PREY: #If the prey is older than min age to reproduce and have had sufficient time between mates, they should have urge to reproduce
             self.urgeReproduce -= URGELOSSPERSTEP
-        if self.energy <= 0 or (self.age >= self.deathage):
-            if self.mate:
+        if self.energy <= 0 or (self.age >= self.deathage): #Check if the prey has died of old age or energy loss
+            if self.mate: #Clear the mates
                 self.mate.mate = None
                 self.mate = None
-            if self.foodTarget:
+            if self.foodTarget: #Clear the targets
                 self.foodTarget.hasTarget = False
                 self.foodTarget = None
                 
-            if self in preyLookingForMate:
+            if self in preyLookingForMate: #Remove self from mating list
                 preyLookingForMate.remove(self)
             self.alive = False
             return -1
-        if len(self.currentpath.stack) == 0:
+        if len(self.currentpath.stack) == 0: #If the path is empty
             self.foodTarget = None
-            option = self.ChooseActivity()
+            option = self.ChooseActivity() #Choose an activity
             match option[0]:
-                case "f":
-                    pass
-                case "e":
-                    target = self.Forage(berryList)
-                    if target == -1:
+                case "e": #Pathfind to the closest berry
+                    target = self.Forage(berryList) #Attempt to find food
+                    if target == -1: #If there is no food, wander around instead
                         target = self.Wander(spawnableList)
                         self.currentpath = self.FindPath(target)
-                    elif target.position == self.position.position:
+                    elif target.position == self.position.position: #If the prey is on the same position as the target, stay still
                         self.currentpath.AddToStack(target)
                         self.AdvancePath()
                     else:
-                        self.currentpath = self.FindPath(target)
-                case "w":
+                        self.currentpath = self.FindPath(target) #Otherwise pathfind towards target
+                case "w": #Wander to a spawnable location within a range
                     target = self.Wander(spawnableList)
                     self.currentpath = self.FindPath(target)
-                case "r":
+                case "r": #Locate a mate and reproduce
                     self.LocateMate(preyLookingForMate)
                         
         else:
-            if self.mate:
-                if self.mate.alive:
-                    if self.foodTarget:
+            if self.mate: 
+                if self.mate.alive: #If the prey has an alive mate
+                    if self.foodTarget: #Stop searching for food
                         self.foodTarget.hasTarget = False
                         self.foodTarget.target = None
                         self.foodTarget = None
-                    if self.currentpath.stack[0].position != self.mate.position.position and self.position.position != self.mate.position.position:
+                    if self.currentpath.stack[0].position != self.mate.position.position and self.position.position != self.mate.position.position: #If the prey with mate is not targetting the mate, change target to mate
                         target = self.mate.position
-                        self.currentpath = self.FindPath(target)
-                    elif self.sex[0] == "m" and self.mate.position.position != self.position.position:
+                        self.currentpath = self.FindPath(target) #Pathfind to the target
+                    elif self.sex[0] == "m" and self.mate.position.position != self.position.position: #If the prey is male and has not reached it's mate, advance the path
                         action = self.AdvancePath()
-                        if action == 1:
-                            return 0
-                    elif self.sex[0] == "m" and self.mate.position.position == self.position.position:
-                        return 0
-                else:
+                        if action == 1: #If target has been reached, return 0
+                            return 0 #Return code for reproduce
+                    elif self.sex[0] == "m" and self.mate.position.position == self.position.position: #If destination has been reached, return 0
+                        return 0 #Return code for reproduce
+                else: #Clear mates
                     self.mate.mate = None
                     self.mate = None
 
                 pass
             else:
-                action = self.AdvancePath()
-                if action == 0:
+                action = self.AdvancePath() #Advance path
+                if action == 0: #If code for food has been eaten
                     berryList.remove(self.foodTarget)
                     fertileList.append(self.foodTarget)
                 
                     
 
-        self.renderer.DrawCreature(self)
+        self.renderer.DrawCreature(self) #Render creature
 
-    def ChooseActivity(self):
+    def ChooseActivity(self): #Choose an activity
         choiceweights = BASECHOICEWEIGHTS.copy()
-        if self.hasPredator:
-            #return "f"
-            pass
 
-        choiceweights[0] += (self.BASE_ENERGY_PREY-self.energy) #eat chance
-        choiceweights[1] += (self.energy/self.BASE_ENERGY_PREY + self.urgeReproduce/URGE_REPRODUCE_PREY)*10 #chance to wander
-        choiceweights[2] += (URGE_REPRODUCE_PREY-self.urgeReproduce)*MULTI  #chance to reproduce
+        choiceweights[0] += (self.BASE_ENERGY_PREY-self.energy) #Chance to eat
+        choiceweights[1] += (self.energy/self.BASE_ENERGY_PREY + self.urgeReproduce/URGE_REPRODUCE_PREY)*10 #Chance to wander
+        choiceweights[2] += (URGE_REPRODUCE_PREY-self.urgeReproduce)*MULTI  #Chance to reproduce
         
-        for index,weight in enumerate(choiceweights):
-            weight = min(max(weight,0.1),MAXCHOICEWEIGHT)
+        for index,weight in enumerate(choiceweights): #For weight in list
+            weight = min(max(weight,0.1),MAXCHOICEWEIGHT) #Ensure that the weight is within the allowed range
             choiceweights[index] = weight
-        if self.age < self.MINREPROAGE or self.timebetweenmates <= self.TIMEBETWEENMATES_PREY:
+        if self.age < self.MINREPROAGE or self.timebetweenmates <= self.TIMEBETWEENMATES_PREY: #If the prey is too young or mated too recently, have no urge to reproduce
             choiceweights[2] = 0
-        return random.choices(["e","w","r"],choiceweights,k=1)
+        return random.choices(["e","w","r"],choiceweights,k=1) #Return a random choice based off of the weights set
 
-    def Forage(self,berryList):
+    def Forage(self,berryList): #Locate the nearest berry
         lowest = 99999999
         lowestberry = None
-        for berry in berryList:
+        for berry in berryList: #Cycle through all berrys
             dist = self.GetDistanceBetween(berry,self.position)
-            if not(berry.hasTarget) and dist < lowest:
+            if not(berry.hasTarget) and dist < lowest: #Find the closest berry which is untargetted
                 lowest = dist
                 lowestberry = berry
-        if lowestberry == None:
+        if lowestberry == None: #If there is no berrys available, return -1
             return -1
         lowestberry.target = self
         lowestberry.hasTarget = True
         self.foodTarget = lowestberry
-        lowestberryInCreatureWorld = self.world[lowestberry.position[0]][lowestberry.position[1]]
+        lowestberryInCreatureWorld = self.world[lowestberry.position[0]][lowestberry.position[1]] #Transfer berry location to inworld position
         return lowestberryInCreatureWorld
-
-    def Flee(self):
-        #run from the predator chasing
-        pass
-
-
-         
-
-
