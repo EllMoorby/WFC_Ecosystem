@@ -16,6 +16,15 @@ def int_callback(entry): #defines a callback function which determines if "entry
         return False
     else: return True
 
+def flt_callback(entry): #defines a callback function which determines if "entry" is an integer
+    if entry == "":
+        return True
+    try:
+        float(entry)
+    except:
+        return False
+    else: return True
+
 
 class GUI(tk.Tk): #Main GUI class
     def __init__(self, *args, **kwargs):
@@ -25,9 +34,11 @@ class GUI(tk.Tk): #Main GUI class
         self.geometry("1920x1080") #Set the window size to 1920x1080
         self.attributes("-fullscreen", True) #Set the window to fullscreen
         self.validint = self.register(int_callback) #Register a callback function
+        self.validfloat = self.register(flt_callback) #Register a callback function
         self.titlefont = tk.font.Font(family = "Bahnschrift", size =40,weight="bold") #Setup fonts for the text
         self.textfont = tk.font.Font(family="Helvetica", size=30,weight="bold")
         self.guifont = tk.font.Font(family="Bahnschrift", size=18)
+        self.errorfont = tk.font.Font(family="Bahnschrift", size=12,weight="bold")
         self.container = tk.Frame(self) #Add a frame
         self.container.pack(side="top",fill="both",expand=True)
         self.container.grid_rowconfigure(0,weight=1)
@@ -257,7 +268,7 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         
         berrylabel = tk.Label(self,text="Berry Number",font = controller.guifont)
         berrylabel.grid(row=9,column=0)
-        berryentry = tk.Entry(self, textvariable=berryConst, validate="key",validatecommand=(controller.validint,"%P"),relief="flat")
+        berryentry = tk.Entry(self, textvariable=berryConst, validate="key",validatecommand=(controller.validfloat,"%P"),relief="flat")
         berryentry.grid(row=9,column=1,padx=(5,25))
 
         #Create a button which displays the world world viewer
@@ -331,7 +342,9 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
 
     def StartSimulation(self,parent,controller,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
         #Get all values from entry boxes and send them to the eventManager
+
         controller.eventManager.InitializeValues(int(preycount.get()),int(predatorcount.get()),int(baseenergyprey.get()),int(mindeathageprey.get()),int(maxdeathageprey.get()),int(energylprey.get()),int(baseenergypredator.get()),int(mindeathagepredator.get()),int(maxdeathagepredator.get()),int(energylpredator.get()),float(berryconst.get()),int(maxwander.get()),int(preyTBM.get()),int(predatorTBM.get()))
+
         #Get the settings from the JSON file
         controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
         #Run the program
