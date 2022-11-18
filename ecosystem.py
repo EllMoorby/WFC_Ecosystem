@@ -249,7 +249,6 @@ class Predator(Creature): #Create the predator class, which inherits from the Cr
             self.extraMovement.ClearQueue()
             self.preyTarget = None
             option = self.ChooseActivity() #Choose an activity
-            print(option,self)
             match option[0]:
                 case "e": #Eat has been chosen
                     target = self.Hunt(preyList) #Choose a target

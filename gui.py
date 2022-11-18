@@ -185,7 +185,7 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         predatorEnergyLoss = tk.IntVar(value=controller.energylpredator)
         preyTimeBetweenMates = tk.IntVar(value=controller.timebetweenprey)
         predatorTimeBetweenMates = tk.IntVar(value=controller.timebetweenpredator)
-        MaxWanderDistance = tk.IntVar(value=controller.maxwander)
+        maxWanderDistance = tk.IntVar(value=controller.maxwander)
         berryConst = tk.IntVar(value=controller.berryconst)
         
         #create a back button
@@ -263,7 +263,7 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
 
         wanderdistlabel = tk.Label(self,text="Max Wander Distance",font = controller.guifont)
         wanderdistlabel.grid(row=8,column=0)
-        wanderdistentry = tk.Entry(self, textvariable=MaxWanderDistance, validate="key",validatecommand=(controller.validint,"%P"),relief="flat")
+        wanderdistentry = tk.Entry(self, textvariable=maxWanderDistance, validate="key",validatecommand=(controller.validint,"%P"),relief="flat")
         wanderdistentry.grid(row=8,column=1,padx=(5,25))
         
         berrylabel = tk.Label(self,text="Berry Number",font = controller.guifont)
@@ -341,14 +341,25 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         controller.eventManager.TempMapViewer()
 
     def StartSimulation(self,parent,controller,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
+        passed = False
         #Get all values from entry boxes and send them to the eventManager
-
-        controller.eventManager.InitializeValues(int(preycount.get()),int(predatorcount.get()),int(baseenergyprey.get()),int(mindeathageprey.get()),int(maxdeathageprey.get()),int(energylprey.get()),int(baseenergypredator.get()),int(mindeathagepredator.get()),int(maxdeathagepredator.get()),int(energylpredator.get()),float(berryconst.get()),int(maxwander.get()),int(preyTBM.get()),int(predatorTBM.get()))
-
-        #Get the settings from the JSON file
-        controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
-        #Run the program
-        controller.eventManager.Main()
+        try:
+            controller.eventManager.InitializeValues(int(preycount.get()),int(predatorcount.get()),int(baseenergyprey.get()),int(mindeathageprey.get()),int(maxdeathageprey.get()),int(energylprey.get()),int(baseenergypredator.get()),int(mindeathagepredator.get()),int(maxdeathagepredator.get()),int(energylpredator.get()),float(berryconst.get()),int(maxwander.get()),int(preyTBM.get()),int(predatorTBM.get()))
+            passed = True
+        except:
+            popup = tk.Tk()
+            popup.title("Error") #Set the window title
+            popup.geometry("345x100") #Set the window size
+            savenameLabel = tk.Label(popup,text="Invalid input, please re-enter your data",font = controller.guifont)
+            savenameLabel.grid(row=0,column=0)
+            close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
+            close.grid(row=1,column=0)
+            pass
+        if passed:
+            #Get the settings from the JSON file
+            controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
+            #Run the program
+            controller.eventManager.Main()
 
     def SaveSimulation(self,parent,controller,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
         #Open a popup box
