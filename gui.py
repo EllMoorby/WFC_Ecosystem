@@ -331,7 +331,7 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         #label axes
         plt.xlabel("Number of Frames")
         plt.ylabel("Amount of Creatures")
-        plt.ylim(top=100,bottom=0)
+        plt.ylim(bottom=0)
         plt.xlim(left=0)
         plt.legend()
         plt.show()

@@ -30,6 +30,6 @@ MINREPROAGERANGE = 10 #Minimum reproduction range
 
 
 #Predator
-URGE_REPRODUCE_PREDATOR = 600 #Urge to reproduce
+URGE_REPRODUCE_PREDATOR = 200 #Urge to reproduce
 MINREPROAGE_PREDATOR = 50 #Minimum age of reproduction
 URGETOEATRANGE = 40 #Urge to eat range

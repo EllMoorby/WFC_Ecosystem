@@ -1,5 +1,6 @@
 from constants import *
 import math
+import json
 
 class Stack:
     def __init__(self):

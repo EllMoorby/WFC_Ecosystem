@@ -59,7 +59,7 @@ class EventManager:
         pygame.display.set_caption("Map Preview")
         
         #Create the world
-        world = self.CreateWorld()
+        world,tilelist = self.CreateWorld()
         smallrenderer.RenderWorld(world)
         smallrenderer.DrawText("Press r to refresh")
         pygame.display.flip()
@@ -68,17 +68,19 @@ class EventManager:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.world = world
+                    self.tilelist = tilelist
                     running = False
                     pygame.quit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
                         #refresh the world map
-                        world = self.CreateWorld()
+                        world,tilelist = self.CreateWorld()
                         smallrenderer.RenderWorld(world)
                         smallrenderer.DrawText("Press r to refresh")
                         pygame.display.flip()
                     elif event.key == pygame.K_ESCAPE:
                         self.world = world
+                        self.tilelist = tilelist
                         running = False
                         pygame.quit()
 
@@ -86,11 +88,11 @@ class EventManager:
     def CreateWorld(self): #create a world
         while True:
             #attempt to create a new world
-            world,self.tilelist = GenerateMap(self.CELLSIZE,self.SCREENHEIGHT,self.SCREENWIDTH)
-            return world
+            world,tilelist = GenerateMap(self.CELLSIZE,self.SCREENHEIGHT,self.SCREENWIDTH)
+            return world,tilelist
         
 
-    def SplitWorld(self): #split the world into fertile, spawnable land into a dictionary
+    def SplitWorld(self,world): #split the world into fertile, spawnable land into a dictionary
         #reset all values, a new world was created
         self.preyList = []
         self.predatorList = []
@@ -107,10 +109,12 @@ class EventManager:
         #expand the dictionary to allow all tiles to be added as keys
         for tile in self.tilelist:
             self.tiledict[tile] = []
+        print(self.tilelist)
         #tiles get added as keys
-        for row in self.world:
+        for row in world:
             for cell in row:
                 for key in self.tiledict:
+                    print(key,cell.tile)
                     if cell.tile == key:
                         self.tiledict[key].append(cell)
 
@@ -123,6 +127,8 @@ class EventManager:
             if key.traversable:
                 for item in self.tiledict[key]:
                     self.spawnableList.append(item)
+
+        
                 
 
     def SpawnBerry(self): #spawn a berry at a random fertile spot
@@ -187,18 +193,21 @@ class EventManager:
         self.renderer = Renderer(self.SCREENWIDTH,self.SCREENHEIGHT,self.CELLSIZE) #Creature a new renderer, for renderering
         self.engine = Engine(self.FPS) #Create a new engine, for deltatime and FPS
         pygame.display.set_caption("Simulation")
-        if self.world == []:
-            self.world = self.CreateWorld()
+        self.newworld,newtilelist = self.CreateWorld()
+        if self.world == [] or (len(self.newworld) != len(self.world) or len(self.newworld[0]) != len(self.world[0])):
+            self.world = self.newworld
+            self.tilelist = newtilelist
         
         #self.world = self.CreateWorld() #generate a world
-        self.SplitWorld() #split the world into fertile,spawnable,etc.
+        self.SplitWorld(self.world) #split the world into fertile,spawnable,etc.
+        print(self.spawnableList)
         self.InitializeCreatures()
         playing = True # create a playing loop
         while playing:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_p:
-                        self.world = self.CreateWorld()
+                        self.world,self.tilelist = self.CreateWorld()
                         self.SplitWorld()
                         self.InitializeCreatures()
                     if event.key == pygame.K_u:
