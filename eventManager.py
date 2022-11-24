@@ -205,16 +205,9 @@ class EventManager:
         playing = True # create a playing loop
         while playing:
             for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_p:
-                        self.world,self.tilelist = self.CreateWorld()
-                        self.SplitWorld()
-                        self.InitializeCreatures()
-                    if event.key == pygame.K_u:
-                        self.SpawnBerry()
                 if event.type == pygame.QUIT:
                     pygame.quit()
-            self.Update()
-            self.engine.update_dt()
+            self.Update() #Update all
+            self.engine.update_dt() #Update deltatime
 
                 
