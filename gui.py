@@ -526,28 +526,41 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
     def Run(self,parent,controller,option):
         option = str(option)
         #Loads the data from the save into variables
-        with open(path.join("Saves",option),"r") as f:
-            self.presetdata = json.load(f)
-            self.preycount = self.presetdata["PREYCOUNT"]
-            self.baseenergyprey = self.presetdata["BASE_ENERGY_PREY"]
-            self.mindeathageprey = self.presetdata["MINDEATHAGE_PREY"]
-            self.maxdeathageprey = self.presetdata["MAXDEATHAGE_PREY"]
-            self.timebetweenprey = self.presetdata["TIMEBETWEENMATES_PREY"]
-            self.energylprey = self.presetdata["ENERGYLOSSPERSTEP_PREY"]
-            self.predatorcount = self.presetdata["PREDATORCOUNT"]
-            self.baseenergypredator = self.presetdata["BASE_ENERGY_PREDATOR"]
-            self.mindeathagepredator = self.presetdata["MINDEATHAGE_PREDATOR"]
-            self.maxdeathagepredator = self.presetdata["MAXDEATHAGE_PREDATOR"]
-            self.timebetweenpredator = self.presetdata["TIMEBETWEENMATES_PREDATOR"]
-            self.energylpredator = self.presetdata["ENERGYLOSSPERSTEP_PREDATOR"]
-            self.berryconst = self.presetdata["BERRYCONST"]
-            self.maxwander = self.presetdata["MAXWANDERDIST"]
+        try:
+            with open(path.join("Saves",option),"r") as f:
+                self.presetdata = json.load(f)
+                self.preycount = self.presetdata["PREYCOUNT"]
+                self.baseenergyprey = self.presetdata["BASE_ENERGY_PREY"]
+                self.mindeathageprey = self.presetdata["MINDEATHAGE_PREY"]
+                self.maxdeathageprey = self.presetdata["MAXDEATHAGE_PREY"]
+                self.timebetweenprey = self.presetdata["TIMEBETWEENMATES_PREY"]
+                self.energylprey = self.presetdata["ENERGYLOSSPERSTEP_PREY"]
+                self.predatorcount = self.presetdata["PREDATORCOUNT"]
+                self.baseenergypredator = self.presetdata["BASE_ENERGY_PREDATOR"]
+                self.mindeathagepredator = self.presetdata["MINDEATHAGE_PREDATOR"]
+                self.maxdeathagepredator = self.presetdata["MAXDEATHAGE_PREDATOR"]
+                self.timebetweenpredator = self.presetdata["TIMEBETWEENMATES_PREDATOR"]
+                self.energylpredator = self.presetdata["ENERGYLOSSPERSTEP_PREDATOR"]
+                self.berryconst = self.presetdata["BERRYCONST"]
+                self.maxwander = self.presetdata["MAXWANDERDIST"]
         
-        #Initialize these values into the eventManager
-        controller.eventManager.InitializeValues(self.preycount,self.predatorcount,self.baseenergyprey,self.mindeathageprey,self.maxdeathageprey,self.energylprey,self.baseenergyprey,self.mindeathagepredator,self.maxdeathagepredator,self.energylpredator,self.berryconst,self.maxwander,self.timebetweenprey,self.timebetweenpredator)
-        controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
-        #Run the main program
-        controller.eventManager.Main()
+            #Initialize these values into the eventManager
+            controller.eventManager.InitializeValues(self.preycount,self.predatorcount,self.baseenergyprey,self.mindeathageprey,self.maxdeathageprey,self.energylprey,self.baseenergyprey,self.mindeathagepredator,self.maxdeathagepredator,self.energylpredator,self.berryconst,self.maxwander,self.timebetweenprey,self.timebetweenpredator)
+            controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
+            #Run the main program
+            controller.eventManager.Main()
+        except:
+            popup = tk.Tk()
+            popup.title("Error") #Set the window title
+            popup.geometry("345x100") #Set the window size
+            savenameLabel = tk.Label(popup,text="Invalid input, please re-enter your data",font = controller.guifont)
+            savenameLabel.grid(row=0,column=0)
+            close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
+            close.grid(row=1,column=0)
+
+    def Close(self, tkinter):
+            #close the window
+            tkinter.destroy()
 
     def ShowGeneGraphs(self,parent,controller):
         plt.close("all")
