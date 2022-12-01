@@ -553,7 +553,7 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
             popup = tk.Tk()
             popup.title("Error") #Set the window title
             popup.geometry("345x100") #Set the window size
-            savenameLabel = tk.Label(popup,text="Invalid input, please re-enter your data",font = controller.guifont)
+            savenameLabel = tk.Label(popup,text="Invalid input, please enter a valid save",font = controller.guifont)
             savenameLabel.grid(row=0,column=0)
             close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
             close.grid(row=1,column=0)
