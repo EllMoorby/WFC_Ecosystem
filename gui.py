@@ -475,16 +475,29 @@ class Settings(tk.Frame): #Create the settings class
 
     def Back(self,parent,controller,cellsizeEntry,screenWidthEntry,screenHeightEntry,fpsEntry):
         #retrieves all data from the entry boxes
-        controller.cellsize = int(cellsizeEntry.get())
-        controller.screenwidth = int(screenWidthEntry.get())
-        controller.screenheight = int(screenHeightEntry.get())
-        controller.fps = int(fpsEntry.get())
-        controller.eventManager.InitializeSettings(controller.screenheight,controller.screenwidth,controller.cellsize,controller.fps) #change the values in the event manager
-        controller.clear_widgets(self) #clear the screen
-        frame = MainMenu(parent, controller)
-        controller.frames[MainMenu] = frame
-        frame.grid(row=0,column=0,sticky="ns")
-        controller.show_frame(MainMenu) #moving back to the main menu
+        try:
+            controller.cellsize = int(cellsizeEntry.get())
+            controller.screenwidth = int(screenWidthEntry.get())
+            controller.screenheight = int(screenHeightEntry.get())
+            controller.fps = int(fpsEntry.get())
+            controller.eventManager.InitializeSettings(controller.screenheight,controller.screenwidth,controller.cellsize,controller.fps) #change the values in the event manager
+            controller.clear_widgets(self) #clear the screen
+            frame = MainMenu(parent, controller)
+            controller.frames[MainMenu] = frame
+            frame.grid(row=0,column=0,sticky="ns")
+            controller.show_frame(MainMenu) #moving back to the main menu
+        except:
+            popup = tk.Tk()
+            popup.title("Error") #Set the window title
+            popup.geometry("345x100") #Set the window size
+            savenameLabel = tk.Label(popup,text="Invalid input, please re-enter your data",font = controller.guifont)
+            savenameLabel.grid(row=0,column=0)
+            close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
+            close.grid(row=1,column=0)
+
+    def Close(self, tkinter):
+        #close the window
+        tkinter.destroy()
 
 
 class LoadSimulation(tk.Frame): #Create the LoadSimulation class
