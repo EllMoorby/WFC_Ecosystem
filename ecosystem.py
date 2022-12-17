@@ -4,7 +4,7 @@ import random
 import math
 import pygame
 
-class Queue: #Create a queue class
+class Queue: #Create a queue class #####GROUP A - Queue ########
     def __init__(self):
         self.fPointer = 0 #Create a front pointer pointing to the first element of the queue
         self.rPointer = -1 #Create a back pointer pointing to the last element of the queue
@@ -43,7 +43,7 @@ class CreatureCell:
         self.pointer = None #Pointer
         self.traversable = self.tile.traversable #Boolean, if the tile is traversable
 
-class Creature: #Create a generic creature class
+class Creature: #Create a generic creature class #####GROUP A - OOP ########
     def __init__(self,position,world,renderer,cellsize,screenwidth,screenheight):
         self.CELLSIZE = cellsize
         self.SCREENWIDTH = screenwidth
@@ -64,6 +64,11 @@ class Creature: #Create a generic creature class
 
         _map = self.CreateCreatureWorld() #The current map in creature cells
         self.world = _map
+
+
+    def ChooseActivity(self): #Choose an activity #####GROUP A - OOP Polymorphism ########
+        choiceweights = BASECHOICEWEIGHTS.copy()
+        return random.choice(["e","w","r"]) #Make a random choice baced on weights
     
     def RequestMate(self, mate): #Accept the request to be a mate if the creature does not have a mate
         if self.mate == None:
@@ -120,7 +125,7 @@ class Creature: #Create a generic creature class
         return cell
 
 
-class Predator(Creature): #Create the predator class, which inherits from the Creature class
+class Predator(Creature): #Create the predator class, which inherits from the Creature class #####GROUP A - OOP Inheritance ########
     def __init__(self,position,world,renderer,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,timebetweenmatespredator,cellsize,screenwidth,screenheight,parentalGene=None):
         super().__init__(position,world,renderer,cellsize,screenwidth,screenheight)
         #Set all values imported from the eventManager to constants
@@ -180,10 +185,10 @@ class Predator(Creature): #Create the predator class, which inherits from the Cr
 
     def AdvancePath(self): #Advance 1 cell forward across the map
         #self.position = self.worldmap[self.currentpath.stack[self.currentpath.size][0]][self.currentpath.stack[self.currentpath.size][1]]
-        if len(self.extraMovement.list) != 0 and len(self.currentpath.stack) == 0: #If no extra movement, and the path is empty, set position to the finish
+        if len(self.extraMovement.list) != 0 and len(self.currentpath.stack) == 0: #If no extra movement, and the path is empty, set position to the finish #####GROUP A - Stack/Queue Operations ########
             self.position = self.extraMovement.RemoveFromQueue()
         else: #Advance path by 1 and remove that from queue
-            self.position = self.currentpath.stack[self.currentpath.size]
+            self.position = self.currentpath.stack[self.currentpath.size] #####GROUP A - Stack/Queue Operations ########
             self.currentpath.RemoveFromStack() 
         if self.preyTarget and self.preyTarget.position.position == self.position.position: #If they have reached their target, consume it
             self.energy = self.BASE_ENERGY_PREDATOR
@@ -310,7 +315,7 @@ class Predator(Creature): #Create the predator class, which inherits from the Cr
                     
         self.renderer.DrawCreature(self) #Draw creature
 
-    def ChooseActivity(self): #Choose an activity
+    def ChooseActivity(self): #Choose an activity #####GROUP A - OOP Polymorphism ########
         choiceweights = BASECHOICEWEIGHTS.copy()
 
         choiceweights[0] += (100-((self.energy/self.BASE_ENERGY_PREDATOR)*100))+random.randint(-URGETOEATRANGE,URGETOEATRANGE) #Chance to eat
@@ -356,13 +361,13 @@ class Prey(Creature):
         self.MINREPROAGE = (MINREPROAGE_PREY - MINREPROAGERANGE/2) + (MINREPROAGERANGE*(self.gestationGene/100)) #Minimum reproduction age based off gestation gene
         self.TIMEBETWEENMATES_PREY = (timebetweenmatesprey-TIMEBETWEENMATESRANGE/2) + (TIMEBETWEENMATESRANGE*(self.gestationGene/100)) #Time between mates based off gestation gene
     
-    def LocateMate(self,lookingForMate): #Find a mate
+    def LocateMate(self,lookingForMate): #Find a mate #####GROUP B - Simple user defined algorithms ########
         self.energy -= self.ENERGYLOSSPERSTEP_PREY #Lose energy every time they mate
         if self not in lookingForMate: #Add self to mating list, if not in the list already
             lookingForMate.append(self)
         lowest = 99999999
         closestmate = None
-        for creature in lookingForMate: #Cycle through all others looking for mate
+        for creature in lookingForMate: #Cycle through all others looking for mate #####GROUP C - Linear Search ########
             dist = self.GetDistanceBetween(self.position,creature.position)
             if dist < lowest and creature.sex != self.sex: #Find the closest mate of opposite sex so far
                 closestmate = creature

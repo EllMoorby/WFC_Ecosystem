@@ -8,10 +8,10 @@ from waveFunctionCollapse import GenerateMap
 import pstats
 from numpy import random
 
-
+#####GROUP A - Complex Scientific model ########
 class EventManager:
-    def __init__(self):
-        self.world = [] #The current map
+    def __init__(self): 
+        self.world = [] #The current map #####GROUP C - Single Dimensial Arrays ########
         self.berryList = [] #A list of all berrys
         self.preyList = [] #A list of prey instantiated
         self.predatorList = [] #A list of all predators instantiated
@@ -144,7 +144,7 @@ class EventManager:
         for x in range(random.poisson(lam=self.BERRYCONST,size=1)[0]):
             self.SpawnBerry()
 
-    def InitializeCreatures(self): #instantiate all creatures using the amount of creatures determined from constants
+    def InitializeCreatures(self): #instantiate all creatures using the amount of creatures determined from constants #####GROUP B - Generation of objects based on OOP ########
         
         for creature in range(self.PREYCOUNT):
             #give them a random position, an image and pass both world + renderer as parameters

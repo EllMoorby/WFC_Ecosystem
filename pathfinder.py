@@ -2,7 +2,7 @@ from constants import *
 import math
 import json
 
-class Stack:
+class Stack: #####GROUP A - Stack ########
     def __init__(self):
         self.stack = [] #The stack itself
         self.size = -1 #size/top value of the stack
@@ -27,7 +27,7 @@ class Stack:
         return self.stack
 
     
-class PathFinder:
+class PathFinder: #####GROUP A - Complex user defined algorithms ########
     def __init__(self,creature,target,screenheight,screenwidth,cellsize):
         self.SCREENWIDTH = screenwidth
         self.SCREENHEIGHT = screenheight
@@ -87,11 +87,11 @@ class PathFinder:
             self.target.pointer = cell
             self.PathFound = True
         elif not(self.PathFound): #recursion if path not found
-            self.PathFind()
+            self.PathFind() #####GROUP A - Recursive Algorithms ########
         else:return
 
 
-    def GetPath(self): #translates the shortest path to a stack to be used
+    def GetPath(self): #translates the shortest path to a stack to be used #####GROUP A - Stack/Queue Operations ########
         cell = self.target
         self.path.AddToStack(cell) #add the cell to the stack
         while cell.position != self.creature.position: #while the path has not been found

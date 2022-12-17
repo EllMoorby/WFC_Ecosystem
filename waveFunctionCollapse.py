@@ -176,14 +176,14 @@ def WFC(world,possibletiles,cellsize,screenheight,screenwidth): #the main wave f
 
 
 def GenerateMap(cellsize,screenheight,screenwidth):
-    possibletiles = GetAdjacencyList(GetPossibleTiles(cellsize)) #gets the tileset for the map
+    possibletiles = GetAdjacencyList(GetPossibleTiles(cellsize)) #gets the tileset for the map #####GROUP A - List Operations ########
     tilelist = possibletiles
     world = []
     #generate the world with cell objects
     for cellx in range(screenwidth // cellsize):
         world.append([])
         for celly in range(screenheight // cellsize):
-            world[cellx].append(Cell(possibletiles.copy(),(cellx,celly)))
+            world[cellx].append(Cell(possibletiles.copy(),(cellx,celly))) #####GROUP B - Multi-dimensional array ########
     #runs the WFC algorithm for each cell object, ensuring every cell has a tile 
     for row in world:
         for cell in row:
