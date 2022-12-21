@@ -71,7 +71,7 @@ class Creature: #Create a generic creature class #####GROUP A - OOP ########
         return random.choice(["e","w","r"]) #Make a random choice baced on weights
     
     def RequestMate(self, mate): #Accept the request to be a mate if the creature does not have a mate
-        if self.mate == None:
+        if self.mate == None and mate != self:
             self.mate = mate
             return True
         else:return False
@@ -437,6 +437,7 @@ class Prey(Creature):
         if len(self.currentpath.stack) == 0: #If the path is empty
             self.foodTarget = None
             option = self.ChooseActivity() #Choose an activity
+            print(option)
             match option[0]:
                 case "e": #Pathfind to the closest berry
                     target = self.Forage(berryList) #Attempt to find food
@@ -497,6 +498,8 @@ class Prey(Creature):
             choiceweights[index] = weight
         if self.age < self.MINREPROAGE or self.timebetweenmates <= self.TIMEBETWEENMATES_PREY: #If the prey is too young or mated too recently, have no urge to reproduce
             choiceweights[2] = 0
+
+        print("Chance to eat",choiceweights[0],"Chance to wander",choiceweights[1],"Chance to reproduce",choiceweights[2])
         return random.choices(["e","w","r"],choiceweights,k=1) #Return a random choice based off of the weights set
 
     def Forage(self,berryList): #Locate the nearest berry

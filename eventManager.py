@@ -109,12 +109,10 @@ class EventManager:
         #expand the dictionary to allow all tiles to be added as keys
         for tile in self.tilelist:
             self.tiledict[tile] = []
-        print(self.tilelist)
         #tiles get added as keys
         for row in world:
             for cell in row:
                 for key in self.tiledict:
-                    print(key,cell.tile)
                     if cell.tile == key:
                         self.tiledict[key].append(cell)
 
@@ -200,7 +198,6 @@ class EventManager:
         
         #self.world = self.CreateWorld() #generate a world
         self.SplitWorld(self.world) #split the world into fertile,spawnable,etc.
-        print(self.spawnableList)
         self.InitializeCreatures()
         playing = True # create a playing loop
         while playing:

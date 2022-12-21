@@ -297,7 +297,14 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
 
     def ShowGeneGraphs(self,parent,controller): #Show the graph of gene strength
         plt.close("all")
-        if controller.eventManager.gestationGeneSizePrey_preframe == [] or controller.eventManager.gestationGeneSizePredator_preframe == []: #if no data is written, program has not been run. Therefore the graph can not be shown
+        if controller.eventManager.gestationGeneSizePrey_preframe == [] and controller.eventManager.gestationGeneSizePredator_preframe == []: #if no data is written, program has not been run. Therefore the graph can not be shown
+            popup = tk.Tk()
+            popup.title("Error") #Set the window title
+            popup.geometry("345x100") #Set the window size
+            savenameLabel = tk.Label(popup,text="No data to plot. Please try to run the simulation.",font = controller.guifont)
+            savenameLabel.grid(row=0,column=0)
+            close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
+            close.grid(row=1,column=0)
             return
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -318,7 +325,14 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
 
     def ShowPopulationGraphs(self,parent,controller): #display the population of the graphs
         plt.close("all")
-        if controller.eventManager.preyListLength_perframe == [] or controller.eventManager.predatorListLength_perframe == []: #if there is no data in either list, the program has never been ran, therefore graph cannpt be shown
+        if controller.eventManager.preyListLength_perframe == [] and controller.eventManager.predatorListLength_perframe == []: #if there is no data in either list, the program has never been ran, therefore graph cannpt be shown
+            popup = tk.Tk()
+            popup.title("Error") #Set the window title
+            popup.geometry("345x100") #Set the window size
+            savenameLabel = tk.Label(popup,text="No data to plot. Please try to run the simulation.",font = controller.guifont)
+            savenameLabel.grid(row=0,column=0)
+            close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
+            close.grid(row=1,column=0)
             return
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -561,7 +575,7 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
             controller.eventManager.InitializeValues(self.preycount,self.predatorcount,self.baseenergyprey,self.mindeathageprey,self.maxdeathageprey,self.energylprey,self.baseenergyprey,self.mindeathagepredator,self.maxdeathagepredator,self.energylpredator,self.berryconst,self.maxwander,self.timebetweenprey,self.timebetweenpredator)
             controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
             #Run the main program
-            controller.eventManager.Main()
+            
         except:
             popup = tk.Tk()
             popup.title("Error") #Set the window title
@@ -571,13 +585,22 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
             close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
             close.grid(row=1,column=0)
 
+        controller.eventManager.Main()
+
     def Close(self, tkinter):
             #close the window
             tkinter.destroy()
 
     def ShowGeneGraphs(self,parent,controller):
         plt.close("all")
-        if controller.eventManager.gestationGeneSizePrey_preframe == [] or controller.eventManager.gestationGeneSizePredator_preframe == []: #Check if data is stored to be graphed. No data means the simulation has not run yet
+        if controller.eventManager.gestationGeneSizePrey_preframe == [] and controller.eventManager.gestationGeneSizePredator_preframe == []: #Check if data is stored to be graphed. No data means the simulation has not run yet
+            popup = tk.Tk()
+            popup.title("Error") #Set the window title
+            popup.geometry("345x100") #Set the window size
+            savenameLabel = tk.Label(popup,text="No data to plot. Please try to run the simulation.",font = controller.guifont)
+            savenameLabel.grid(row=0,column=0)
+            close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
+            close.grid(row=1,column=0)
             return
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -597,7 +620,14 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
 
     def ShowPopulationGraphs(self,parent,controller):
         plt.close("all")
-        if controller.eventManager.preyListLength_perframe == [] or controller.eventManager.predatorListLength_perframe == []:#Check if data is stored to be graphed. No data means the simulation has not run yet 
+        if controller.eventManager.preyListLength_perframe == [] and controller.eventManager.predatorListLength_perframe == []:#Check if data is stored to be graphed. No data means the simulation has not run yet 
+            popup = tk.Tk()
+            popup.title("Error") #Set the window title
+            popup.geometry("345x100") #Set the window size
+            savenameLabel = tk.Label(popup,text="No data to plot. Please try to run the simulation.",font = controller.guifont)
+            savenameLabel.grid(row=0,column=0)
+            close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
+            close.grid(row=1,column=0)
             return
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
