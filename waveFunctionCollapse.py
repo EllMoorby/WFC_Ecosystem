@@ -183,7 +183,7 @@ def GenerateMap(cellsize,screenheight,screenwidth):
     for cellx in range(screenwidth // cellsize):
         world.append([])
         for celly in range(screenheight // cellsize):
-            world[cellx].append(Cell(possibletiles.copy(),(cellx,celly))) #####GROUP B - Multi-dimensional array ########
+            world[cellx].append(Cell(possibletiles.copy(),(cellx,celly))) ######GROUP B - Multi-dimensional array ########
     #runs the WFC algorithm for each cell object, ensuring every cell has a tile 
     for row in world:
         for cell in row:

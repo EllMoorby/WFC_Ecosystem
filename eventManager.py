@@ -11,7 +11,7 @@ from numpy import random
 #####GROUP A - Complex Scientific model ########
 class EventManager:
     def __init__(self): 
-        self.world = [] #The current map #####GROUP C - Single Dimensial Arrays ########
+        self.world = [] #The current map ###########GROUP C - Single Dimensial Arrays ########
         self.berryList = [] #A list of all berrys
         self.preyList = [] #A list of prey instantiated
         self.predatorList = [] #A list of all predators instantiated
@@ -30,7 +30,7 @@ class EventManager:
 
     def InitializeValues(self,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
         #Transfer the values inputted to variables within the program
-        self.PREYCOUNT = preycount
+        self.PREYCOUNT = preycount 
         self.PREDATORCOUNT = predatorcount
         self.BASEENERGYPREY = baseenergyprey
         self.MINDEATHAGEPREY = mindeathageprey
@@ -142,11 +142,11 @@ class EventManager:
         for x in range(random.poisson(lam=self.BERRYCONST,size=1)[0]):
             self.SpawnBerry()
 
-    def InitializeCreatures(self): #instantiate all creatures using the amount of creatures determined from constants #####GROUP B - Generation of objects based on OOP ########
+    def InitializeCreatures(self): #instantiate all creatures using the amount of creatures determined from constants #######GROUP B - Generation of objects based on OOP ########
         
         for creature in range(self.PREYCOUNT):
             #give them a random position, an image and pass both world + renderer as parameters
-            self.preyList.append(Prey(choice(self.spawnableList),self.world,self.renderer,self.BASEENERGYPREY,self.MINDEATHAGEPREY,self.MAXDEATHAGEPREY,self.ENERGYLPREY,self.TIMEBETWEENMATES_PREY,self.CELLSIZE,self.SCREENWIDTH,self.SCREENHEIGHT))
+            self.preyList.append(Prey(choice(self.spawnableList),self.world,self.renderer,self.BASEENERGYPREY,self.MINDEATHAGEPREY,self.MAXDEATHAGEPREY,self.ENERGYLPREY,self.TIMEBETWEENMATES_PREY,self.CELLSIZE,self.SCREENWIDTH,self.SCREENHEIGHT)) #####GROUP A - Composition#####
         for creature in range(self.PREDATORCOUNT):
             self.predatorList.append(Predator(choice(self.spawnableList),self.world,self.renderer,self.BASEENERGYPREDATOR,self.MINDEATHAGEPREDATOR,self.MAXDEATHAGEPREDATOR,self.ENERGYLPREDATOR,self.TIMEBETWEENMATES_PREDATOR,self.CELLSIZE,self.SCREENWIDTH,self.SCREENHEIGHT))
 

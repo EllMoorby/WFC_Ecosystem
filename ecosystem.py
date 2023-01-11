@@ -361,13 +361,13 @@ class Prey(Creature):
         self.MINREPROAGE = (MINREPROAGE_PREY - MINREPROAGERANGE/2) + (MINREPROAGERANGE*(self.gestationGene/100)) #Minimum reproduction age based off gestation gene
         self.TIMEBETWEENMATES_PREY = (timebetweenmatesprey-TIMEBETWEENMATESRANGE/2) + (TIMEBETWEENMATESRANGE*(self.gestationGene/100)) #Time between mates based off gestation gene
     
-    def LocateMate(self,lookingForMate): #Find a mate #####GROUP B - Simple user defined algorithms ########
+    def LocateMate(self,lookingForMate): #Find a mate #######GROUP B - Simple user defined algorithms ########
         self.energy -= self.ENERGYLOSSPERSTEP_PREY #Lose energy every time they mate
         if self not in lookingForMate: #Add self to mating list, if not in the list already
             lookingForMate.append(self)
         lowest = 99999999
         closestmate = None
-        for creature in lookingForMate: #Cycle through all others looking for mate #####GROUP C - Linear Search ########
+        for creature in lookingForMate: #Cycle through all others looking for mate ###########GROUP C - Linear Search ########
             dist = self.GetDistanceBetween(self.position,creature.position)
             if dist < lowest and creature.sex != self.sex: #Find the closest mate of opposite sex so far
                 closestmate = creature

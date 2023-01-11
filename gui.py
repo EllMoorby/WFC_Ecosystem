@@ -47,13 +47,13 @@ class GUI(tk.Tk): #Main GUI class
         self.bind("<F11>", self.toggle_fullscreen) #Bind F11 to toggle_fullscreen
         self.bind("<Escape>", self.Quit) #Bind Escape to quit
 
-        self.frames = {} #####GROUP B - Dictionary ########
+        self.frames = {} #######GROUP B - Dictionary ########
         frame = MainMenu(self.container, self)
         self.frames[MainMenu] = frame #Add the frame to the dictionary
         frame.grid(row=0,column=0,sticky="ns")
         self.show_frame(MainMenu) #Show the main menu
         #preload all the attributes from a JSON file
-        with open(path.join("Saves","preset.json"),"r") as f: #####GROUP A - JSON ######## #####GROUP B - Reading from files ########
+        with open(path.join("Saves","preset.json"),"r") as f: #####GROUP A - JSON ##### #######GROUP B - Reading from files ##### #####GROUP A - Files organised for direct access#####
             self.presetdata = json.load(f)
             self.preycount = self.presetdata["PREYCOUNT"]
             self.baseenergyprey = self.presetdata["BASE_ENERGY_PREY"]
@@ -157,7 +157,7 @@ class MainMenu(tk.Frame): #Main Menu
         controller.settingsdata["SCREENWIDTH"] = controller.screenwidth
         controller.settingsdata["SCREENHEIGHT"] = controller.screenheight
         controller.settingsdata["CELLSIZE"] = controller.cellsize
-        with open(path.join("Settings","settings.json"), "w") as q: #####GROUP B - Writing to files ########
+        with open(path.join("Settings","settings.json"), "w") as q: #######GROUP B - Writing to files ########
             json.dump(controller.settingsdata,q)
         quit()
 
