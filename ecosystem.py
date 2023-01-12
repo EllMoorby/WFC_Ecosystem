@@ -334,7 +334,7 @@ class Predator(Creature): #Create the predator class, which inherits from the Cr
         else:
             return random.choices(["e","w","r"],choiceweights,k=1) #Make a random choice baced on weights
 
-class Prey(Creature):
+class Prey(Creature): #####GROUP A - Complex Scientific model ########
     def __init__(self,position,world,renderer,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,timebetweenmatesprey,cellsize,screenwidth,screenheight,parentGestationGene=None):
         super().__init__(position,world,renderer,cellsize,screenwidth,screenheight)
         #Set all base variable for the prey

@@ -8,7 +8,6 @@ from waveFunctionCollapse import GenerateMap
 import pstats
 from numpy import random
 
-#####GROUP A - Complex Scientific model ########
 class EventManager:
     def __init__(self): 
         self.world = [] #The current map ###########GROUP C - Single Dimensial Arrays ########
