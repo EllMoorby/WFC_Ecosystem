@@ -26,8 +26,9 @@ class EventManager:
         self.predatorListLength_perframe = []
         self.gestationGeneSizePrey_preframe = []
         self.gestationGeneSizePredator_preframe = []
+        self.currentcycle = 0
 
-    def InitializeValues(self,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
+    def InitializeValues(self,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM,cyclescount):
         #Transfer the values inputted to variables within the program
         self.PREYCOUNT = preycount 
         self.PREDATORCOUNT = predatorcount
@@ -43,6 +44,11 @@ class EventManager:
         self.MAXWANDERDIST = maxwander
         self.TIMEBETWEENMATES_PREDATOR = predatorTBM
         self.TIMEBETWEENMATES_PREY = preyTBM
+        self.CYCLESCOUNT = cyclescount
+        if cyclescount == 0:
+            self.CYCLES = False
+        else:
+            self.CYCLES = True
 
     def InitializeSettings(self,screenheight,screenwidth,cellsize,fps):
         #Transfer the settings inputted to variables within the program
@@ -153,6 +159,7 @@ class EventManager:
         gestationGeneSizePrey = 0
         gestationGeneSizePredator = 0
         self.renderer.RenderWorld(self.world) #draw world
+        self.renderer.DrawText("Press 'ESCAPE' to exit")
         for berry in self.berryList:
             self.renderer.RenderBerry(berry)
         #update all creatures
@@ -194,7 +201,7 @@ class EventManager:
         if self.world == [] or (len(self.newworld) != len(self.world) or len(self.newworld[0]) != len(self.world[0])):
             self.world = self.newworld
             self.tilelist = newtilelist
-        
+        self.currentcycle = 0
         #self.world = self.CreateWorld() #generate a world
         self.SplitWorld(self.world) #split the world into fertile,spawnable,etc.
         self.InitializeCreatures()
@@ -203,7 +210,14 @@ class EventManager:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        pygame.quit()
+            if self.CYCLES == True and self.currentcycle >= self.CYCLESCOUNT:
+                pygame.quit()
             self.Update() #Update all
             self.engine.update_dt() #Update deltatime
+            self.currentcycle += 1
+            print(self.currentcycle,self.CYCLESCOUNT,self.CYCLES)
 
                 

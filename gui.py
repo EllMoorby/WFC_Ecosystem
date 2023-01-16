@@ -187,6 +187,7 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         predatorTimeBetweenMates = tk.IntVar(value=controller.timebetweenpredator)
         maxWanderDistance = tk.IntVar(value=controller.maxwander)
         berryConst = tk.IntVar(value=controller.berryconst)
+        cyclescount = tk.IntVar(value=0)
         
         #create a back button
         backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller),relief="flat",font = controller.guifont,activebackground="#9d9898",width = 5,background="#f27e10")
@@ -271,6 +272,11 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         berryentry = tk.Entry(self, textvariable=berryConst, validate="key",validatecommand=(controller.validfloat,"%P"),relief="flat")
         berryentry.grid(row=9,column=1,padx=(5,25))
 
+        cycleslabel = tk.Label(self,text="Number of cycles (0 for infinite)",font = controller.guifont)
+        cycleslabel.grid(row=10,column=0)
+        cyclesentry = tk.Entry(self, textvariable=cyclescount, validate="key",validatecommand=(controller.validint,"%P"),relief="flat")
+        cyclesentry.grid(row=10,column=1,padx=(5,25))
+
         #Create a button which displays the world world viewer
         viewerbutton = tk.Button(self,text="Open World Viewer",background="#b8b8b8",command=lambda: self.OpenViewer(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         viewerbutton.grid(row=8,column=3,columnspan=2)
@@ -281,7 +287,7 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         genegraphbutton = tk.Button(self,text="Show Gene Graph",background="#b8b8b8",command=lambda: self.ShowGeneGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         genegraphbutton.grid(row=11,column=3,columnspan=2)
         #Create a button which which retrieves all values from the entry boxes
-        startbutton = tk.Button(self,text="Start Simulation",background="#51e41e",relief="flat",command=lambda: self.StartSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry,preyTBMEntry,predatorTBMEntry),font = controller.guifont,activebackground="#9d9898",width = 20)
+        startbutton = tk.Button(self,text="Start Simulation",background="#51e41e",relief="flat",command=lambda: self.StartSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry,preyTBMEntry,predatorTBMEntry,cyclesentry),font = controller.guifont,activebackground="#9d9898",width = 20)
         startbutton.grid(row=12,column=0,columnspan=5)
         #Create a button which opens a popup window to save the simulation
         savebutton = tk.Button(self,text="Save Parameters",background="#b8b8b8",command=lambda: self.SaveSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry,preyTBMEntry,predatorTBMEntry),font = controller.guifont,activebackground="#9d9898",width = 20,relief="groove")
@@ -354,11 +360,11 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
         controller.eventManager.TempMapViewer()
 
-    def StartSimulation(self,parent,controller,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM):
+    def StartSimulation(self,parent,controller,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM,cyclescount):
         passed = False
         #Get all values from entry boxes and send them to the eventManager
         try:
-            controller.eventManager.InitializeValues(int(preycount.get()),int(predatorcount.get()),int(baseenergyprey.get()),int(mindeathageprey.get()),int(maxdeathageprey.get()),int(energylprey.get()),int(baseenergypredator.get()),int(mindeathagepredator.get()),int(maxdeathagepredator.get()),int(energylpredator.get()),float(berryconst.get()),int(maxwander.get()),int(preyTBM.get()),int(predatorTBM.get()))
+            controller.eventManager.InitializeValues(int(preycount.get()),int(predatorcount.get()),int(baseenergyprey.get()),int(mindeathageprey.get()),int(maxdeathageprey.get()),int(energylprey.get()),int(baseenergypredator.get()),int(mindeathagepredator.get()),int(maxdeathagepredator.get()),int(energylpredator.get()),float(berryconst.get()),int(maxwander.get()),int(preyTBM.get()),int(predatorTBM.get()),int(cyclescount.get()))
             passed = True
         except:
             popup = tk.Tk()
@@ -518,8 +524,10 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
         #configure rows and columns so buttons can be placed
+        self.columnconfigure(3,weight=3)
         self.rowconfigure(30, weight=4)
         self.columnconfigure(7, weight=4)
+        cyclescount = tk.IntVar(value=0)
         #Back button to return to the main menu
         backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller),relief="flat",font = controller.guifont,activebackground="#9d9898",width = 5,background="#f27e10")
         backbutton.grid(row=30,column=7)
@@ -534,14 +542,19 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
         optmenu = tkk.Combobox(self, values=filelist, state='readonly',textvariable="Choose a Save",font=controller.guifont)
         optmenu.grid(row=1,column=0)
         #Button which starts the simulation with the values selected
-        runbutton = tk.Button(self,text="Run",background="#51e41e",relief="flat",command=lambda: self.Run(parent,controller,optmenu.get()),font = controller.guifont,activebackground="#9d9898",width = 5)
-        runbutton.grid(row=2,column=0)
+        runbutton = tk.Button(self,text="Run",background="#51e41e",relief="flat",command=lambda: self.Run(parent,controller,optmenu.get(),int(cyclesentry.get())),font = controller.guifont,activebackground="#9d9898",width = 5)
+        runbutton.grid(row=1,column=1)
         #Button to display a graph of the population
         graphbutton = tk.Button(self,text="Show Population Graph",background="#b8b8b8",command=lambda: self.ShowPopulationGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
-        graphbutton.grid(row=3,column=0)
+        graphbutton.grid(row=2,column=0)
+        #Entry for number of cycles
+        cycleslabel = tk.Label(self,text="Number of cycles (0 for infinite)",font = controller.guifont)
+        cycleslabel.grid(row=5,column=0)
+        cyclesentry = tk.Entry(self, textvariable=cyclescount, validate="key",validatecommand=(controller.validint,"%P"),relief="flat")
+        cyclesentry.grid(row=5,column=1,padx=(5,25))
         #Button to display a graph of the Gene strength
         genebutton = tk.Button(self,text="Show Gene Graph",background="#b8b8b8",command=lambda: self.ShowGeneGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
-        genebutton.grid(row=4,column=0)
+        genebutton.grid(row=2,column=1)
 
     def Back(self,parent,controller): #Returns to the main menu
         controller.clear_widgets(self)
@@ -550,7 +563,7 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
         frame.grid(row=0,column=0,sticky="ns")
         controller.show_frame(MainMenu)
     
-    def Run(self,parent,controller,option):
+    def Run(self,parent,controller,option,cyclevalue):
         option = str(option)
         #Loads the data from the save into variables
         try:
@@ -572,7 +585,7 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
                 self.maxwander = self.presetdata["MAXWANDERDIST"]
         
             #Initialize these values into the eventManager
-            controller.eventManager.InitializeValues(self.preycount,self.predatorcount,self.baseenergyprey,self.mindeathageprey,self.maxdeathageprey,self.energylprey,self.baseenergyprey,self.mindeathagepredator,self.maxdeathagepredator,self.energylpredator,self.berryconst,self.maxwander,self.timebetweenprey,self.timebetweenpredator)
+            controller.eventManager.InitializeValues(self.preycount,self.predatorcount,self.baseenergyprey,self.mindeathageprey,self.maxdeathageprey,self.energylprey,self.baseenergyprey,self.mindeathagepredator,self.maxdeathagepredator,self.energylpredator,self.berryconst,self.maxwander,self.timebetweenprey,self.timebetweenpredator,cyclevalue)
             controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
             #Run the main program
             

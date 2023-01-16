@@ -7,3 +7,4 @@ sys.setrecursionlimit(6**10) #Set the recursion limit to a large number for path
 
 gui = GUI() #Create a GUI instance
 gui.mainloop() #Start the GUI
+
