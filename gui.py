@@ -181,22 +181,22 @@ class MainMenu(tk.Frame): #Main Menu
         #Add main menu buttons to the screen
         create = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","create.png")))
         self.create = create
-        createSimulation = tk.Button(controller,image=create,relief="flat",command=lambda: self.MovetoSimulationMenu(parent,controller),activebackground="#9d9898",width = 500)
+        createSimulation = tk.Button(controller,image=create,relief="flat",command=lambda: self.MovetoSimulationMenu(parent,controller),background="#2ae35e",activebackground="#9d9898",width = 500)
         createSimulation_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2)-125,anchor="center",window=createSimulation)
 
         load = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","load.png")))
         self.load = load
-        loadSimulation = tk.Button(controller,relief="flat",image=load,command=lambda: self.LoadtoSimulationMenu(parent,controller),width = 500,activebackground="#9d9898")
+        loadSimulation = tk.Button(controller,relief="flat",image=load,command=lambda: self.LoadtoSimulationMenu(parent,controller),width = 500,activebackground="#9d9898",background="#2ae1e3")
         loadSimulation_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2),anchor="center",window=loadSimulation)
 
         settings = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","settings.png")))
         self.settings = settings
-        settingsbutton = tk.Button(controller,relief="flat",image=settings,command=lambda: self.Settings(parent,controller),width = 500,activebackground="#9d9898")
+        settingsbutton = tk.Button(controller,relief="flat",image=settings,command=lambda: self.Settings(parent,controller),width = 500,activebackground="#9d9898",background="#e3d82a")
         settingsbutton_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2)+125,anchor="center",window=settingsbutton)
         
         quitimg = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","quit.png")))
         self.quitimg = quitimg
-        quit_ = tk.Button(controller,image=quitimg,relief="flat",command=lambda: self.Quit(controller),activebackground="#9d9898",width = 500)
+        quit_ = tk.Button(controller,image=quitimg,relief="flat",command=lambda: self.Quit(controller),activebackground="#9d9898",width = 500,background="#f66075")
         quit_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2)+250,anchor="center",window=quit_)
 
         foximg = tk.PhotoImage(file=(path.join(CREATURE_FOLDER,"fox_resized.png")))
