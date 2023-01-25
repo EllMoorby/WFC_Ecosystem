@@ -6,6 +6,8 @@ from constants import *
 import json
 import os
 import matplotlib.pyplot as plt
+from PIL import Image, ImageTk
+from itertools import count, cycle
 
 def int_callback(entry): #defines a callback function which determines if "entry" is an integer
     if entry == "":
@@ -23,7 +25,40 @@ def flt_callback(entry): #defines a callback function which determines if "entry
         float(entry)
     except:
         return False
-    else: return True
+    else: return 
+    
+class ImageLabel(tk.Label): #https://pythonprogramming.altervista.org/animate-gif-in-tkinter/
+    def load(self, im):
+        if isinstance(im, str):
+            im = Image.open(im)
+        frames = []
+ 
+        try:
+            for i in count(1):
+                frames.append(ImageTk.PhotoImage(im.copy()))
+                im.seek(i)
+        except EOFError:
+            pass
+        self.frames = cycle(frames)
+ 
+        try:
+            self.delay = im.info['duration']
+        except:
+            self.delay = 100
+ 
+        if len(frames) == 1:
+            self.config(image=next(self.frames))
+        else:
+            self.next_frame()
+ 
+    def unload(self):
+        self.config(image=None)
+        self.frames = None
+ 
+    def next_frame(self):
+        if self.frames:
+            self.config(image=next(self.frames))
+            self.after(self.delay, self.next_frame)
 
 
 class GUI(tk.Tk): #Main GUI class
@@ -80,7 +115,14 @@ class GUI(tk.Tk): #Main GUI class
             self.screenheight = self.settingsdata["SCREENHEIGHT"]
             self.cellsize = self.settingsdata["CELLSIZE"]
             
+    def update(self,ind,controller,frameCnt,frames,giflabel):
 
+        frame = frames[ind]
+        ind += 1
+        if ind == frameCnt:
+            ind = 0
+        giflabel.configure(image=frame)
+        controller.after(100, self.update, ind)
 
     def show_frame(self, cont): #show the frame
         frame = self.frames[cont]
@@ -125,6 +167,10 @@ class MainMenu(tk.Frame): #Main Menu
         self.canvas =tk.Canvas(self,height = self.winfo_screenheight(),width = self.winfo_screenwidth())
         self.canvas.pack(fill="both",expand=True)
         bg = self.canvas.create_image(0,0, anchor="nw", image=controller.bg,)
+
+        lbl = ImageLabel(self)
+        lbl_window = self.canvas.create_window(self.winfo_screenwidth()/5,275,anchor="n",window=lbl)
+        lbl.load(path.join(ASSETS_FOLDER,"gifs","videogif40.gif"))
 
         menuText = tk.Label(controller,text="Ecosystem Simulator+",font = controller.titlefont) 
         menuText_window = self.canvas.create_text(self.winfo_screenwidth()/2,20,anchor="n",text="Ecosystem Simulator+",font = controller.titlefont)
@@ -288,6 +334,7 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         cycleslabel.grid(row=10,column=0)
         cyclesentry = tk.Entry(self, textvariable=cyclescount, validate="key",validatecommand=(controller.validint,"%P"),relief="flat")
         cyclesentry.grid(row=10,column=1,padx=(5,25))
+        
 
         #Create a button which displays the world world viewer
         viewerbutton = tk.Button(self,text="Open World Viewer",background="#b8b8b8",command=lambda: self.OpenViewer(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
@@ -304,7 +351,10 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         #Create a button which opens a popup window to save the simulation
         savebutton = tk.Button(self,text="Save Parameters",background="#b8b8b8",command=lambda: self.SaveSimulation(parent,controller,preyCountEntry,predatorCountEntry,preyBaseEnergyEntry,preyMinDeathage,preyMaxDeathage,preyEnergyLoss,predatorBaseEnergy,predatorMinDeathage,predatorMaxDeathage,predatorEnergyLoss,berryentry,wanderdistentry,preyTBMEntry,predatorTBMEntry),font = controller.guifont,activebackground="#9d9898",width = 20,relief="groove")
         savebutton.grid(row=9,column=3,columnspan=2)
+        #animation(count,controller,gif_label,im,frames)
 
+
+    
 
     def Back(self,parent,controller): #Return to the previous frame
         controller.clear_widgets(self)
