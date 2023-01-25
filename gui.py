@@ -160,32 +160,51 @@ class GUI(tk.Tk): #Main GUI class
 class MainMenu(tk.Frame): #Main Menu
     def __init__(self, parent,controller):
         tk.Frame.__init__(self, parent)
-        buttonwidth = 17
+        buttonwidth = 15
         buttonrelief = "groove"
         self.canvas = None
         
         self.canvas =tk.Canvas(self,height = self.winfo_screenheight(),width = self.winfo_screenwidth())
         self.canvas.pack(fill="both",expand=True)
-        bg = self.canvas.create_image(0,0, anchor="nw", image=controller.bg,)
+        bg = self.canvas.create_image(0,0, anchor="nw", image=controller.bg)
 
-        lbl = ImageLabel(self)
-        lbl_window = self.canvas.create_window(self.winfo_screenwidth()/5,275,anchor="n",window=lbl)
-        lbl.load(path.join(ASSETS_FOLDER,"gifs","videogif40.gif"))
+        gif_label = ImageLabel(self)
+        gif_label_window = self.canvas.create_window(self.winfo_screenwidth()/5-50,350,anchor="center",window=gif_label)
+        gif_label.load(path.join(ASSETS_FOLDER,"gifs","example1.gif"))
+        gif_label2 = ImageLabel(self)
+        gif_label2_window = self.canvas.create_window((self.winfo_screenwidth()/5)-50,self.winfo_screenheight()-350,anchor="center",window=gif_label2)
+        gif_label2.load(path.join(ASSETS_FOLDER,"gifs","example2.gif"))
 
-        menuText = tk.Label(controller,text="Ecosystem Simulator+",font = controller.titlefont) 
-        menuText_window = self.canvas.create_text(self.winfo_screenwidth()/2,20,anchor="n",text="Ecosystem Simulator+",font = controller.titlefont)
+        menuText = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","title.png")))
+        self.menuText = menuText
+        menuText_window = self.canvas.create_image(self.winfo_screenwidth()/2,160,anchor="center",image=menuText)
         #Add main menu buttons to the screen
-        createSimulation = tk.Button(controller,text="Create Simulation",command=lambda: self.MovetoSimulationMenu(parent,controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
-        createSimulation_window = self.canvas.create_window(self.winfo_screenwidth()/2,250,anchor="n",window=createSimulation)
+        create = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","create.png")))
+        self.create = create
+        createSimulation = tk.Button(controller,image=create,relief="flat",command=lambda: self.MovetoSimulationMenu(parent,controller),activebackground="#9d9898",width = 500)
+        createSimulation_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2)-125,anchor="center",window=createSimulation)
 
-        loadSimulation = tk.Button(controller,text="Load Simulation",command=lambda: self.LoadtoSimulationMenu(parent,controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
-        loadSimulation_window = self.canvas.create_window(self.winfo_screenwidth()/2,350,anchor="n",window=loadSimulation)
+        load = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","load.png")))
+        self.load = load
+        loadSimulation = tk.Button(controller,relief="flat",image=load,command=lambda: self.LoadtoSimulationMenu(parent,controller),width = 500,activebackground="#9d9898")
+        loadSimulation_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2),anchor="center",window=loadSimulation)
 
-        settings = tk.Button(controller,text="Settings",command=lambda: self.Settings(parent,controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
-        settings_window = self.canvas.create_window(self.winfo_screenwidth()/2,450,anchor="n",window=settings)
+        settings = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","settings.png")))
+        self.settings = settings
+        settingsbutton = tk.Button(controller,relief="flat",image=settings,command=lambda: self.Settings(parent,controller),width = 500,activebackground="#9d9898")
+        settingsbutton_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2)+125,anchor="center",window=settingsbutton)
+        
+        quitimg = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","quit.png")))
+        self.quitimg = quitimg
+        quit_ = tk.Button(controller,image=quitimg,relief="flat",command=lambda: self.Quit(controller),activebackground="#9d9898",width = 500)
+        quit_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2)+250,anchor="center",window=quit_)
 
-        quit_ = tk.Button(controller,text="Quit",command=lambda: self.Quit(controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
-        quit_window = self.canvas.create_window(self.winfo_screenwidth()/2,550,anchor="n",window=quit_)
+        foximg = tk.PhotoImage(file=(path.join(CREATURE_FOLDER,"fox_resized.png")))
+        self.foximg = foximg
+        foximg_window = self.canvas.create_image(((self.winfo_screenwidth()/5)*4)+50,350,anchor="center",image=foximg)
+        rabbitimg = tk.PhotoImage(file=(path.join(CREATURE_FOLDER,"rabbit_resized.png")))
+        self.rabbitimg = rabbitimg
+        rabbitimg_window = self.canvas.create_image(((self.winfo_screenwidth()/5)*4)+50,self.winfo_screenheight()-350,anchor="center",image=rabbitimg)
 
 
 
