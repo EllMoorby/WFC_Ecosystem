@@ -35,7 +35,7 @@ class GUI(tk.Tk): #Main GUI class
         self.attributes("-fullscreen", True) #Set the window to fullscreen
         self.validint = self.register(int_callback) #Register a callback function
         self.validfloat = self.register(flt_callback) #Register a callback function
-        self.titlefont = tk.font.Font(family = "Bahnschrift", size =40,weight="bold") #Setup fonts for the text
+        self.titlefont = tk.font.Font(family = "Bahnschrift", size =60,weight="bold") #Setup fonts for the text
         self.textfont = tk.font.Font(family="Helvetica", size=30,weight="bold")
         self.guifont = tk.font.Font(family="Bahnschrift", size=18)
         self.errorfont = tk.font.Font(family="Bahnschrift", size=12,weight="bold")
@@ -46,6 +46,8 @@ class GUI(tk.Tk): #Main GUI class
         self.fullscreen = True #Start the window in fullscreen
         self.bind("<F11>", self.toggle_fullscreen) #Bind F11 to toggle_fullscreen
         self.bind("<Escape>", self.Quit) #Bind Escape to quit
+        self.bg = tk.PhotoImage(file = path.join(ASSETS_FOLDER,"bg","bg.png"),height = self.winfo_screenheight(),width = self.winfo_screenwidth())
+        
 
         self.frames = {} #######GROUP B - Dictionary ########
         frame = MainMenu(self.container, self)
@@ -86,8 +88,11 @@ class GUI(tk.Tk): #Main GUI class
         frame.tkraise()
 
     def clear_widgets(self,frame): #clear the screen
-        for widget in frame.winfo_children():
-            widget.destroy()
+        if frame.canvas is not None:
+            frame.canvas.delete("all")
+        else:
+            for widget in frame.winfo_children():
+                widget.destroy()
 
     def Quit(self,event=None): #Quit the program
         #Save the settings to the JSON file
@@ -115,21 +120,28 @@ class MainMenu(tk.Frame): #Main Menu
         tk.Frame.__init__(self, parent)
         buttonwidth = 17
         buttonrelief = "groove"
-        menuText = tk.Label(self,text="Ecosystem Simulator+",font = controller.titlefont) 
-        menuText.grid(row=0,column=0)
+        self.canvas = None
+        
+        self.canvas =tk.Canvas(self,height = self.winfo_screenheight(),width = self.winfo_screenwidth())
+        self.canvas.pack(fill="both",expand=True)
+        bg = self.canvas.create_image(0,0, anchor="nw", image=controller.bg,)
+
+        menuText = tk.Label(controller,text="Ecosystem Simulator+",font = controller.titlefont) 
+        menuText_window = self.canvas.create_text(self.winfo_screenwidth()/2,20,anchor="n",text="Ecosystem Simulator+",font = controller.titlefont)
         #Add main menu buttons to the screen
-        #Grid the menu buttons
-        createSimulation = tk.Button(self,text="Create Simulation",command=lambda: self.MovetoSimulationMenu(parent,controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
-        createSimulation.grid(row=1,column=0)
+        createSimulation = tk.Button(controller,text="Create Simulation",command=lambda: self.MovetoSimulationMenu(parent,controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
+        createSimulation_window = self.canvas.create_window(self.winfo_screenwidth()/2,250,anchor="n",window=createSimulation)
 
-        loadSimulation = tk.Button(self,text="Load Simulation",command=lambda: self.LoadtoSimulationMenu(parent,controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
-        loadSimulation.grid(row=2,column=0)
+        loadSimulation = tk.Button(controller,text="Load Simulation",command=lambda: self.LoadtoSimulationMenu(parent,controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
+        loadSimulation_window = self.canvas.create_window(self.winfo_screenwidth()/2,350,anchor="n",window=loadSimulation)
 
-        settings = tk.Button(self,text="Settings",command=lambda: self.Settings(parent,controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
-        settings.grid(row=3,column=0)
+        settings = tk.Button(controller,text="Settings",command=lambda: self.Settings(parent,controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
+        settings_window = self.canvas.create_window(self.winfo_screenwidth()/2,450,anchor="n",window=settings)
 
-        quit_ = tk.Button(self,text="Quit",command=lambda: self.Quit(controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
-        quit_.grid(row=4,column=0)
+        quit_ = tk.Button(controller,text="Quit",command=lambda: self.Quit(controller),relief=buttonrelief,font = controller.textfont,activebackground="#9d9898",width = buttonwidth)
+        quit_window = self.canvas.create_window(self.winfo_screenwidth()/2,550,anchor="n",window=quit_)
+
+
 
     def MovetoSimulationMenu(self,parent,controller): #Change the frame to the Simulation Menu
         controller.clear_widgets(self)
@@ -171,7 +183,7 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         self.rowconfigure(30, weight=4) #configure rows and columns so buttons can be placed there
         self.columnconfigure(7, weight=4)
         self.rowconfigure(12, weight=4)
-
+        self.canvas = None
         #set the default values
         preyCount = tk.IntVar(value=controller.preycount)
         predatorCount = tk.IntVar(value=controller.predatorcount)
@@ -312,7 +324,7 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
             close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
             close.grid(row=1,column=0)
             return
-        fig = plt.figure()
+        fig = plt.figure("Graph of the average gene strength for predator and prey")
         ax = fig.add_subplot(1,1,1)
         ax.spines["left"].set_position("zero")
         ax.spines["bottom"].set_position("zero")
@@ -340,7 +352,7 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
             close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
             close.grid(row=1,column=0)
             return
-        fig = plt.figure()
+        fig = plt.figure("Graph of the creature count for predator and prey")
         ax = fig.add_subplot(1,1,1)
         ax.spines["left"].set_position("zero")
         ax.spines["bottom"].set_position("zero")
@@ -458,6 +470,7 @@ class Settings(tk.Frame): #Create the settings class
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
         #configure rows and columns 
+        self.canvas = None
         self.rowconfigure(30, weight=4)
         self.columnconfigure(7, weight=4)
         #Assign variables to attributes in the JSON file
@@ -523,6 +536,7 @@ class Settings(tk.Frame): #Create the settings class
 class LoadSimulation(tk.Frame): #Create the LoadSimulation class
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
+        self.canvas = None
         #configure rows and columns so buttons can be placed
         self.columnconfigure(3,weight=3)
         self.rowconfigure(30, weight=4)
@@ -615,7 +629,7 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
             close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
             close.grid(row=1,column=0)
             return
-        fig = plt.figure()
+        fig = plt.figure("Graph of the average gene strength for predator and prey")
         ax = fig.add_subplot(1,1,1)
         ax.spines["left"].set_position("zero")
         ax.spines["bottom"].set_position("zero")
@@ -642,7 +656,7 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
             close = tk.Button(popup,text="Close",command=lambda: self.Close(popup),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 7)
             close.grid(row=1,column=0)
             return
-        fig = plt.figure()
+        fig = plt.figure("Graph of the creature count for predator and prey")
         ax = fig.add_subplot(1,1,1)
         ax.spines["left"].set_position("zero")
         ax.spines["bottom"].set_position("zero")
