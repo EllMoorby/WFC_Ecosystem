@@ -270,8 +270,9 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller),relief="flat",font = controller.guifont,activebackground="#9d9898",width = 5,background="#f27e10")
         backbutton.grid(row=30,column=7)
 
-        
-        menuText = tk.Label(self,text="Create Simulation",font = controller.titlefont)
+        menuimage= tk.PhotoImage(file=path.join(ASSETS_FOLDER,"objects","createscreen.png"))
+        self.menuimage = menuimage
+        menuText = tk.Label(self,image=menuimage)
         menuText.grid(row=0,column=0,columnspan=5)
         #Add all labels for entry boxes
         #Add Entry boxes for all values
@@ -552,7 +553,9 @@ class Settings(tk.Frame): #Create the settings class
         backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller,cellsizeEntry,screenWidthEntry,screenHeightEntry,fpsEntry),relief="flat",font = controller.guifont,activebackground="#9d9898",width = 5,background="#f27e10")
         backbutton.grid(row=30,column=7)
 
-        menuText = tk.Label(self,text="Settings",font = controller.titlefont)
+        menuimage= tk.PhotoImage(file=path.join(ASSETS_FOLDER,"objects","settings.png"))
+        self.menuimage = menuimage
+        menuText = tk.Label(self,image=menuimage)
         menuText.grid(row=0,column=0,columnspan=2)
         #Labels and buttons for each attribute of settings
         screenHeightLabel = tk.Label(self,text="Screen Height",font = controller.guifont)
@@ -615,7 +618,9 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
         backbutton = tk.Button(self,text="Back",command=lambda: self.Back(parent,controller),relief="flat",font = controller.guifont,activebackground="#9d9898",width = 5,background="#f27e10")
         backbutton.grid(row=30,column=7)
 
-        menuText = tk.Label(self,text="Load Simulation",font = controller.titlefont)
+        menuimage= tk.PhotoImage(file=path.join(ASSETS_FOLDER,"objects","loadscreen.png"))
+        self.menuimage = menuimage
+        menuText = tk.Label(self,image=menuimage)
         menuText.grid(row=0,column=0,columnspan=2)
 
         #create a list of all JSON files that are in the Saves directory
