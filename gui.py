@@ -625,8 +625,8 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
         optmenu = tkk.Combobox(self, values=filelist, state='readonly',textvariable="Choose a Save",font=controller.guifont)
         optmenu.grid(row=1,column=0)
         #Button which starts the simulation with the values selected
-        runbutton = tk.Button(self,text="Run",background="#51e41e",relief="flat",command=lambda: self.Run(parent,controller,optmenu.get(),int(cyclesentry.get())),font = controller.guifont,activebackground="#9d9898",width = 5)
-        runbutton.grid(row=1,column=1)
+        runbutton = tk.Button(self,text="Run",background="#51e41e",relief="flat",command=lambda: self.Run(parent,controller,optmenu.get(),int(cyclesentry.get())),font = controller.guifont,activebackground="#9d9898",width = 15)
+        runbutton.grid(row=6,column=0,columnspan=2)
         #Button to display a graph of the population
         graphbutton = tk.Button(self,text="Show Population Graph",background="#b8b8b8",command=lambda: self.ShowPopulationGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         graphbutton.grid(row=2,column=0)
@@ -639,12 +639,19 @@ class LoadSimulation(tk.Frame): #Create the LoadSimulation class
         genebutton = tk.Button(self,text="Show Gene Graph",background="#b8b8b8",command=lambda: self.ShowGeneGraphs(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
         genebutton.grid(row=2,column=1)
 
+        viewerbutton = tk.Button(self,text="Open World Viewer",background="#b8b8b8",command=lambda: self.OpenViewer(parent,controller),relief="groove",font = controller.guifont,activebackground="#9d9898",width = 20)
+        viewerbutton.grid(row=1,column=1)
+
     def Back(self,parent,controller): #Returns to the main menu
         controller.clear_widgets(self)
         frame = MainMenu(parent, controller)
         controller.frames[MainMenu] = frame
         frame.grid(row=0,column=0,sticky="ns")
         controller.show_frame(MainMenu)
+
+    def OpenViewer(self,parent,controller): #Open a viewer of the world
+        controller.eventManager.InitializeSettings(controller.screenwidth,controller.screenwidth,controller.cellsize,controller.fps)
+        controller.eventManager.TempMapViewer()
     
     def Run(self,parent,controller,option,cyclevalue):
         option = str(option)
