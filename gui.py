@@ -515,7 +515,7 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         controller.presetdata["MAXWANDERDIST"] = controller.maxwander
 
         #Create a new file from the new dictionary
-        if savename != "preset.json":
+        if savename != "preset.json": #Ensure that preset data is not overwritten
             with open(path.join("Saves",savename), "w") as save:
                 json.dump(controller.presetdata,save)
 

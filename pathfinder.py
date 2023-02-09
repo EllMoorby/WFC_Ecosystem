@@ -1,6 +1,5 @@
 from constants import *
 import math
-import json
 
 class Stack: #####GROUP A - Stack ########
     def __init__(self):

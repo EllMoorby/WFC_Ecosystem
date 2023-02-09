@@ -22,10 +22,10 @@ class EventManager:
         self.deadPredatorList = [] #A list of all predator objects which are deceased
         self.preyLookingForMate = [] #A list of all prey looking for a mate
         self.predatorLookingForMate = [] #A list of all predators looking for a mate
-        self.preyListLength_perframe = []
-        self.predatorListLength_perframe = []
-        self.gestationGeneSizePrey_preframe = []
-        self.gestationGeneSizePredator_preframe = []
+        self.preyListLength_perframe = [] #A list of number of prey per frame
+        self.predatorListLength_perframe = [] #A list of number of predators per frame
+        self.gestationGeneSizePrey_preframe = [] #A list of sum of gene sizes of prey
+        self.gestationGeneSizePredator_preframe = [] #A list of sum of gene sizes of predators
         self.currentcycle = 0
 
     def InitializeValues(self,preycount,predatorcount,baseenergyprey,mindeathageprey,maxdeathageprey,energylprey,baseenergypredator,mindeathagepredator,maxdeathagepredator,energylpredator,berryconst,maxwander,preyTBM,predatorTBM,cyclescount):
