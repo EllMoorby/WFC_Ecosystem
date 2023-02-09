@@ -11,20 +11,20 @@ from itertools import count, cycle
 
 def int_callback(entry): #defines a callback function which determines if "entry" is an integer
     if entry == "":
-        return True
+        return True #The entry is valid
     try:
         int(entry)
     except:
-        return False
+        return False #The entry is invalid
     else: return True
 
 def flt_callback(entry): #defines a callback function which determines if "entry" is an integer
     if entry == "":
-        return True
+        return True #The entry is valid
     try:
         float(entry)
     except:
-        return False
+        return False #The entry is invalid
     else: return 
     
 class ImageLabel(tk.Label): #https://pythonprogramming.altervista.org/animate-gif-in-tkinter/
@@ -91,7 +91,7 @@ class GUI(tk.Tk): #Main GUI class
         self.show_frame(MainMenu) #Show the main menu
         #preload all the attributes from a JSON file
         with open(path.join("Saves","preset.json"),"r") as f: #####GROUP A - JSON ##### #######GROUP B - Reading from files ##### #####GROUP A - Files organised for direct access#####
-            self.presetdata = json.load(f)
+            self.presetdata = json.load(f) #Load data into a dictionary
             self.preycount = self.presetdata["PREYCOUNT"]
             self.baseenergyprey = self.presetdata["BASE_ENERGY_PREY"]
             self.mindeathageprey = self.presetdata["MINDEATHAGE_PREY"]
@@ -109,20 +109,12 @@ class GUI(tk.Tk): #Main GUI class
 
         #preload all the current settings
         with open(path.join("Settings","settings.json"), "r") as d:
-            self.settingsdata = json.load(d)
+            self.settingsdata = json.load(d) #Load the settings data into the dictionary
             self.fps = self.settingsdata["FPS"]
             self.screenwidth = self.settingsdata["SCREENWIDTH"]
             self.screenheight = self.settingsdata["SCREENHEIGHT"]
             self.cellsize = self.settingsdata["CELLSIZE"]
             
-    def update(self,ind,controller,frameCnt,frames,giflabel):
-
-        frame = frames[ind]
-        ind += 1
-        if ind == frameCnt:
-            ind = 0
-        giflabel.configure(image=frame)
-        controller.after(100, self.update, ind)
 
     def show_frame(self, cont): #show the frame
         frame = self.frames[cont]
@@ -160,14 +152,13 @@ class GUI(tk.Tk): #Main GUI class
 class MainMenu(tk.Frame): #Main Menu
     def __init__(self, parent,controller):
         tk.Frame.__init__(self, parent)
-        buttonwidth = 15
-        buttonrelief = "groove"
         self.canvas = None
-        
+        #Setup a canvas for things for the GUI
         self.canvas =tk.Canvas(self,height = self.winfo_screenheight(),width = self.winfo_screenwidth())
         self.canvas.pack(fill="both",expand=True)
         bg = self.canvas.create_image(0,0, anchor="nw", image=controller.bg)
 
+        #Add two gifs to the main menu which animate
         gif_label = ImageLabel(self)
         gif_label_window = self.canvas.create_window(self.winfo_screenwidth()/5-50,350,anchor="center",window=gif_label)
         gif_label.load(path.join(ASSETS_FOLDER,"gifs","example1.gif"))
@@ -175,34 +166,36 @@ class MainMenu(tk.Frame): #Main Menu
         gif_label2_window = self.canvas.create_window((self.winfo_screenwidth()/5)-50,self.winfo_screenheight()-350,anchor="center",window=gif_label2)
         gif_label2.load(path.join(ASSETS_FOLDER,"gifs","example2.gif"))
 
+        #Add the title to the canvas
         menuText = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","title.png")))
         self.menuText = menuText
         menuText_window = self.canvas.create_image(self.winfo_screenwidth()/2,160,anchor="center",image=menuText)
-        #Add main menu buttons to the screen
-        create = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","create.png")))
+        #Add menu buttons to the screen
+        create = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","create.png"))) #Load in the image file
         self.create = create
         createSimulation = tk.Button(controller,image=create,relief="flat",command=lambda: self.MovetoSimulationMenu(parent,controller),background="#2ae35e",activebackground="#9d9898",width = 500)
-        createSimulation_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2)-125,anchor="center",window=createSimulation)
+        createSimulation_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2)-125,anchor="center",window=createSimulation) #Draw the image as a button to the screen
 
-        load = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","load.png")))
+        load = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","load.png"))) #Load in the image file
         self.load = load
         loadSimulation = tk.Button(controller,relief="flat",image=load,command=lambda: self.LoadtoSimulationMenu(parent,controller),width = 500,activebackground="#9d9898",background="#2ae1e3")
-        loadSimulation_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2),anchor="center",window=loadSimulation)
+        loadSimulation_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2),anchor="center",window=loadSimulation) #Draw the image as a button to the screen
 
-        settings = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","settings.png")))
+        settings = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","settings.png"))) #Load in the image file
         self.settings = settings
         settingsbutton = tk.Button(controller,relief="flat",image=settings,command=lambda: self.Settings(parent,controller),width = 500,activebackground="#9d9898",background="#e3d82a")
-        settingsbutton_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2)+125,anchor="center",window=settingsbutton)
+        settingsbutton_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2)+125,anchor="center",window=settingsbutton) #Draw the image as a button to the screen
         
-        quitimg = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","quit.png")))
+        quitimg = tk.PhotoImage(file=(path.join(ASSETS_FOLDER,"objects","quit.png"))) #Load in the image file
         self.quitimg = quitimg
         quit_ = tk.Button(controller,image=quitimg,relief="flat",command=lambda: self.Quit(controller),activebackground="#9d9898",width = 500,background="#f66075")
-        quit_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2)+250,anchor="center",window=quit_)
-
-        foximg = tk.PhotoImage(file=(path.join(CREATURE_FOLDER,"fox_resized.png")))
+        quit_window = self.canvas.create_window(self.winfo_screenwidth()/2,(self.winfo_screenheight()/2)+250,anchor="center",window=quit_) #Draw the image as a button to the screen
+ 
+        #Add creature images to the main menu
+        foximg = tk.PhotoImage(file=(path.join(CREATURE_FOLDER,"fox_resized.png"))) #Load in the image file
         self.foximg = foximg
         foximg_window = self.canvas.create_image(((self.winfo_screenwidth()/5)*4)+50,350,anchor="center",image=foximg)
-        rabbitimg = tk.PhotoImage(file=(path.join(CREATURE_FOLDER,"rabbit_resized.png")))
+        rabbitimg = tk.PhotoImage(file=(path.join(CREATURE_FOLDER,"rabbit_resized.png"))) #Load in the image file
         self.rabbitimg = rabbitimg
         rabbitimg_window = self.canvas.create_image(((self.winfo_screenwidth()/5)*4)+50,self.winfo_screenheight()-350,anchor="center",image=rabbitimg)
 
