@@ -218,6 +218,5 @@ class EventManager:
             self.Update() #Update all
             self.engine.update_dt() #Update deltatime
             self.currentcycle += 1
-            print(self.currentcycle,self.CYCLESCOUNT,self.CYCLES)
 
                 
