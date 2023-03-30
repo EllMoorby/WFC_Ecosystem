@@ -68,22 +68,22 @@ class EventManager:
         smallrenderer.RenderWorld(world)
         smallrenderer.DrawText("Press r to refresh")
         pygame.display.flip()
-        while running:
+        while running: #Create a loop for the window
             
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+                if event.type == pygame.QUIT: #Quit
                     self.world = world
                     self.tilelist = tilelist
                     running = False
                     pygame.quit()
-                elif event.type == pygame.KEYDOWN:
+                elif event.type == pygame.KEYDOWN:#Refresh the screen
                     if event.key == pygame.K_r:
                         #refresh the world map
                         world,tilelist = self.CreateWorld()
                         smallrenderer.RenderWorld(world)
                         smallrenderer.DrawText("Press r to refresh")
                         pygame.display.flip()
-                    elif event.key == pygame.K_ESCAPE:
+                    elif event.key == pygame.K_ESCAPE: #Quit
                         self.world = world
                         self.tilelist = tilelist
                         running = False
@@ -167,22 +167,22 @@ class EventManager:
             action = creature.Update(self.berryList,self.fertileList,self.spawnableList,self.preyLookingForMate)
             if action == -1: #if dead remove them from preylist
                 self.preyList.remove(creature)
-            elif action == 0:
+            elif action == 0: #Reproduce
                 for x in range(creature.numberOfOffspring):
-                    self.preyList.append(Prey(creature.position,self.world,self.renderer,self.BASEENERGYPREY,self.MINDEATHAGEPREY,self.MAXDEATHAGEPREY,self.ENERGYLPREY,self.TIMEBETWEENMATES_PREY,self.CELLSIZE,self.SCREENWIDTH,self.SCREENHEIGHT,creature.gestationGene))
+                    self.preyList.append(Prey(creature.position,self.world,self.renderer,self.BASEENERGYPREY,self.MINDEATHAGEPREY,self.MAXDEATHAGEPREY,self.ENERGYLPREY,self.TIMEBETWEENMATES_PREY,self.CELLSIZE,self.SCREENWIDTH,self.SCREENHEIGHT,creature.gestationGene)) #####GROUP A - Dynamic Generation of Objects ########
             gestationGeneSizePrey += creature.gestationGene
-        if len(self.preyList) != 0:
-            self.gestationGeneSizePrey_preframe.append((gestationGeneSizePrey/len(self.preyList)))
+        if len(self.preyList) != 0: #Find average of gene strength
+            self.gestationGeneSizePrey_preframe.append((gestationGeneSizePrey/len(self.preyList))) #######GROUP C - Simple Mathmatical Calculations: Average ########
         for creature in self.predatorList:
             action = creature.Update(self.preyList,self.spawnableList,self.predatorLookingForMate,self.predatorList)
             if action == -1: #if dead remove them from predatorlist
                 self.predatorList.remove(creature)
-            elif action == 0:
+            elif action == 0: #Reproduce
                 self.predatorList.append(Predator(creature.position,self.world,self.renderer,self.BASEENERGYPREDATOR,self.MINDEATHAGEPREDATOR,self.MAXDEATHAGEPREDATOR,self.ENERGYLPREDATOR,self.TIMEBETWEENMATES_PREDATOR,self.CELLSIZE,self.SCREENWIDTH,self.SCREENHEIGHT,creature.gestationGene))
             
             gestationGeneSizePredator += creature.gestationGene
     
-        if len(self.predatorList) != 0:
+        if len(self.predatorList) != 0: #Find average of gene strength
             self.gestationGeneSizePredator_preframe.append((gestationGeneSizePredator/len(self.predatorList)))
 
         self.preyListLength_perframe.append(len(self.preyList))

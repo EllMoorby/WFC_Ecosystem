@@ -43,7 +43,7 @@ class CreatureCell:
         self.pointer = None #Pointer
         self.traversable = self.tile.traversable #Boolean, if the tile is traversable
 
-class Creature: #Create a generic creature class #####GROUP A - OOP ########
+class Creature: #Create a generic creature class #####GROUP A - OOP ######## #####GROUP A - Complex user defined use of OOP model ########
     def __init__(self,position,world,renderer,cellsize,screenwidth,screenheight):
         self.CELLSIZE = cellsize
         self.SCREENWIDTH = screenwidth

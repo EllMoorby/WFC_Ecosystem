@@ -90,7 +90,7 @@ class GUI(tk.Tk): #Main GUI class
         frame.grid(row=0,column=0,sticky="ns")
         self.show_frame(MainMenu) #Show the main menu
         #preload all the attributes from a JSON file
-        with open(path.join("Saves","preset.json"),"r") as f: #####GROUP A - JSON ##### #######GROUP B - Reading from files ##### #####GROUP A - Files organised for direct access#####
+        with open(path.join("Saves","preset.json"),"r") as f: #####GROUP A - JSON ##### #######GROUP B - Reading from files ##### #####GROUP A - Files organised for direct access##### #######GROUP B - Text Files ########
             self.presetdata = json.load(f) #Load data into a dictionary
             self.preycount = self.presetdata["PREYCOUNT"]
             self.baseenergyprey = self.presetdata["BASE_ENERGY_PREY"]
@@ -269,7 +269,7 @@ class CreateSimulationMenu(tk.Frame): #Define the Create Simulation Menu Frame
         menuText.grid(row=0,column=0,columnspan=5)
         #Add all labels for entry boxes
         #Add Entry boxes for all values
-        #They are all gridded accoringly
+        #They are all placed on the grid accoringly
         preyCountLabel = tk.Label(self,text="Starting Number of Prey",font = controller.guifont)
         preyCountLabel.grid(row=1,column=0)
         preyCountEntry = tk.Entry(self, textvariable=preyCount, validate="key",validatecommand=(controller.validint,"%P"))
